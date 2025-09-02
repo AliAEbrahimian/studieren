@@ -4,13 +4,19 @@
 
 <h1>Home Page</h1>
 <div>
+    <a href="{% url 'create-room' %}"><button>Create Room</button></a>
+    
     <div>
         {% for room in rooms%}
-        <span>@{{room.host.username}}</span>
-        <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
-        <small>{{room.topic.name}}</small>
-        <hr>
+        <div>
+            <a href="{% url 'update-room' room.id %}"><button>Edit</button></a>
+            <a href="{% url 'delete-room' room.id %}"><button>Delete</button></a>
+            <span>@{{room.host.username}}</span>
+            <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
+            <small>{{room.topic.name}}</small>
+            <hr>
         {% endfor%}
+        </div>
     </div>
 </div>
 

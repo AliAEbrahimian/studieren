@@ -1,9 +1,13 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Studieren</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/stylesheet.css' %}">
+    
 </head>
 <body>
     {% include 'header.html' %}
@@ -11,5 +15,6 @@
     {% block content %}
     {% endblock content %}
 
+    {% include 'footer.html' %}
 </body>
 </html>

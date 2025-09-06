@@ -1,15 +1,15 @@
-.listunstyled {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
 .modal .modal-dialog.modal-dialog-centered, .modal .modal-dialog .modal-content .modal-footer, .modal .modal-dialog .modal-content .modal-header, .modal .modal-dialog .modal-content, .input-group .input-group-text, .input-group {
   display: flex;
 }
 
 .modal .modal-dialog.modal-dialog-centered, .modal .modal-dialog .modal-content .modal-footer, .modal .modal-dialog .modal-content .modal-header, .input-group .input-group-text {
   align-items: center;
+}
+
+.listunstyled {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 *, ::before, ::after {
@@ -312,12 +312,6 @@ progress {
   max-width: var(--container);
 }
 
-@media (min-width: 768px) and (max-width: 1140px) {
-  .container {
-    padding-right: calc(var(--gutter) * 1.5);
-    padding-left: calc(var(--gutter) * 1.5);
-  }
-}
 .row {
   display: flex;
   flex-wrap: wrap;

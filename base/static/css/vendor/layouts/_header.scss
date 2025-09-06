@@ -1,67 +1,17 @@
-.boxstyle{
-	
-}
-#siteHeader{
-    padding-top: 20px;
-    &:after{
-        content: '';
-        margin-top: 10px;
-        height: 5px;
-        display: block;
-        border-top: 1px dashed $border-color;
-        border-bottom: 1px dashed $border-color;
-    }
-
-    #logohead{
-        border-radius: $border-radius;
-        width: 450;
-        height: 100;
-    }
-
+#siteHead{
+    padding-bottom: 10px;
     .menu{
         padding: 0;
         margin: 0;
         display: flex;
         list-style: none;
-        
         > li {
             &:not(:last-child){
+                margin-right: 10px;
                 padding-right: 20px;
-                margin-right: 25px;
                 border-right: 1px $border-color solid;
             }
-
-            &:hover{
-                color: map-get( $colors , 'primary' );
-                transition: all 0.3s linear;
-            }
         }
     }
 
-    #searchform{
-        display: flex;
-        padding: 15px;
-        background: $border-color;
-        border-radius: $border-radius;
-        button,input{
-            background: transparent;
-            border: none;
-            padding: 0;
-            margin: 0;
-            box-shadow: none !important;
-        }
-        
-        &:focus-within{
-            transition: all 0.3 linear;
-            box-shadow: 0px 2px 3px 0px rgba($color: black, $alpha: 0.5);
-        }
-    }
-
-    // .buttonmenu{
-    //     border: none;
-    //     border-radius: $border-radius;
-    //     background: map-get($colors, 'primary');
-    //     color: white;
-        
-    // }
 }

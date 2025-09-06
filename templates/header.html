@@ -1,12 +1,12 @@
-<header id="siteHeader">
+<header id="siteHead">
 	<div class="container py-2">
 		<div class="row">
 			<div class="col-lg-5">
-				<img id="logohead" src="" alt="عکس لوگو سایت">
+				<a href="{% url 'home' %}"><img id="logohead" src="https://placehold.co/600x150" alt="عکس لوگو سایت"></a>
 			</div>
 			<nav id="navigation" class="col-lg-7">
 				<ul class="menu mb-4">
-					<li><a href="#">Home</a></li>
+					<li><a href="{% url 'home'%}">Home</a></li>
 					<li><a href="#">Ads</a></li>
 					<li><a href="#">Contacts</a></li>
 					<li><a href="#">About</a></li>

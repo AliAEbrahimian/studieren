@@ -3,19 +3,36 @@
 {% block content %}
 
 <h1>Home Page</h1>
-<div>
-    <a href="{% url 'create-room' %}"><button>Create Room</button></a>
+<div class="container">
+    <div class="row">
+        
+        <div id="browse-topics" class="col-lg-2">
+            <h3>Browse Topics</h3>
+            <a href="{% url 'home'%}">All</a>
+            {% for topic in topics %}
+                <div>
+                    <a href="{% url 'home'%}?q={{topic.name}}">{{topic.name}}</a>
+                </div>
+            {%endfor%}
+        </div>
+
     
-    <div>
-        {% for room in rooms%}
-        <div>
-            <a href="{% url 'update-room' room.id %}"><button>Edit</button></a>
-            <a href="{% url 'delete-room' room.id %}"><button>Delete</button></a>
-            <span>@{{room.host.username}}</span>
-            <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
-            <small>{{room.topic.name}}</small>
-            <hr>
-        {% endfor%}
+        <div id="" class="col-lg-10">
+            <div id="create-room">
+            <a href="{% url 'create-room' %}"><button>Create Room</button></a>
+            </div>
+            <div>
+                {% for room in rooms%}
+                    <div id="viewrooms" class="boxstyle">
+                        <span>@{{room.host.username}}</span>
+                        <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
+                        <small>{{room.topic.name}}</small>
+                        <a href="{% url 'update-room' room.id %}"><button>Edit</button></a>
+                        <a href="{% url 'delete-room' room.id %}"><button>Delete</button></a>
+                    </div>
+                {% endfor%}
+            </div>
+
         </div>
     </div>
 </div>

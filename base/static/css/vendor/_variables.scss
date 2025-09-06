@@ -7,7 +7,7 @@ $bg-card: white;
 $bg-body: #f8f9fa;
 $border-color: #ced4da;
 $border-radius: 0.375rem;
-$box-background: rgb(139, 152, 255);
+
 $colors:(
 	'primary': #007bff,
 	'secondary': #6c757d,
@@ -21,21 +21,6 @@ $breakpoints: ('sm': 576px, 'md': 768px, 'lg': 992px, 'xl': 1200px, 'xxl': 1400p
 
 @function RGB_Values($color) {
 	@return red($color) + ", " + green($color) + ", " + blue($color);
-}
-
-@function bootstrap_shades($base-color, $shade) {
-	$shades: (
-		100: mix(white, $base-color, 80%),
-		200: mix(white, $base-color, 60%),
-		300: mix(white, $base-color, 40%),
-		400: mix(white, $base-color, 20%),
-		600: mix(black, $base-color, 20%),
-		700: mix(black, $base-color, 40%),
-		800: mix(black, $base-color, 60%),
-		900: mix(black, $base-color, 80%),
-	);
-
-	@return map-get($shades, $shade);
 }
 
 @mixin fw($weight){
@@ -57,6 +42,7 @@ $breakpoints: ('sm': 576px, 'md': 768px, 'lg': 992px, 'xl': 1200px, 'xxl': 1400p
 	}
 }
 
-%listunstyled{margin:0;padding:0;list-style:none;}
 %dflex{display:flex;}
 %alignitemscenter{align-items:center;}
+%tranisiton03{transition:0.3;}
+%listunstyled{margin:0;padding:0;list-style:none;}

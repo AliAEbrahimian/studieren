@@ -51,11 +51,12 @@ body{
 	}
 }
 
-
 @import 'layouts/atoms';
 @import 'layouts/header';
 @import 'layouts/boxstyle';
 @import 'layouts/roomstyle';
+@import 'layouts/button';
+@import 'layouts/rooms';
 //Other Layouts
 @import 'layouts/footer';
 @import 'responsive';

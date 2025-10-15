@@ -14,4 +14,18 @@
         }
     }
 
+    #searchform {
+        padding: 15px;
+        background: $border-color;
+        border-radius: $border-radius;
+        input,button{
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            box-shadow: none !important;
+        }
 }
+
+}
+

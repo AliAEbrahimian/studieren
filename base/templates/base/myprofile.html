@@ -1,0 +1,19 @@
+{% extends 'main.html' %}
+{% block content %}
+
+<h1>Profile {{user.username}}</h1>
+<ul>
+    <li>First Name: {{user.first_name}}</li>
+    <li>Last Name: {{user.last_name}}</li>
+    <li>Birthday: {{user.birthday}}</li>
+    <li>Email Address: {{user.email}}</li>
+    <li>Phone Number: {{user.phone}}</li>
+    <li>Address: {{user.address}}</li>
+    <li>Postalcod: {{user.postcode}}</li>
+</ul>
+<button><a href="{% url 'logout' %}">Logout</a></button>
+<button><a href="{% url 'editprofile' %}">Edit</a></button>
+<button><a href="{% url 'resetpassword' %}">Reset Password</a></button>
+<button><a href="{% url 'home' %}">Back</a></button>
+
+{% endblock content%}

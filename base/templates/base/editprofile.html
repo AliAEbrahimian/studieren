@@ -1,0 +1,23 @@
+{% extends 'main.html'%}
+
+{% block content %}
+
+<h1>Edit Profile</h1>
+<form method="post">
+    {% csrf_token %}
+    <ul>
+        <li>Username: {{user.username}}</li>
+        <li>First Name: {{ form.first_name }}</li>
+        <li>Last Name: {{ form.last_name }}</li>
+        <li>Birthday: {{ form.birthday }}</li>
+        <li>Email address: {{ user.email }}</li>
+        <li>Address: {{ form.address }}</li>
+        <li>Postcode: {{ form.postcode }}</li>
+        <li>Phone: {{ form.phone }}</li>
+    </ul>
+    <button type="submit">Save</button>
+    <button><a href="{% url 'myprofile' %}">Back</a></button>
+    
+</form>
+
+{% endblock content %}

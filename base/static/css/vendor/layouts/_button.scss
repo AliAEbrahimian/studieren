@@ -1,0 +1,6 @@
+.button{
+    border: none;
+    border-radius: $border-radius;
+    background: map-get($colors, 'primary');
+    color: white;
+}

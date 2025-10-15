@@ -3,10 +3,13 @@
 {% block content %}
 
 <h1>Home Page</h1>
+{% if request.user.is_authenticated %}
+    <h2>Hello {{ request.user }}</h2>
+{% endif %}
 <div class="container">
     <div class="row">
         
-        <div id="browse-topics" class="col-lg-2">
+        <aside id="browse-topics" class="col-lg-2 boxstyle">
             <h3>Browse Topics</h3>
             <a href="{% url 'home'%}">All</a>
             {% for topic in topics %}
@@ -14,12 +17,14 @@
                     <a href="{% url 'home'%}?q={{topic.name}}">{{topic.name}}</a>
                 </div>
             {%endfor%}
-        </div>
+        </aside>
 
     
         <div id="" class="col-lg-10">
-            <div id="create-room">
-            <a href="{% url 'create-room' %}"><button>Create Room</button></a>
+            <h5>{{room_count}} Rooms availabale</h5>
+
+            <div class="" id="createroom">
+            <a href="{% url 'create-room' %}"><button class="button">Create Room</button></a>
             </div>
             <div>
                 {% for room in rooms%}
@@ -27,8 +32,12 @@
                         <span>@{{room.host.username}}</span>
                         <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
                         <small>{{room.topic.name}}</small>
-                        <a href="{% url 'update-room' room.id %}"><button>Edit</button></a>
-                        <a href="{% url 'delete-room' room.id %}"><button>Delete</button></a>
+
+                        {% if request.user == room.host %}
+                        <a href="{% url 'update-room' room.id %}"><button class="button">Edit</button></a>
+                        <a href="{% url 'delete-room' room.id %}"><button class="button">Delete</button></a>
+                        {% endif %}
+
                     </div>
                 {% endfor%}
             </div>

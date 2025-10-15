@@ -7,16 +7,21 @@
 			<nav id="navigation" class="col-lg-7">
 				<ul class="menu mb-4">
 					<li><a href="{% url 'home'%}">Home</a></li>
-					<li><a href="#">Ads</a></li>
+					{% if request.user.is_authenticated %}
+						<li><a href="{% url 'myprofile' %}">My Profile</a></li>
+					{% else %}
+						<li><a href="{% url 'login' %}">Login</a></li>
+					{% endif %}
+					
 					<li><a href="#">Contacts</a></li>
 					<li><a href="#">About</a></li>
 				</ul>
 
 				<!-- <button class="buttonmenu" type="button">پخش اهنگ اختصاصی شما</button> -->
 				
-				<form action="#" id="searchform" class="input-group">
-						<input type="search" class="form-control" placeholder="جست و جو کنید ...">
-						<button type="submit"><i><span class="material-icons" style="font-size:18px;">search</span></i></button>
+				<form method="GET" action="{% url 'home' %}" id="searchform" class="input-group">
+						<input type="text" name="q" class="form-control" placeholder="Serach Rooms ...">
+						<button type="submit">search</button>
 				</form>
 			</nav>
 		</div>

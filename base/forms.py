@@ -1,14 +1,9 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
 from django import forms
-from .models import Room
 from .models import UserAccount
 from django.core.validators import RegexValidator
-
-class RoomForm (ModelForm):
-    class Meta:
-        model = Room
-        fields = '__all__'
+        
 class RegisterForm(UserCreationForm):
     
     first_name = forms.CharField(

@@ -22,8 +22,7 @@ from academy.models import Student, Employee, Course, Class, Enrollment
 # Local apps - forms
 from .forms import RegisterForm, UserUpdateForm
 
-from .forms import RoomForm
-from .models import Room, Topic, UserAccount
+from .models import  UserAccount
 from django.contrib import messages
 
 
@@ -311,69 +310,3 @@ def teacher_schedule(request):
 def teacher_attendance(request):
     return render(request, 'base/teacher_attendance.html', {'user': request.user})
 
-
-
-def home(request):
-    q = request.GET.get('q') if request.GET.get('q') != None else ''
-    rooms = Room.objects.filter(Q(topic__name__icontains=q) | 
-                                Q(name__icontains=q)|
-                                Q(description__icontains=q))
-    
-    topics = Topic.objects.all()
-    room_count = rooms.count()
-    
-    context = {'rooms': rooms, 'topics': topics, 'room_count' : room_count}
-    return render(request, 'base/home.html' , context)
-
-
-
-def room(request, pk):
-    room = Room.objects.get(id=pk)
-    room_messages = room.message_set.all() # type: ignore
-    
-    context = {'room' : room, 'room_messages': room_messages}
-    return render(request,'base/room.html', context)
-
-@login_required(login_url='login')
-def createRoom(request):
-    form = RoomForm()
-    
-    if request.method == 'POST':
-        form = RoomForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-        
-    
-    
-    context = { 'form' : form }
-    return render(request, 'base/room_form.html', context)
-
-@login_required(login_url='login')
-def updateRoom(request, pk):
-    room = Room.objects.get(id=pk)
-    form = RoomForm(instance=room)
-    
-    if request.user != room.host:
-        return HttpResponse('Not worked')
-    
-    if request.method == 'POST':
-        form = RoomForm(request.POST, instance=room)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-        
-    context = {'form' : form}
-    return render(request, 'base/room_form.html', context)
-
-@login_required(login_url='login')
-def deleteRoom(request,pk):
-    room = Room.objects.get(id=pk)
-    
-    if request.user != room.host:
-        return HttpResponse('Not worked')
-    
-    if request.method == 'POST':
-        room.delete()
-        return redirect('home')
-    return render(request,'base/delete.html', { 'obj' : room })

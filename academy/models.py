@@ -137,6 +137,24 @@ class Class(models.Model):
         help_text="Class number or Address of the venue face-to-face classes"
     )
     
+    day_of_week = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Days of the week (0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 4=Friday, 5=Saturday, 6=Sunday). Example: [0, 2]"
+    )
+    
+    start_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name="Start time"
+    )
+    
+    end_time = models.TimeField(
+        null=True,
+        blank=True,
+        verbose_name="End time"
+    )
+    
     def _generate_class_code(self):
         if not self.start_date:
             raise ValueError("To generate the class code, the start date cannot be empty.")
@@ -172,6 +190,55 @@ class Class(models.Model):
         verbose_name = "Class"
         verbose_name_plural = "Classes"
         
+class Session(models.Model):
+    class_group = models.ForeignKey(
+        Class,
+        on_delete=models.CASCADE,
+        related_name='sessions'
+    )
+    
+    date = models.DateField()
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+    is_cancelled = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ['class_group', 'date', 'start_time']
+        ordering = ['date', 'start_time']
+        
+    def __str__ (self):
+        return f"{self.class_group.title} - {self.date}"
+    
+class Attendance(models.Model):
+    class Status(models.TextChoices):
+        PRESENT = 'P', 'Present'
+        ABSENT = 'A', 'Absent'
+        LATE = 'L', 'Late'
+        EXCUSED = 'E', 'Excused'
+        
+    session = models.ForeignKey(
+        Session,
+        on_delete=models.CASCADE,
+        related_name='attendances'
+    )
+    
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='attendances'
+    )
+    
+    status = models.CharField(
+        max_length=1,
+        choices=Status.choices,
+        default=Status.PRESENT
+    )
+    
+    class Meta:
+        unique_together = ['session', 'student']
+        
+    def __str__(self):
+        return f"{self.student} - {self.session.date} - {self.get_status_display()}"
         
 class Enrollment(models.Model):
     class PaymentStatus(models.TextChoices):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Student, Employee, Course, Class, Enrollment
+from .models import Student, Employee, Course, Class, Enrollment, Session, Attendance
 # Register your models here.
 
 @admin.register(Student)
@@ -32,3 +32,15 @@ class EnrollmentAdmin(admin.ModelAdmin):
     list_display = ['student', 'enrolled_class', 'payment_status', 'registration_date']
     list_filter = ['payment_status', 'enrolled_class']
     raw_id_fields = ['student', 'enrolled_class']
+    
+@admin.register(Session)
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ['class_group', 'date', 'start_time', 'end_time', 'is_cancelled']
+    list_filter = ['is_cancelled', 'date', 'class_group']
+    raw_id_fields = ['class_group']
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ['student', 'session', 'status']
+    list_filter = ['status', 'session__date']
+    raw_id_fields = ['student', 'session']

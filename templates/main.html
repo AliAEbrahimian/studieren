@@ -7,9 +7,10 @@
     <title>Studieren</title>
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/bootstrap.css' %}">
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/stylesheet.css' %}">
+    <script src="{% static 'js/vendor/jquery.min.js' %}"></script>
     
 </head>
-<body>
+<body class="main-body">
     {% include 'header.html' %}
 
     
@@ -25,5 +26,7 @@
     {% endblock content %}
 
     {% include 'footer.html' %}
+    <script id="themejs" src="{% static 'js/script.js' %}" data-ajax="" defer></script>
+    <script src="{% static 'js/vendor/bootstrap.js' %}"></script>
 </body>
 </html>

@@ -1,6 +1,29 @@
 .button{
+    display: inline-block;
+    padding: 6px 14px;
+    background-color: white;
     border: none;
     border-radius: $border-radius;
-    background: map-get($colors, 'primary');
-    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-align: center;
+
+
+    &:hover{
+        color: white;
+        background: map-get($colors, 'primary');
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+        transition: 0.25s ease;
+    }
+
+    &:active{
+        transform: scale(0.96);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    }
+
+
 }

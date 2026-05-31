@@ -51,12 +51,17 @@ body{
 	}
 }
 
+
 @import 'layouts/atoms';
 @import 'layouts/header';
-@import 'layouts/boxstyle';
-@import 'layouts/roomstyle';
 @import 'layouts/button';
-@import 'layouts/rooms';
+@import 'layouts/formpage';
+@import 'layouts/boxstyle';
+@import 'layouts/main_body';
+@import 'layouts/register_form_styles';
+@import 'layouts/dashboard_sidebar';
+@import 'layouts/dashboard_content';
+@import 'layouts/dashboard_edit_profile';
 //Other Layouts
 @import 'layouts/footer';
 @import 'responsive';

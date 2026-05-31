@@ -1,14 +1,15 @@
+{% load static %}
 <header id="siteHead">
-	<div class="container py-2">
+	<div class="container">
 		<div class="row">
-			<div class="col-lg-5">
-				<a href="{% url 'home' %}"><img id="logohead" src="https://placehold.co/600x150" alt="عکس لوگو سایت"></a>
+			<div class="col-lg-3">
+				<a href="{% url 'home' %}"><img id="logo" src="#" alt="عکس لوگو سایت"></a>
 			</div>
-			<nav id="navigation" class="col-lg-7">
+			<nav id="navigation" class="col-lg-9">
 				<ul class="menu mb-4">
 					<li><a href="{% url 'home'%}">Home</a></li>
 					{% if request.user.is_authenticated %}
-						<li><a href="{% url 'myprofile' %}">My Profile</a></li>
+						<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
 					{% else %}
 						<li><a href="{% url 'login' %}">Login</a></li>
 					{% endif %}
@@ -17,12 +18,11 @@
 					<li><a href="#">About</a></li>
 				</ul>
 
-				<!-- <button class="buttonmenu" type="button">پخش اهنگ اختصاصی شما</button> -->
-				
 				<form method="GET" action="{% url 'home' %}" id="searchform" class="input-group">
-						<input type="text" name="q" class="form-control" placeholder="Serach Rooms ...">
-						<button type="submit">search</button>
+					<input type="text" name="q" class="form-control" placeholder="Serach Rooms ...">
+					<button type="submit">Search</button>
 				</form>
+				
 			</nav>
 		</div>
 	</div>

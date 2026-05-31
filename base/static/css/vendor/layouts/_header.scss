@@ -1,31 +1,58 @@
 #siteHead{
-    padding-bottom: 10px;
-    .menu{
-        padding: 0;
-        margin: 0;
-        display: flex;
-        list-style: none;
-        > li {
-            &:not(:last-child){
-                margin-right: 10px;
-                padding-right: 20px;
-                border-right: 1px $border-color solid;
+    padding-bottom: 15px;
+    background-color: $bg-card;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+    #logo{
+        width: 100%;
+        height: 100px;
+    }
+
+    &:after{
+        content: '';
+        padding-top: 10px;
+        display: block;
+        border-bottom: 1px dashed $border-color;
+    }
+
+    #navigation{
+        .menu{
+            padding: 0;
+            display: flex;
+            list-style: none;
+
+            > li {
+                &:not(:last-child){
+                    margin-right: 10px;
+                    padding-right: 20px;
+                    border-right: 1px $border-color solid;
+                }
+
+                &:hover{
+                    color: map-get($colors, 'primary');
+                    transition: all 0.2s linear;
+                }
+            }
+        }
+
+        #searchform{
+            padding: 0;
+            border-radius: $border-radius;
+            background-color: map-get($colors, 'secondary');
+
+            input, button{
+                padding: 10px;
+                margin: 5px;
+                background-color: transparent;
+                border: none;
+            }
+
+            button{
+                color: $text-muted;
+            }
+
+            button:hover{
+                color: map-get($colors, 'primary');
             }
         }
     }
-
-    #searchform {
-        padding: 15px;
-        background: $border-color;
-        border-radius: $border-radius;
-        input,button{
-            background: transparent;
-            border: none;
-            padding: 0;
-            margin: 0;
-            box-shadow: none !important;
-        }
 }
-
-}
-

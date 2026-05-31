@@ -1,0 +1,26 @@
+{% extends 'base/dashboard_base.html' %}
+{% block title %} Studieren | Employee panel {% endblock title %}
+
+{% block sidebar_menu %}
+    <li><a href="">Dashboard</a></li>
+    <li><a href="">Student registration</a></li>
+    <li><a href="">Tuition tracking</a></li>
+    <li><a href="">Messages</a></li>
+{% endblock sidebar_menu %}
+
+{% block dashboard_content %}
+    <div>
+        <h2>Wellcom {{ user.get_full_name }} (Employee)</h2>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <h4>Daily tasks</h4>
+            <p>Coordinate with your manager to view the assigned tasks. This section will be completed soon.</p>
+        </div>
+        <div class="col-lg-4">
+            <h4>Last activity</h4>
+            <p>No activity has been regitered yet.</p>
+        </div>
+    </div>
+{% endblock dashboard_content %}

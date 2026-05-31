@@ -1,0 +1,47 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+
+
+
+<div id="formpage">
+    <div class="formstyles">
+        <h1>Account login</h1>
+        <form method="POST" action="">
+
+            <div class="input-group">
+                <div class="error-box">
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% csrf_token %}
+
+            <div class="input-group" style="padding-top: 40px;">
+                <label for="">Email</label>
+                <input type="email" name="email" placeholder="Enter email" required>
+            </div>
+
+            <div class="input-group" style="padding-bottom: 40px ;">
+                <label for="">Password</label>
+                <input type="password" name="password" placeholder="Enter Password" required>
+            </div>
+            <button class="button" type="submit">Login</button>
+        </form>
+
+        <div id="reset-password" style="padding-bottom: 50px;">
+            <a class="button" href="{% url 'resetpassword' %}">Reset Password</a>
+        </div>
+
+
+        <label for="">Do you not have an account?</label>
+        <a class="button" href="{% url 'register' %}">Sign up</a>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/stylesheet.css' %}">
+    <script src="{% static 'js/vendor/jquery.min.js' %}"></script>
+    <title>{% block title %} Studieren Institut | Dashboard {% endblock %}</title>
+</head>
+
+<body class="main-body">
+
+    <div id="dashboardbase">
+        <nav class="fixed-sidebar">
+            <div class="text-center brand">Dashboard</div>
+            <hr>
+            <ul class="nav flex-column submenu">
+                {% block sidebar_menu %}{% endblock sidebar_menu %}
+            </ul>
+        </nav>
+
+        <div class="main-wrapper">
+            <div class="main-content">
+                {% if messagees %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close button" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% block dashboard_content %}{% endblock dashboard_content  %}
+            </div>
+
+        </div>
+
+    </div>
+    <script id="themejs" src="{% static 'js/script.js' %}" data-ajax="" defer></script>
+    <script src="{% static 'js/vendor/bootstrap.js' %}"></script>
+</body>
+
+</html>

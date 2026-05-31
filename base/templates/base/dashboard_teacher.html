@@ -1,0 +1,326 @@
+{% extends 'base/dashboard_base.html' %}
+{% block title %} Studieren | Teacher panel {% endblock title %}
+
+{% block sidebar_menu %}
+<li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+<li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+        href="{% url 'dashboard' %}">Dashboard</a></li>
+<li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'editprofile' %}active{% endif %}"
+        href="{% url 'editprofile' %}">Edit Profile</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'teacher_classes' %}">My Classes</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'teacher_schedule' %}">Weekly Schedule</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'teacher_attendance' %}">Attendance</a></li>
+<li class="nav-item"><a class="nav-link" class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock sidebar_menu %}
+
+{% block dashboard_content%}
+
+<div id="TeacherProfileSection">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="avatar teacher">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="4" y="5" width="16" height="14" rx="1"/>
+                    <line x1="7" y1="9" x2="17" y2="9"/>
+                    <line x1="7" y1="12" x2="14" y2="12"/>
+                    <line x1="2" y1="3" x2="6" y2="7"/>
+                    <circle cx="2" cy="3" r="1.5"/>
+                </svg>
+            </div>
+            <div class="greeting">
+                <h2>Welcome, <span>{{ user.get_full_name }}</span></h2>
+                <div class="badge-group">
+                    <span class="role-badge teacher">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="4" y="5" width="16" height="14" rx="1"/>
+                            <line x1="7" y1="9" x2="17" y2="9"/>
+                            <line x1="7" y1="12" x2="14" y2="12"/>
+                            <line x1="2" y1="3" x2="6" y2="7"/>
+                            <circle cx="2" cy="3" r="1.5"/>
+                        </svg>
+                        <span>Teacher</span>
+                    </span>
+                    <span class="since-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <circle cx="12" cy="15" r="1"/>
+                        </svg>
+                        <span>Member since {{ user.date_joined|date:"F Y" }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <h3>Professional Information</h3>
+            <div class="info-grid">
+                <div class="info-field">
+                    <label>First Name</label>
+                    <div class="field-value">{{ user.first_name }}</div>
+                </div>
+                <div class="info-field">
+                    <label>Last Name</label>
+                    <div class="field-value">{{ user.last_name }}</div>
+                </div>
+                <div class="info-field">
+                    <label>Staff ID</label>
+                    <div class="field-value">{{ user.staff_id|default:"—" }}</div>
+                </div>
+                <div class="info-field">
+                    <label>Department</label>
+                    <div class="field-value">{{ employee.department|default:"—" }}</div>
+                </div>
+                <div class="info-field full-width">
+                    <label>Email Address</label>
+                    <div class="field-value">{{ user.email }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="StatisticalCardsTeachers">
+    <div class="stats-grid">
+        <!-- Card 1: Current Classes -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 6v6l4 2"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ current_classes_count }}</h3>
+                <p class="stat-label">Current Classes</p>
+                <div class="stat-footer">
+                    <span class="stat-total">Total: {{ total_classes_count }}</span>
+                    <span class="stat-completed">Completed: {{ finished_classes_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Completed Classes -->
+        <div class="stat-card">
+            <div class="stat-icon completed">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ finished_classes_count }}</h3>
+                <p class="stat-label">Completed Classes</p>
+                <div class="stat-footer">
+                    <span class="stat-total">Total: {{ total_classes_count }}</span>
+                    <span class="stat-percentage">
+                        {% widthratio finished_classes_count total_classes_count 100 %}% Complete
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Department -->
+        <div class="stat-card">
+            <div class="stat-icon department">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ employee.department|default:"—" }}</h3>
+                <p class="stat-label">Department</p>
+                <div class="stat-footer">
+                    <span class="stat-languages">English / Deutsch</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Students -->
+        <div class="stat-card">
+            <div class="stat-icon students">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ unique_students }}</h3>
+                <p class="stat-label">Unique Students</p>
+                <div class="stat-footer">
+                    <span class="stat-total">Total Enrollments: {{ total_enrollments }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="instructor-section">
+    <div class="section-header">
+        <h4>My Taught Classes</h4>
+        <span class="badge">{{ taught_classes|length }} Active Classes</span>
+    </div>
+
+    {% if taught_classes %}
+    <div class="classes-grid">
+        {% for cls in taught_classes %}
+        <div class="class-card">
+            <!-- Card Header with gradient accent -->
+            <div class="card-accent" data-type="{{ cls.class_type }}"></div>
+
+            <div class="card-header">
+                <div class="course-meta">
+                    <span class="language-badge">{{ cls.course.language }}</span>
+                    <span class="level-badge">{{ cls.course.level }}</span>
+                </div>
+                <div class="type-icon">
+                    {% if cls.class_type == 'ONLINE' %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                        <path d="M20 10l4 4-4 4"></path>
+                    </svg>
+                    {% else %}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M3 9l9-6 9 6v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body">
+                <h5 class="class-title">{{ cls.title }} [{{ cls.class_code }}]</h5>
+
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </span>
+                        <span class="info-label">Enrollment</span>
+                        <span class="info-value">
+                            <span class="enrolled-count">{{ cls.enrollments.count }}</span>
+                            <span class="capacity">/ {{ cls.capacity }}</span>
+                        </span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                                <circle cx="12" cy="15" r="1" />
+                                <circle cx="16" cy="15" r="1" />
+                                <circle cx="8" cy="15" r="1" />
+                            </svg>
+                        </span>
+                        <span class="info-label">Schedule</span>
+                        <span class="info-value">{{ cls.schedule }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                                <line x1="7" y1="7" x2="7.01" y2="7" />
+                            </svg>
+                        </span>
+                        <span class="info-label">Class Type</span>
+                        <span class="info-value type-value">{{ cls.get_class_type_display }}</span>
+                    </div>
+
+                    <div class="info-item">
+                        <span class="info-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 8 16 12 12 16" />
+                                <line x1="8" y1="12" x2="16" y2="12" />
+                            </svg>
+                        </span>
+                        <span class="info-label">Start Date</span>
+                        <span class="info-value">{{ cls.start_date|date:"Y/m/d" }}</span>
+                    </div>
+
+                    {% if cls.class_type == 'ONLINE' %}
+                    <div class="info-item">
+                        <span class="info-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            </svg>
+                        </span>
+                        <span class="info-label">Link</span>
+                        <span class="info-value"><a href="{{ cls.meeting_link }}">Start Class</a></span>
+                    </div>
+                    {% elif cls.class_type == 'IN_PERSON' %}
+                    <div class="info-item">
+                        <span class="info-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </span>
+                        <span class="info-label">Lokation</span>
+                        <span class="info-value">{{ cls.location }}</span>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                
+
+                <!-- Progress bar for capacity -->
+                <div class="capacity-progress">
+                    <div class="progress-bar-fill"
+                        style="width: {% widthratio cls.enrollments.count cls.capacity 100 %}%"></div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <a href="{% url 'class_students' cls.id %}" class="btn-view-students">
+                    <span>View Student List</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+        </div>
+        <h5>No Classes Assigned</h5>
+        <p>You don't have any classes to teach at the moment</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

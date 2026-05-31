@@ -1,0 +1,30 @@
+{% extends 'base/dashboard_base' %}
+{% block title %} Studieren | Manager panel {% endblock title %}
+
+{% block sidebar_menu %}
+    <li><a href="">Dashboard</a></li>
+    <li><a href="">User management</a></li>
+    <li><a href="">Class management</a></li>
+    <li><a href="">Course management</a></li>
+    <li><a href="">Reports</a></li>
+    <li><a href="">Settings</a></li>
+{% endblock sidebar_menu %}
+
+{%  block dashboard_content %}
+    <div>
+        <h2>Wellcom {{ user.get_full_name }} ({{ employee.get_position_display }})</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-3"></div>
+        <div class="col-lg-3"></div>
+        <div class="col-lg-3"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+    </div>
+{% endblock dashboard_content %}

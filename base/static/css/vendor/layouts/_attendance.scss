@@ -67,11 +67,12 @@
 }
 
 // ==================== TOGGLE BUTTON (دکمه‌های حضور و غیاب) ====================
+// ==================== TOGGLE BUTTONS ====================
 .toggle-btn {
     width: 36px;
     height: 36px;
     border: 2px solid #ccc;
-    border-radius: $border-radius;
+    border-radius: 4px;
     font-weight: bold;
     font-size: 14px;
     cursor: pointer;
@@ -88,10 +89,10 @@
     }
 }
 
-.status-P { background: #d4edda; border-color: #28a745; color: #155724; }  // Present
-.status-A { background: #f8d7da; border-color: #dc3545; color: #721c24; }  // Absent
-.status-L { background: #fff3cd; border-color: #ffc107; color: #856404; }  // Late
-.status-E { background: #cce5ff; border-color: #007bff; color: #004085; }  // Excused
+.status-P { background: #d4edda; border-color: #28a745; color: #155724; }  // Present - سبز
+.status-A { background: #f8d7da; border-color: #dc3545; color: #721c24; }  // Absent - قرمز
+.status-L { background: #fff3cd; border-color: #ffc107; color: #856404; }  // Late - زرد
+.status-E { background: #cce5ff; border-color: #007bff; color: #004085; }  // Excused - آبی
 
 .future-mark {
     color: #aaa;
@@ -109,7 +110,6 @@
     padding: 0;
     transition: background 0.2s;
 }
-
 // ==================== ATTENDANCE FOOTER ====================
 .attendance-footer {
     margin-top: 20px;

@@ -1,16 +1,17 @@
 {% extends 'base/dashboard_base.html' %}
 {% load custom_filters %}
 
-{% block title %}Attendance | {{ cls.title }} | Studieren{% endblock %}
+{% block title %}Attendance Sheet | {{ cls.title }} | Studieren{% endblock %}
 
 {% block sidebar_menu %}
 <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'class_students' cls.id %}">Student List</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
 {% endblock %}
 
 {% block dashboard_content %}
 <div class="attendance-section">
 
-    <!-- هدر -->
     <div class="attendance-header">
         <div class="header-info">
             <h2>Attendance Sheet</h2>
@@ -51,16 +52,23 @@
                         {% for session in sessions %}
                         {% with att=attendance_data|get_item:student.pk %}
                         {% with att_status=att|get_item:session.pk %}
-                        <td class="att-cell" data-student="{{ student.pk }}" data-session="{{ session.pk }}">
-                            <input type="checkbox" 
-                                   name="status_{{ student.pk }}_{{ session.pk }}" 
-                                   value="P" 
-                                   {% if att_status.status == 'P' %}checked{% endif %}
-                                   class="att-checkbox" 
-                                   id="att-{{ student.pk }}-{{ session.pk }}">
-                            <label for="att-{{ student.pk }}-{{ session.pk }}" class="att-label">
-                                {% if att_status.status == 'P' %}✓{% endif %}
-                            </label>
+                        <td class="att-cell {% if session.date > today %}future{% endif %}"
+                            data-student="{{ student.pk }}"
+                            data-session="{{ session.pk }}"
+                            data-status="{{ att_status.status }}">
+                            {% if session.date <= today %}
+                            <button type="button"
+                                    class="toggle-btn status-{{ att_status.status }}"
+                                    onclick="cycleStatus(this)"
+                                    title="Click to change: P=Present, A=Absent, L=Late, E=Excused">
+                                {{ att_status.status }}
+                            </button>
+                            {% else %}
+                            <span class="future-mark">—</span>
+                            {% endif %}
+                            <input type="hidden"
+                                   name="status_{{ student.pk }}_{{ session.pk }}"
+                                   value="{{ att_status.status }}">
                         </td>
                         {% endwith %}
                         {% endwith %}
@@ -87,33 +95,29 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // وقتی روی هر سلول کلیک می‌شود، checkbox را تغییر بده
-    const cells = document.querySelectorAll('.att-cell');
-    cells.forEach(cell => {
-        cell.addEventListener('click', function(e) {
-            // اگر روی خود checkbox کلیک شد، کاری نکن (پیش‌فرض خودش toggle می‌شود)
-            if (e.target.tagName === 'INPUT') return;
-            
-            const checkbox = this.querySelector('.att-checkbox');
-            checkbox.checked = !checkbox.checked;
-            
-            // بروزرسانی label (تیک ظاهر/مخفی شود)
-            const label = this.querySelector('.att-label');
-            if (checkbox.checked) {
-                label.textContent = '✓';
-                this.classList.add('present');
-                this.classList.remove('absent');
-            } else {
-                label.textContent = '';
-                this.classList.add('absent');
-                this.classList.remove('present');
-            }
-            
-            // ارسال خودکار با AJAX (اختیاری)
-            // می‌توانیم اینجا یک درخواست fetch بفرستیم
-        });
-    });
-});
+// ترتیب چرخش وضعیت‌ها
+const statusOrder = ['P', 'A', 'L', 'E'];
+
+function cycleStatus(btn) {
+    const cell = btn.parentElement;
+    // اگر جلسه در آینده است، اجازه تغییر نده
+    if (cell.classList.contains('future')) return;
+
+    const currentStatus = cell.dataset.status;
+    let currentIndex = statusOrder.indexOf(currentStatus);
+    let nextIndex = (currentIndex + 1) % statusOrder.length;
+    let newStatus = statusOrder[nextIndex];
+
+    // بروزرسانی data-status سلول
+    cell.dataset.status = newStatus;
+
+    // بروزرسانی ظاهر دکمه
+    btn.textContent = newStatus;
+    btn.className = 'toggle-btn status-' + newStatus;
+
+    // بروزرسانی input مخفی
+    const hiddenInput = cell.querySelector('input[type="hidden"]');
+    hiddenInput.value = newStatus;
+}
 </script>
 {% endblock %}

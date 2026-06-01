@@ -19,6 +19,10 @@ urlpatterns = [
     path('student/finance/', views.student_finance, name='student_finance'),
     
     path('class/<int:class_id>/students/', views.class_students, name='class_students'),
+    
+    path('class/<int:class_id>/sessions/generate/', views.generate_class_sessions, name='generate_sessions'),
+    path('class/<int:class_id>/attendance/', views.attendance_sheet, name='attendance_sheet'),
+    
     path('teacher/classes/', views.teacher_classes, name='teacher_classes'),
     path('teacher/schedule/', views.teacher_schedule, name='teacher_schedule'),
     path('teacher/attendance/', views.teacher_attendance, name='teacher_attendance'),

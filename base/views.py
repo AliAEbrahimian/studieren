@@ -17,7 +17,7 @@ from datetime import date
 
 # Local apps - models
 from .models import UserAccount
-from academy.models import Student, Employee, Course, Class, Enrollment
+from academy.models import Student, Employee, Course, Class, Enrollment, Session, Attendance
 
 # Local apps - forms
 from .forms import RegisterForm, UserUpdateForm
@@ -310,3 +310,61 @@ def teacher_schedule(request):
 def teacher_attendance(request):
     return render(request, 'base/teacher_attendance.html', {'user': request.user})
 
+@login_required(login_url='login')
+def generate_class_sessions(request, class_id):
+    cls = get_object_or_404(Class, id = class_id)
+    
+    if request.user.employee_profile != cls.teacher and not request.user.is_staff:
+        messages.error(request, 'You do not have permission to perform this action.')
+        return redirect('dashboard')
+    
+    count = cls.generate_sessions()
+    messages.success(request, f'{count} new sessions were created successfully.')
+    return redirect('attendance_sheet', class_id = class_id)
+
+@login_required(login_url='login')
+def attendance_sheet(request, class_id):
+    cls = get_object_or_404(Class, id=class_id)
+    
+    if request.user.employee_profile != cls.teacher and not request.user.is_staff:
+        messages.error(request, 'You do not have permission to perform this action.')
+        return redirect('dashboard')
+    
+    sessions = cls.sessions.filter(is_cancelled=False).order_by('date', 'start_time')
+    enrollments = Enrollment.objects.filter(
+        enrolled_class=cls,
+    ).select_related('student__user').order_by('student__user__last_name')
+    
+    attendance_data = {}
+    for enrollment in enrollments:
+        student = enrollment.student
+        attendance_data[student.pk] = {}
+        for session in sessions:
+            att, _ = Attendance.objects.get_or_create(
+                session=session,
+                student=student,
+                defaults={'status': Attendance.Status.PRESENT}
+            )
+            attendance_data[student.pk][session.pk] = att
+            
+    if request.method == 'POST':
+        for key, value in request.POST.items():
+            if key.startswith('status_'):
+                parts = key.split('_')
+                student_id = int(parts[1])
+                session_id = int(parts[2])
+                Attendance.objects.update_or_create(
+                    session_id=session_id,
+                    student_id=student_id,
+                    defaults={'status': value}
+                )
+                
+        messages.success(request, 'Attendance saved successfully.')
+        return redirect('attendance_sheet', class_id=class_id)
+    context = {
+        'cls': cls,
+        'sessions': sessions,
+        'enrollments': enrollments,
+        'attendance': attendance_data
+    }
+    return render(request, 'base/attendance_sheet.html', context)

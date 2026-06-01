@@ -226,7 +226,7 @@ def dashboard(request):
         context['employee'] = employee_profile
         
         if employee_profile.position == Employee.Position.TEACHER:
-            taught_classes = employee_profile.taught_classes.all().select_related('course')
+            taught_classes = employee_profile.taught_classes.all().select_related('course').order_by('-start_date')
             
             
             today = date.today()
@@ -365,6 +365,7 @@ def attendance_sheet(request, class_id):
         'cls': cls,
         'sessions': sessions,
         'enrollments': enrollments,
-        'attendance': attendance_data
+        'attendance': attendance_data,
+        'today': date.today()
     }
     return render(request, 'base/attendance_sheet.html', context)

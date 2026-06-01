@@ -231,7 +231,7 @@
 
 #TeacherProfileSection {
     margin-bottom: 32px;
-    
+
     .profile-card {
         background: #ffffff;
         border-radius: 24px;
@@ -239,19 +239,19 @@
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
         border: 1px solid #e5e7eb;
         transition: all 0.3s ease;
-        
+
         &:hover {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             border-color: #c7d2fe;
         }
     }
-    
+
     .profile-header {
         display: flex;
         align-items: center;
         gap: 20px;
         flex-wrap: wrap;
-        
+
         .avatar {
             width: 80px;
             height: 80px;
@@ -262,23 +262,23 @@
             justify-content: center;
             color: #4f46e5;
             box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
-            
+
             svg {
                 width: 44px;
                 height: 44px;
             }
         }
-        
+
         .greeting {
             flex: 1;
-            
+
             h2 {
                 font-size: 1.75rem;
                 font-weight: 600;
                 margin: 0 0 8px 0;
                 color: #1f2937;
                 letter-spacing: -0.025em;
-                
+
                 span {
                     background: linear-gradient(135deg, #4f46e5, #818cf8);
                     background-clip: text;
@@ -286,14 +286,14 @@
                     -webkit-text-fill-color: transparent;
                 }
             }
-            
+
             .badge-group {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 10px;
                 align-items: center;
             }
-            
+
             .role-badge {
                 display: inline-flex;
                 align-items: center;
@@ -304,14 +304,14 @@
                 font-size: 0.75rem;
                 font-weight: 500;
                 color: #4f46e5;
-                
+
                 svg {
                     width: 14px;
                     height: 14px;
                     stroke: currentColor;
                 }
             }
-            
+
             .since-badge {
                 display: inline-flex;
                 align-items: center;
@@ -322,7 +322,7 @@
                 font-size: 0.7rem;
                 font-weight: 500;
                 color: #6b7280;
-                
+
                 svg {
                     width: 12px;
                     height: 12px;
@@ -331,10 +331,10 @@
             }
         }
     }
-    
+
     .profile-info {
         margin-top: 8px;
-        
+
         h3 {
             font-size: 1rem;
             font-weight: 600;
@@ -345,7 +345,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            
+
             &::before {
                 content: "";
                 width: 4px;
@@ -355,17 +355,17 @@
                 display: inline-block;
             }
         }
-        
+
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px 28px;
-            
+
             .info-field {
                 display: flex;
                 flex-direction: column;
                 gap: 6px;
-                
+
                 label {
                     font-size: 0.7rem;
                     font-weight: 600;
@@ -373,7 +373,7 @@
                     letter-spacing: 0.5px;
                     color: #6b7280;
                 }
-                
+
                 .field-value {
                     font-size: 1rem;
                     font-weight: 500;
@@ -383,70 +383,70 @@
                     border-radius: 14px;
                     border: 1px solid #f3f4f6;
                     transition: all 0.2s;
-                    
+
                     &:hover {
                         background: #ffffff;
                         border-color: #e0e7ff;
                     }
                 }
-                
+
                 &.full-width {
                     grid-column: span 2;
                 }
             }
         }
     }
-    
+
     // Responsive
     @media (max-width: 768px) {
         .profile-card {
             padding: 20px 24px;
         }
-        
+
         .profile-header {
             .avatar {
                 width: 64px;
                 height: 64px;
-                
+
                 svg {
                     width: 34px;
                     height: 34px;
                 }
             }
-            
+
             .greeting h2 {
                 font-size: 1.35rem;
             }
         }
-        
+
         .profile-info .info-grid {
             grid-template-columns: 1fr;
             gap: 16px;
-            
+
             .info-field.full-width {
                 grid-column: span 1;
             }
         }
     }
-    
+
     @media (max-width: 480px) {
         .profile-card {
             padding: 16px 18px;
         }
-        
+
         .profile-header {
             flex-direction: column;
             text-align: center;
-            
+
             .greeting h2 {
                 font-size: 1.2rem;
             }
-            
+
             .badge-group {
                 justify-content: center;
             }
         }
-        
+
         .profile-info .info-grid .info-field .field-value {
             font-size: 0.9rem;
             padding: 8px 12px;
@@ -777,6 +777,7 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
         background: $bg-card;
         border: 1px solid $border-color;
         padding: 10px 16px;
+        margin-bottom: 10px;
         border-radius: $border-radius;
         font-size: 0.875rem;
         font-weight: 500;
@@ -978,7 +979,7 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
 
             .info-item .info-value {
                 color: map-get($colors, 'primary');
-                
+
                 .enrolled-count {
                     font-weight: 700;
                 }
@@ -1167,4 +1168,29 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
             align-items: flex-start;
         }
     }
+}
+
+.class-finished {
+    opacity: 0.7;
+    position: relative;
+    transition: opacity 0.3s ease;
+    // padding bottom را کمی بیشتر می‌کنیم تا نوار جا شود
+    padding-bottom: 30px; 
+    &:hover {
+        opacity: 0.85;
+    }
+}
+.ribbon-finished {
+    position: absolute;
+    // به جای top، از bottom استفاده کن
+    bottom: 3px;
+    // از لبهٔ راست فاصله بده
+    right: 10px;
+    background: #6c757d;
+    color: #ffffff;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 5;
 }

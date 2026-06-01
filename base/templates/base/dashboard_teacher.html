@@ -169,9 +169,12 @@
     {% if taught_classes %}
     <div class="classes-grid">
         {% for cls in taught_classes %}
-        <div class="class-card">
+        <div class="class-card {% if cls.end_date < today %}class-finished{% endif %}">
             <!-- Card Header with gradient accent -->
             <div class="card-accent" data-type="{{ cls.class_type }}"></div>
+            {% if cls.end_date < today %}
+            <div class="ribbon-finished">Completed</div>
+            {% endif %}
 
             <div class="card-header">
                 <div class="course-meta">
@@ -305,15 +308,29 @@
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
                 </a>
+
+                {% if cls.end_date >= today %}
                 <a href="{% url 'attendance_sheet' cls.id %}" class="btn-view-students">
-                    <span>View Student List</span>
+                    <span>Attendance</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
                 </a>
+                {% else %}
+                <a href="{% url 'class_students' cls.id %}" class="btn-view-students" style="opacity:0.5; pointer-events:none;">
+                    <span>Grade Entry (Coming Soon)</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+                {% endif %}
+
             </div>
+
         </div>
         {% endfor %}
     </div>

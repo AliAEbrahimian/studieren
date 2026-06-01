@@ -194,7 +194,9 @@ def dashboard(request):
     section = request.GET.get('section','overview')
     context = {
         'user': user,
-        'total_revenue': 0,}
+        'total_revenue': 0,
+        'today': date.today()
+        }
     
     try:
         student_profile = user.student_profile

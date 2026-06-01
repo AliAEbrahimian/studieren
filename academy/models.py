@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from datetime import timedelta
 # Create your models here.
 
 class Student(models.Model):
@@ -180,6 +181,29 @@ class Class(models.Model):
         if not self.class_code and self.start_date:
             self.class_code = self._generate_class_code()
         super().save(*args, **kwargs)
+        
+    def generate_sessions(self):
+        if not self.start_date or not self.end_date or not self.day_of_week:
+            return 0
+        
+        created_count = 0
+        current_date = self.start_date
+        
+        while current_date <= self.end_date:
+            if current_date.weekday() in self.day_of_week:
+                session_obj, created = Session.objects.get_or_create(
+                    class_group=self,
+                    date=current_date,
+                    start_time=self.start_time,
+                    defaults={
+                        'end_time': self.end_time,
+                        'is_cancelled': False
+                    }
+                )
+                if created:
+                    created_count += 1
+            current_date += timedelta(days=1)
+        return created_count
     
     def __str__(self):
         code = self.class_code or "?"

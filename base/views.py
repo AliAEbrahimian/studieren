@@ -4,6 +4,7 @@ from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,6 +15,7 @@ from django.conf import settings
 
 # Python standard library
 from datetime import date
+import openpyxl
 
 # Local apps - models
 from .models import UserAccount
@@ -23,7 +25,6 @@ from academy.models import Student, Employee, Course, Class, Enrollment, Session
 from .forms import RegisterForm, UserUpdateForm
 
 from .models import  UserAccount
-from django.contrib import messages
 
 
 # Create your views here.
@@ -371,3 +372,46 @@ def attendance_sheet(request, class_id):
         'today': date.today()
     }
     return render(request, 'base/attendance_sheet.html', context)
+
+import openpyxl
+from django.http import HttpResponse
+
+@login_required(login_url='login')
+def export_attendance_excel(request, class_id):
+    cls = get_object_or_404(Class, id=class_id)
+    
+    # بررسی دسترسی
+    if not request.user.is_staff and request.user.employee_profile != cls.teacher:
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+    
+    sessions = cls.sessions.filter(is_cancelled=False).order_by('date', 'start_time')
+    enrollments = Enrollment.objects.filter(
+        enrolled_class=cls
+    ).select_related('student__user').order_by('student__user__last_name')
+
+    # ساخت فایل Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Attendance"
+
+    # هدر
+    ws.cell(row=1, column=1, value="#")
+    ws.cell(row=1, column=2, value="Student")
+    for col, session in enumerate(sessions, start=3):
+        ws.cell(row=1, column=col, value=session.date.strftime("%Y-%m-%d"))
+
+    # داده‌ها
+    for row, enrollment in enumerate(enrollments, start=2):
+        ws.cell(row=row, column=1, value=row-1)
+        ws.cell(row=row, column=2, value=enrollment.student.user.get_full_name())
+        for col, session in enumerate(sessions, start=3):
+            att = Attendance.objects.filter(session=session, student=enrollment.student).first()
+            status = att.status if att else 'P'
+            ws.cell(row=row, column=col, value=status)
+
+    # تنظیم پاسخ HTTP
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=attendance_{cls.class_code}.xlsx'
+    wb.save(response)
+    return response

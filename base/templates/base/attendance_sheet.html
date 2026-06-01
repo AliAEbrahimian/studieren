@@ -19,7 +19,7 @@
         </div>
         <div class="header-actions no-print">
             <a href="{% url 'generate_sessions' cls.id %}" class="btn btn-secondary">Generate Sessions</a>
-            <button onclick="window.print()" class="btn btn-outline-secondary">Print</button>
+            <a href="{% url 'export_attendance_excel' cls.id %}" class="btn btn-outline-success no-print">Export Excel</a>
         </div>
     </div>
 
@@ -53,22 +53,14 @@
                         {% with att=attendance_data|get_item:student.pk %}
                         {% with att_status=att|get_item:session.pk %}
                         <td class="att-cell {% if session.date > today %}future{% endif %}"
-                            data-student="{{ student.pk }}"
-                            data-session="{{ session.pk }}"
+                            data-student="{{ student.pk }}" data-session="{{ session.pk }}"
                             data-status="{{ att_status.status }}">
-                            {% if session.date <= today %}
-                            <button type="button"
-                                    class="toggle-btn status-{{ att_status.status }}"
-                                    onclick="cycleStatus(this)"
-                                    title="Click to change: P=Present, A=Absent, L=Late, E=Excused">
-                                {{ att_status.status }}
-                            </button>
-                            {% else %}
-                            <span class="future-mark">—</span>
-                            {% endif %}
-                            <input type="hidden"
-                                   name="status_{{ student.pk }}_{{ session.pk }}"
-                                   value="{{ att_status.status }}">
+                            {% if session.date <= today %} <button type="button"
+                                class="toggle-btn status-{{ att_status.status }}" onclick="cycleStatus(this)" title="Click to change: P=Present, A=Absent, L=Late, E=Excused"> {{ att_status.status }}</button>
+                                {% else %}
+                                <span class="future-mark">—</span>
+                                {% endif %}
+                                <input type="hidden" name="status_{{ student.pk }}_{{ session.pk }}"value="{{ att_status.status }}">
                         </td>
                         {% endwith %}
                         {% endwith %}
@@ -95,29 +87,29 @@
 
 {% block extra_js %}
 <script>
-// ترتیب چرخش وضعیت‌ها
-const statusOrder = ['P', 'A', 'L', 'E'];
+    // ترتیب چرخش وضعیت‌ها
+    const statusOrder = ['P', 'A', 'L', 'E'];
 
-function cycleStatus(btn) {
-    const cell = btn.parentElement;
-    // اگر جلسه در آینده است، اجازه تغییر نده
-    if (cell.classList.contains('future')) return;
+    function cycleStatus(btn) {
+        const cell = btn.parentElement;
+        // اگر جلسه در آینده است، اجازه تغییر نده
+        if (cell.classList.contains('future')) return;
 
-    const currentStatus = cell.dataset.status;
-    let currentIndex = statusOrder.indexOf(currentStatus);
-    let nextIndex = (currentIndex + 1) % statusOrder.length;
-    let newStatus = statusOrder[nextIndex];
+        const currentStatus = cell.dataset.status;
+        let currentIndex = statusOrder.indexOf(currentStatus);
+        let nextIndex = (currentIndex + 1) % statusOrder.length;
+        let newStatus = statusOrder[nextIndex];
 
-    // بروزرسانی data-status سلول
-    cell.dataset.status = newStatus;
+        // بروزرسانی data-status سلول
+        cell.dataset.status = newStatus;
 
-    // بروزرسانی ظاهر دکمه
-    btn.textContent = newStatus;
-    btn.className = 'toggle-btn status-' + newStatus;
+        // بروزرسانی ظاهر دکمه
+        btn.textContent = newStatus;
+        btn.className = 'toggle-btn status-' + newStatus;
 
-    // بروزرسانی input مخفی
-    const hiddenInput = cell.querySelector('input[type="hidden"]');
-    hiddenInput.value = newStatus;
-}
+        // بروزرسانی input مخفی
+        const hiddenInput = cell.querySelector('input[type="hidden"]');
+        hiddenInput.value = newStatus;
+    }
 </script>
 {% endblock %}

@@ -66,7 +66,6 @@
     }
 }
 
-// ==================== TOGGLE BUTTON (دکمه‌های حضور و غیاب) ====================
 // ==================== TOGGLE BUTTONS ====================
 .toggle-btn {
     width: 36px;
@@ -147,5 +146,18 @@
         width: 28px;
         height: 28px;
         font-size: 11px;
+    }
+}
+
+
+.schedule-section {
+    .schedule-day-card {
+        min-height: 200px;
+        .class-entry {
+            padding: 8px;
+            background: $bg-card;
+            border-radius: $border-radius;
+            border: 1px solid $border-color;
+        }
     }
 }

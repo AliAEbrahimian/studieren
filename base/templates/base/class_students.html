@@ -1,34 +1,67 @@
 {% extends 'base/dashboard_base.html' %}
 {% block title %}Students {{ cls.title }} | Studieren{% endblock %}
+
 {% block sidebar_menu %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
 {% endblock %}
+
 {% block dashboard_content %}
-    <h2>Class Roster: {{ cls.title }}</h2>
-    <p><strong>Course:</strong> {{ cls.course.title }} ({{ cls.course.language }} - {{ cls.course.level }})</p>
-    
-    {% if enrollments %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Payment Status</th>
-                <th>Registration Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for e in enrollments %}
-            <tr>
-                <td>{{ e.student.user.get_full_name }}</td>
-                <td>{{ e.student.user.email }}</td>
-                <td>{{ e.get_payment_status_display }}</td>
-                <td>{{ e.registration_date|date:"Y/m/d" }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="alert alert-info">There are no students enrolled in this class.</div>
-    {% endif %}
+<div id="ClassRosterSection">
+    <div class="roster-container">
+        <div class="roster-header">
+            <div class="header-left">
+                <h2>Class Roster: {{ cls.title }}</h2>
+                <div class="course-info">
+                    <strong>Course:</strong> {{ cls.course.title }} 
+                    <span class="separator">|</span>
+                    <span class="language">{{ cls.course.language }}</span>
+                    <span class="level">{{ cls.course.level }}</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="student-count-badge">
+                    👥 {{ enrollments|length }} Student{{ enrollments|length|pluralize }}
+                </span>
+            </div>
+        </div>
+
+        {% if enrollments %}
+        <div class="table-responsive">
+            <table class="roster-table">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Payment Status</th>
+                        <th>Registration Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in enrollments %}
+                    <tr>
+                        <td class="student-name">
+                            <div class="avatar-placeholder"></div>
+                            {{ e.student.user.get_full_name }}
+                        </td>
+                        <td class="student-email">{{ e.student.user.email }}</td>
+                        <td class="payment-status-cell">
+                            <span class="payment-badge payment-{{ e.payment_status|lower }}">
+                                {{ e.get_payment_status_display }}
+                            </span>
+                        </td>
+                        <td class="reg-date">{{ e.registration_date|date:"Y/m/d" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h5>No Students Enrolled</h5>
+            <p>There are no students enrolled in this class yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

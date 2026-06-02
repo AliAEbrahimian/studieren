@@ -307,7 +307,37 @@ def class_students(request, class_id):
 
 @login_required(login_url='login')
 def teacher_schedule(request):
-    return render(request, 'base/teacher_schedule.html', {'user': request.user})
+    user = request.user
+    try:
+        employee = user.employee_profile
+    except Employee.DoesNotExist:
+        messages.error(request, 'You do not have a teacher profile.')
+        return redirect('dashboard')
+    
+    today = date.today()
+    # فقط کلاس‌های جاری (پایان‌نیافته)
+    classes = employee.taught_classes.filter(end_date__gte=today).order_by('start_date')
+    
+    # گروه‌بندی کلاس‌ها بر اساس روز هفته
+    from collections import defaultdict
+    schedule = defaultdict(list)
+    for cls in classes:
+        if cls.day_of_week:  # اگر day_of_week خالی نباشد
+            for day in cls.day_of_week:
+                schedule[day].append(cls)
+    
+    # مرتب‌سازی کلاس‌های هر روز بر اساس ساعت شروع
+    for day in schedule:
+        schedule[day].sort(key=lambda x: (x.start_time is None, x.start_time))
+    
+    context = {
+        'user': user,
+        'employee': employee,
+        'schedule': dict(schedule),
+        'days': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        'today': today,
+    }
+    return render(request, 'base/teacher_schedule.html', context)
 
 @login_required(login_url='login')
 def teacher_attendance(request):
@@ -372,9 +402,6 @@ def attendance_sheet(request, class_id):
         'today': date.today()
     }
     return render(request, 'base/attendance_sheet.html', context)
-
-import openpyxl
-from django.http import HttpResponse
 
 @login_required(login_url='login')
 def export_attendance_excel(request, class_id):

@@ -1,9 +1,54 @@
 {% extends 'base/dashboard_base.html' %}
+{% load custom_filters %}
+
 {% block title %}Weekly Schedule | Studieren{% endblock %}
+
 {% block sidebar_menu %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'teacher_schedule' %}">Weekly Schedule</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
 {% endblock %}
+
 {% block dashboard_content %}
-    <h2>Weekly Schedule</h2>
-    <div class="alert alert-info">soon</div>
+<div class="schedule-section">
+    <h2>My Weekly Schedule</h2>
+    <p class="text-muted">Only active classes (ending after today) are shown.</p>
+    
+    {% if schedule %}
+    <div class="row g-3">
+        {% for day_name in days %}
+        {% with day_index=forloop.counter0 %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="card schedule-day-card">
+                <div class="card-header fw-bold">{{ day_name }}</div>
+                <div class="card-body">
+                    {% if schedule|get_item:day_index %}
+                        {% for cls in schedule|get_item:day_index %}
+                        <div class="class-entry mb-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <strong>{{ cls.title }}</strong>
+                                <span class="badge {% if cls.class_type == 'ONLINE' %}bg-success{% else %}bg-primary{% endif %} small">{{ cls.get_class_type_display }}</span>
+                            </div>
+                            <small class="text-muted">{{ cls.course.language }} {{ cls.course.level }}</small>
+                            {% if cls.start_time and cls.end_time %}
+                            <div class="text-muted small">{{ cls.start_time|time:"H:i" }} - {{ cls.end_time|time:"H:i" }}</div>
+                            {% endif %}
+                            {% if cls.location %}
+                            <div class="text-muted small">📍 {{ cls.location }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted small">No classes</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">No active classes found. Your schedule will appear here when classes are assigned.</div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -368,7 +368,7 @@ def attendance_sheet(request, class_id):
         'cls': cls,
         'sessions': sessions,
         'enrollments': enrollments,
-        'attendance': attendance_data,
+        'attendance_data': attendance_data,
         'today': date.today()
     }
     return render(request, 'base/attendance_sheet.html', context)

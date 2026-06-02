@@ -2054,6 +2054,16 @@ body.ltr {
     font-size: 11px;
   }
 }
+.schedule-section .schedule-day-card {
+  min-height: 200px;
+}
+.schedule-section .schedule-day-card .class-entry {
+  padding: 8px;
+  background: white;
+  border-radius: 0.3em;
+  border: 1px solid #ced4da;
+}
+
 #ClassRosterSection .roster-container {
   background: #ffffff;
   border-radius: 24px;

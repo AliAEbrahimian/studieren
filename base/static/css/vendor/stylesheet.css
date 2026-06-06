@@ -2244,6 +2244,47 @@ body.ltr {
   }
 }
 
+.attendance-list-section .class-select-card {
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 0.3em;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.attendance-list-section .class-select-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-color: #003153;
+}
+.attendance-list-section .class-select-card .card-body {
+  padding: 20px;
+}
+.attendance-list-section .class-select-card .card-body .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+.attendance-list-section .class-select-card .card-body .card-text {
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.attendance-list-section .class-select-card .card-body .btn {
+  width: 100%;
+  background-color: #003153;
+  color: #E6B31E;
+  border: none;
+  padding: 10px 16px;
+  font-weight: 500;
+  border-radius: 0.3em;
+  transition: all 0.2s;
+}
+.attendance-list-section .class-select-card .card-body .btn:hover {
+  background-color: rgb(0, 24.913253012, 42.2);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 #siteFoot:before {
   content: "";
   display: block;

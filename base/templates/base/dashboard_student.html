@@ -2,7 +2,6 @@
 {%block title %} Studieren Institut | Student Dashboard{% endblock %}
 
 {% block sidebar_menu %}
-<li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
 <li class="nav-item {% if request.resolver_match.url_name == 'dashboard' %} active {% endif %}"><a class="nav-link"
         href="{% url 'dashboard' %}">Dashboard</a></li>
 <li class="nav-item"><a class="nav-link" href="{% url 'editprofile' %}">Edit Profile</a></li>

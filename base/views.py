@@ -341,7 +341,24 @@ def teacher_schedule(request):
 
 @login_required(login_url='login')
 def teacher_attendance(request):
-    return render(request, 'base/teacher_attendance.html', {'user': request.user})
+    user = request.user
+    try:
+        employee = user.employee_profile
+    except Employee.DoesNotExist:
+        messages.error(request, 'You do not have a teacher profile.')
+        return redirect('dashboard')
+    
+    today = date.today()
+    
+    current_classes = employee.taught_classes.filter(
+        end_date__gte=today
+    ).order_by('start_date')
+    
+    context = {
+        'user': user,
+        'current_classes': current_classes,
+    }
+    return render(request, 'base/teacher_attendance.html', context)
 
 @login_required(login_url='login')
 def generate_class_sessions(request, class_id):

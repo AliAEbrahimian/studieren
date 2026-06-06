@@ -1,9 +1,42 @@
 {% extends 'base/dashboard_base.html' %}
+
 {% block title %}Attendance | Studieren{% endblock %}
+
 {% block sidebar_menu %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'teacher_attendance' %}">Attendance</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
 {% endblock %}
+
 {% block dashboard_content %}
-    <h2>Attendance</h2>
-    <div class="alert alert-info">Soon</div>
+<div class="attendance-list-section">
+    <h2>Select a Class for Attendance</h2>
+    <p class="text-muted">Only active classes (not finished) are shown below.</p>
+    
+    {% if current_classes %}
+    <div class="row g-3 mt-3">
+        {% for cls in current_classes %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card class-select-card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ cls.title }}</h5>
+                    <p class="card-text small text-muted">
+                        {{ cls.course.language }} {{ cls.course.level }}<br>
+                        Schedule: {{ cls.schedule }}<br>
+                        Code: {{ cls.class_code }}
+                    </p>
+                    <a href="{% url 'attendance_sheet' cls.id %}" class="btn btn-primary btn-sm">
+                        Open Attendance Sheet
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">
+        No active classes found. Please check your schedule or contact the administrator.
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

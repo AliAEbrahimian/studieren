@@ -289,7 +289,24 @@ def student_finance(request):
 
 @login_required(login_url='login')
 def teacher_classes(request):
-    return render(request, 'base/teacher_classes.html', {'user': request.user})
+    user = request.user
+    try:
+        employee = user.employee_profile
+    except Employee.DoesNotExist:
+        messages.error(request, 'You do not have a teacher profile.')
+        return redirect('dashboard')
+    
+    all_classes = employee.taught_classes.all().select_related('course').order_by('-start_date')
+    
+    today = date.today()
+    
+    context = {
+        'user': user,
+        'employee': employee,
+        'all_classes': all_classes,
+        'today': today,
+    }
+    return render(request, 'base/teacher_classes.html', context)
 
 @login_required(login_url='login')
 def class_students(request, class_id):

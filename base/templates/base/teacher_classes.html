@@ -1,9 +1,74 @@
 {% extends 'base/dashboard_base.html' %}
+
 {% block title %}My Classes | Studieren{% endblock %}
+
 {% block sidebar_menu %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'teacher_classes' %}">My Classes</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_schedule' %}">Weekly Schedule</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_attendance' %}">Attendance</a></li>
 {% endblock %}
+
 {% block dashboard_content %}
+<div class="teacher-classes-section">
     <h2>My Classes</h2>
-    <div class="alert alert-info">soon</div>
+    <p class="text-muted">All classes (active and finished).</p>
+    
+    {% if all_classes %}
+    <div class="table-responsive mt-3">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Code</th>
+                    <th>Language</th>
+                    <th>Level</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cls in all_classes %}
+                <tr class="{% if cls.end_date < today %}table-secondary{% endif %}">
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <strong>{{ cls.title }}</strong>
+                        {% if cls.end_date < today %}
+                            <span class="badge bg-secondary ms-2">Finished</span>
+                        {% endif %}
+                    </td>
+                    <td><code>{{ cls.class_code }}</code></td>
+                    <td>{{ cls.course.language }}</td>
+                    <td>{{ cls.course.level }}</td>
+                    <td>
+                        <span class="text-muted">{{ cls.enrollments.count }} / {{ cls.capacity }}</span>
+                    </td>
+                    <td>
+                        {% if cls.end_date >= today %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Finished</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'class_students' cls.id %}" class="btn btn-sm btn-outline-primary">Students</a>
+                            {% if cls.end_date >= today %}
+                            <a href="{% url 'attendance_sheet' cls.id %}" class="btn btn-sm btn-outline-success">Attendance</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">
+        No classes found. Please contact the administrator.
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

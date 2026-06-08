@@ -8,13 +8,13 @@ $bg-body: #f8f9fa;
 $border-color: #ced4da;
 $border-radius: 0.3em;
 
-$colors:(
-	'primary': #003153,
-	'secondary': #E6B31E,
-	'success': #408844,
-	'danger': #d74141,
-	'warning': #f08124,
-	'info': #1892d5,
+$colors: (
+    'primary': #0d6efd,    // آبی روشن و شاداب (محبوب ترین در dashboards)
+    'secondary': #6c757d,  // خاکستری متوسط (برای المان‌های کم‌اهمیت)
+    'success': #198754,    // سبز استاندارد
+    'danger': #dc3545,     // قرمز استاندارد
+    'warning': #ffc107,    // زرد کهربایی (هشدار)
+    'info': #0dcaf0,       // آبی آسمانی (اطلاعات)
 );
 
 $breakpoints: ('sm': 576px, 'md': 768px, 'lg': 992px, 'xl': 1200px, 'xxl': 1400px);

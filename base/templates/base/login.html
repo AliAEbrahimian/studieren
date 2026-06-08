@@ -1,47 +1,70 @@
 {% extends 'main.html' %}
 
 {% block content %}
-
-
-
-
-<div id="formpage">
-    <div class="formstyles">
-        <h1>Account login</h1>
-        <form method="POST" action="">
-
-            <div class="input-group">
-                <div class="error-box">
-                    {% if messages %}
-                    {% for message in messages %}
-                    <div>
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                    {% endif %}
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <img src="" alt="Logo">
                 </div>
-            </div>
-            {% csrf_token %}
-
-            <div class="input-group" style="padding-top: 40px;">
-                <label for="">Email</label>
-                <input type="email" name="email" placeholder="Enter email" required>
+                <h1>Welcome back</h1>
+                <p>Sign in to your account</p>
             </div>
 
-            <div class="input-group" style="padding-bottom: 40px ;">
-                <label for="">Password</label>
-                <input type="password" name="password" placeholder="Enter Password" required>
+            {% if messages %}
+            <div class="alert-message error">
+                {% for message in messages %}
+                <span>{{ message }}</span>
+                {% endfor %}
             </div>
-            <button class="button" type="submit">Login</button>
-        </form>
+            {% endif %}
 
-        <div id="reset-password" style="padding-bottom: 50px;">
-            <a class="button" href="{% url 'resetpassword' %}">Reset Password</a>
+            <form method="POST" action="" class="auth-form">
+                {% csrf_token %}
+
+                <div class="form-field">
+                    <label for="email">Email address</label>
+                    <div class="input-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        <input type="email" id="email" name="email" placeholder="your@email.com" required autofocus>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="password">Password</label>
+                    <div class="input-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" aria-label="Show password">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember"> Remember me
+                    </label>
+                    <a href="{% url 'resetpassword' %}" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-submit">Sign in</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{% url 'register' %}">Create account</a></p>
+            </div>
         </div>
-
-
-        <label for="">Do you not have an account?</label>
-        <a class="button" href="{% url 'register' %}">Sign up</a>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}

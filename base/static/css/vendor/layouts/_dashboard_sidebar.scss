@@ -1,6 +1,34 @@
+.mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1100;
+    background: map-get($colors, 'primary');
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    svg {
+        width: 22px;
+        height: 22px;
+        stroke: white;
+    }
+
+    @media (max-width: 768px) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 #dashboardbase {
     display: flex;
     min-height: 100vh;
+    position: relative;
 }
 
 .fixed-sidebar {
@@ -8,39 +36,147 @@
     top: 0;
     left: 0;
     width: 260px;
-    max-width: 25vm;
     height: 100vh;
-    background: map-get($colors, 'primary');
+    background: $text-body; // رنگ تیره اصلی
     color: #ecf0f1;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
     overflow-y: auto;
     z-index: 1000;
-    transition: all 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // اسکرول بار سفارشی
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: map-get($colors, 'secondary');
+        border-radius: 10px;
+    }
 
     .brand {
-        padding: 20px 15px;
+        padding: 24px 20px;
         text-align: center;
-        font-size: 1.3rem;
-        font-weight: bold;
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
         color: map-get($colors, 'secondary');
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 16px;
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
+
+    .nav-item {
+        list-style: none;
+        margin: 0;
+        padding: 0;
     }
 
     .nav-link {
-        color: map-get($colors, 'secondary');
+        display: flex;
+        align-items: center;
+        gap: 12px;
         padding: 12px 20px;
-        margin: 3px 10px;
-        border-radius: $border-radius;
-        transition: all 0.3s ease;
+        margin: 4px 12px;
+        border-radius: 14px;
+        color: #ecf0f1;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        font-weight: 500;
 
-        i {
-            margin-left: 10px;
-            text-align: center;
+        svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            flex-shrink: 0;
         }
-        
-        &:hover,
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: map-get($colors, 'secondary');
+            transform: translateX(4px);
+        }
+
         &.active {
-            color: #C7512E;
-            transform: translateX(-5px);
+            background: map-get($colors, 'secondary');
+            color: $text-body;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+            svg {
+                stroke: $text-body;
+            }
+        }
+
+        &[data-bs-toggle="collapse"] {
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                right: 20px;
+                width: 8px;
+                height: 8px;
+                border-right: 2px solid currentColor;
+                border-bottom: 2px solid currentColor;
+                transform: rotate(45deg);
+                transition: transform 0.3s;
+            }
+
+            &[aria-expanded="true"]::after {
+                transform: rotate(225deg);
+            }
+        }
+    }
+
+    // زیرمنو
+    .submenu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        .nav-link {
+            padding: 10px 20px 10px 48px;
+            font-size: 0.85rem;
+            margin: 2px 12px;
+
+            &::before {
+                content: '';
+                width: 6px;
+                height: 6px;
+                background: map-get($colors, 'secondary');
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 10px;
+                opacity: 0.6;
+            }
+
+            &:hover::before {
+                opacity: 1;
+            }
+        }
+    }
+
+    // انیمیشن collapse
+    .collapse {
+        transition: all 0.25s ease;
+    }
+
+    @media (max-width: 768px) {
+        transform: translateX(-100%);
+        box-shadow: none;
+
+        &.mobile-open {
+            transform: translateX(0);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.2);
         }
     }
 }
@@ -49,24 +185,21 @@
     flex: 1;
     margin-left: 260px;
     transition: margin-left 0.3s ease;
-}
+    padding: 20px 30px;
 
-.submenu {
-    padding-right: 20px;
-    list-style: none;
-    .nav-link {
-        padding: 8px 25px;
-    }
-}
-
-@media (max-width: 768px) {
-    .fixed-sidebar {
-        width: 0;
-        padding: 0;
-        visibility: hidden;
-    }
-    
-    .main-wrapper {
+    @media (max-width: 768px) {
         margin-left: 0;
+        padding: 20px 16px;
+    }
+}
+
+// نمایش دکمه همبرگر در موبایل
+@media (max-width: 768px) {
+    .mobile-sidebar-toggle {
+        display: flex;
+    }
+
+    body.sidebar-open {
+        overflow: hidden;
     }
 }

@@ -1,196 +1,122 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<div id="formpage">
-    <div class="formstyles" style="width: 850px;">
-        <h1>User Registration</h1>
-        <div class="input-group">
-            <div class="error-box">
-                {% if form.errors %}
-                <div>
-                    <strong>Check errors:</strong>
-                    <ul>
-                        {% for field in form %}
-                        {% for error in field.errors %}
-                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                        {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
+<div class="auth-page register-page">
+    <div class="auth-container register-container">
+        <div class="auth-card register-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <img src="" alt="Logo">
                 </div>
-                {% endif %}
+                <h1>Create account</h1>
+                <p>Join us and start learning</p>
+            </div>
+
+            <form method="POST" action="" class="auth-form register-form">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>First name</label>
+                        <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" placeholder="John">
+                        {% if form.first_name.errors %}
+                        <div class="field-error">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label>Last name</label>
+                        <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" placeholder="Doe">
+                        {% if form.last_name.errors %}
+                        <div class="field-error">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>National code</label>
+                        <input type="text" name="national_code" value="{{ form.national_code.value|default:'' }}" placeholder="1234567890">
+                        {% if form.national_code.errors %}
+                        <div class="field-error">{{ form.national_code.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label>Birthday</label>
+                        <input type="date" name="birthday" value="{{ form.birthday.value|default:'' }}">
+                        {% if form.birthday.errors %}
+                        <div class="field-error">{{ form.birthday.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Postal code</label>
+                        <input type="text" name="postal_code" value="{{ form.postal_code.value|default:'' }}" placeholder="12345">
+                        {% if form.postal_code.errors %}
+                        <div class="field-error">{{ form.postal_code.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label>Phone number</label>
+                        <input type="tel" name="phone" value="{{ form.phone.value|default:'' }}" placeholder="+123456789">
+                        {% if form.phone.errors %}
+                        <div class="field-error">{{ form.phone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Email address</label>
+                    <input type="email" name="email" value="{{ form.email.value|default:'' }}" placeholder="hello@example.com">
+                    {% if form.email.errors %}
+                    <div class="field-error">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-field">
+                    <label>Address</label>
+                    <input type="text" name="address" value="{{ form.address.value|default:'' }}" placeholder="Street, city, country">
+                    {% if form.address.errors %}
+                    <div class="field-error">{{ form.address.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Password</label>
+                        <input type="password" name="password1" id="password1" placeholder="Create a strong password">
+                        <div class="password-hint">
+                            <ul>
+                                <li>Minimum 8 characters</li>
+                                <li>Uppercase & lowercase letters</li>
+                                <li>Number & symbol</li>
+                            </ul>
+                        </div>
+                        {% if form.password1.errors %}
+                        <div class="field-error">{{ form.password1.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-field">
+                        <label>Confirm password</label>
+                        <input type="password" name="password2" placeholder="Repeat your password">
+                        {% if form.password2.errors %}
+                        <div class="field-error">{{ form.password2.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Create account</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
             </div>
         </div>
-
-        <form method="POST" action="">
-            {% csrf_token %}
-
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <label for="">First Name</label>
-                            {{form.first_name}}
-
-                            {% if form.first_name.errors %}
-                            <div class="error-box">
-                                {% for error in form.first_name.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="input-group">
-                            <label for="">Last Name</label>
-                            {{form.last_name}}
-
-                            {% if form.last_name.errors %}
-                            <div class="error-box">
-                                {% for error in form.last_name.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                        </div>
-
-                        <div class="input-group">
-                            <label for="">National code</label>
-                            {{form.national_code}}
-
-                            {% if form.national_code.errors %}
-                            <div class="error-box">
-                                {% for error in form.national_code.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                        </div>
-
-                        <div class="input-group">
-                            <label for="">Birthday</label>
-                            {{form.birthday}}
-
-                            {% if form.birthday.errors %}
-                            <div class="error-box">
-                                {% for error in form.birthday.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                        </div>
-
-                    </div>
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <label for="">Postal code</label>
-                            {{form.postal_code}}
-
-                            {% if form.postal_code.errors %}
-                            <div class="error-box">
-                                {% for error in form.postal_code.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                        </div>
-
-                        <div class="input-group">
-                            <label for="">Phone Number</label>
-                            {{form.phone}}
-
-                            {% if form.phone.errors %}
-                            <div class="error-box">
-                                {% for error in form.phone.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                        </div>
-
-                        <div class="input-group">
-                            <label for="">Email Address</label>
-                            {{form.email}}
-
-                            {% if form.email.errors %}
-                            <div class="error-box">
-                                {% for error in form.email.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="input-group">
-                            <label for="">address</label>
-                            {{form.address}}
-
-                            {% if form.address.errors %}
-                            <div class="error-box">
-                                {% for error in form.address.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="input-group">
-                            <label for="">Password</label>
-
-                            {{form.password1}}
-
-                            <div class="check-password">
-                                <ul>
-                                    <li>Be Unique: Avoid personal information like names, birthdays, or addresses.</li>
-                                    <li>Be Long: Use at least 8 characters.</li>
-                                    <li>Be Uncommon: Steer clear of common or easily guessable passwords.</li>
-                                    <li>Be Complex: Don’t use only numbers; mix letters (uppercase and lowercase) and
-                                        symbols.</li>
-                                </ul>
-                            </div>
-
-                            {% if form.password1.errors %}
-                            <div class="error-box">
-                                {% for error in form.password1.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-
-                        </div>
-
-
-                        <div class="input-group">
-                            <label for="">Password Confirm</label>
-                            {{form.password2}}
-
-                            {% if form.password2.errors %}
-                            <div class="error-box">
-                                {% for error in form.password2.errors %}
-                                <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-
-
-            <button class="button" type="submit">Register</button>
-        </form>
-        <a class="button" href="{% url 'login' %}">Cancel</a>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}

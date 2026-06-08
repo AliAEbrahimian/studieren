@@ -1,29 +1,80 @@
 {% load static %}
-<header id="siteHead">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-3">
-				<a href="{% url 'home' %}"><img id="logo" src="#" alt="عکس لوگو سایت"></a>
-			</div>
-			<nav id="navigation" class="col-lg-9">
-				<ul class="menu mb-4">
-					<li><a href="{% url 'home'%}">Home</a></li>
-					{% if request.user.is_authenticated %}
-						<li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-					{% else %}
-						<li><a href="{% url 'login' %}">Login</a></li>
-					{% endif %}
-					
-					<li><a href="#">Contacts</a></li>
-					<li><a href="#">About</a></li>
-				</ul>
+<header id="siteHeader" class="site-header">
+    <div class="container">
+        <div class="header-inner">
+            <!-- لوگو -->
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <img src="{% static 'images/logo.svg' %}" alt="Studieren Logo">
+                </a>
+            </div>
 
-				<form method="GET" action="{% url 'home' %}" id="searchform" class="input-group">
-					<input type="text" name="q" class="form-control" placeholder="Serach Rooms ...">
-					<button type="submit">Search</button>
-				</form>
-				
-			</nav>
-		</div>
-	</div>
+            <!-- منوی اصلی (دسکتاپ) + جستجو -->
+            <div class="header-right">
+                <nav class="main-nav">
+                    <ul class="nav-menu">
+                        <li><a href="{% url 'home' %}" class="nav-link">Home</a></li>
+                        {% if request.user.is_authenticated %}
+                        <li><a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}" class="nav-link">Login</a></li>
+                        {% endif %}
+                        <li><a href="#" class="nav-link">Courses</a></li>
+                        <li><a href="#" class="nav-link">About</a></li>
+                        <li><a href="#" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+
+                <!-- دکمه جستجو (موبایل و دسکتاپ) -->
+                <button class="search-trigger" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </button>
+
+                <!-- منوی همبرگری (موبایل) -->
+                <button class="mobile-toggle" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- فرم جستجو (اسلاید داون) -->
+    <div class="search-overlay">
+        <div class="container">
+            <form method="GET" action="{% url 'home' %}" class="search-form">
+                <input type="text" name="q" placeholder="Search for courses, instructors...">
+                <button type="submit">Search</button>
+                <button class="search-close" type="button">✕</button>
+            </form>
+        </div>
+    </div>
 </header>
+
+{% block extra_js %}
+<script>
+    // toggle mobile menu
+    const mobileToggle = document.querySelector('.mobile-toggle');
+    const mainNav = document.querySelector('.main-nav');
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('active');
+        });
+    }
+
+    // search overlay
+    const searchTrigger = document.querySelector('.search-trigger');
+    const searchOverlay = document.querySelector('.search-overlay');
+    const searchClose = document.querySelector('.search-close');
+    if (searchTrigger) {
+        searchTrigger.addEventListener('click', () => {
+            searchOverlay.classList.toggle('active');
+        });
+        searchClose?.addEventListener('click', () => {
+            searchOverlay.classList.remove('active');
+        });
+    }
+</script>
+{% endblock %}

@@ -12,35 +12,51 @@
 </head>
 
 <body class="main-body">
+    <button class="mobile-sidebar-toggle" id="sidebarToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+    </button>
 
     <div id="dashboardbase">
-        <nav class="fixed-sidebar">
-            <div class="text-center brand">Dashboard</div>
-            <hr>
-            <ul class="nav flex-column submenu">
-                {% block sidebar_menu %}{% endblock sidebar_menu %}
-            </ul>
-        </nav>
-
-        <div class="main-wrapper">
-            <div class="main-content">
-                {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                    {{ message }}
-                    <button type="button" class="btn-close button" data-bs-dismiss="alert"></button>
-                </div>
-                {% endfor %}
-                {% endif %}
-                {% block dashboard_content %}{% endblock dashboard_content  %}
+        <aside class="fixed-sidebar" id="sidebar">
+            <div class="brand">
+                <a href="{% url 'dashboard' %}">Studieren</a>
             </div>
-
-        </div>
-
+            <ul class="nav flex-column">
+                {% block sidebar_menu %}{% endblock %}
+            </ul>
+        </aside>
+        <main class="main-wrapper">
+            {% block dashboard_content %}{% endblock %}
+        </main>
     </div>
+
+    <script>
+        // Toggle sidebar on mobile
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('mobile-open');
+                document.body.classList.toggle('sidebar-open');
+            });
+            // بستن با کلیک بیرون (اختیاری)
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open') &&
+                    !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('mobile-open');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        }
+    </script>
     <script id="themejs" src="{% static 'js/script.js' %}" data-ajax="" defer></script>
     <script src="{% static 'js/vendor/bootstrap.js' %}"></script>
     {% block extra_js %}{% endblock %}
+
 </body>
 
 </html>

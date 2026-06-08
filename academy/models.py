@@ -297,3 +297,30 @@ class Enrollment(models.Model):
         
     def __str__ (self):
         return f"{self.student.user.get_full_name()} in {self.enrolled_class.title}"
+    
+    
+class PlacementTestRequest(models.Model):
+    class TestType(models.TextChoices):
+        IN_PERSON = 'IN_PERSON', 'In-Person Test'
+        PREVIOUS_GRADE = 'PREV_GRADE', 'Previous Term Grade'
+        
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending Review'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+        
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='placement_requests')
+    test_type = models.CharField(max_length=20, choices=TestType.choices)
+    requested_level = models.CharField(max_length=20, blank=True, help_text="Self-assessed Level (optional)")
+    approved_level = models.CharField(max_length=20, blank=True, help_text="Level assigned by manager")
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    payment_status = models.CharField(max_length=20, choices=Enrollment.PaymentStatus.choices, default=Enrollment.PaymentStatus.PENDING)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"{self.student.user.get_full_name()} - {self.get_test_type_display()} ({self.get_status_display()})"

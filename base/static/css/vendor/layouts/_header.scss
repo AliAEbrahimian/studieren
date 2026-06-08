@@ -1,57 +1,179 @@
-#siteHead{
-    padding-bottom: 15px;
-    background-color: $bg-card;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
-    #logo{
-        width: 100%;
-        height: 100px;
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid $bg-card;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
     }
 
-    &:after{
-        content: '';
-        padding-top: 10px;
-        display: block;
-        border-bottom: 1px dashed $border-color;
+    .header-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
     }
 
-    #navigation{
-        .menu{
-            padding: 0;
+    .logo img {
+        height: 40px;
+        width: auto;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .main-nav {
+        .nav-menu {
             display: flex;
+            gap: 28px;
             list-style: none;
+            margin: 0;
+            padding: 0;
 
-            > li {
-                &:not(:last-child){
-                    margin-right: 10px;
-                    padding-right: 20px;
-                    border-right: 1px $border-color solid;
-                }
+            .nav-link {
+                text-decoration: none;
+                font-weight: 500;
+                color: $text-body;
+                transition: all 0.3s ease;
 
-                &:hover{
+                &:hover {
                     color: map-get($colors, 'primary');
-                    transition: all 0.2s linear;
                 }
             }
         }
+    }
 
-        #searchform{
-            padding: 0;
-            border-radius: $border-radius;
-            background-color: map-get($colors, 'secondary');
+    .search-trigger,
+    .mobile-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: $text-body;
+        transition: all 0.3s ease;
 
-            input, button{
-                padding: 10px;
-                margin: 5px;
-                background-color: transparent;
-                border: none;
+        &:hover {
+            color: map-get($colors, 'primary');
+        }
+    }
+
+    .mobile-toggle {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+
+        span {
+            width: 22px;
+            height: 2px;
+            background: $text-body;
+            transition: all 0.3s ease;
+        }
+    }
+
+    // Search overlay
+    .search-overlay {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid $bg-body;
+        padding: 20px 0;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+
+        &.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+            border: none;
+        }
+
+        button {
+            background: map-get($colors, 'primary');
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+
+            &:hover {
+                background: map-get($colors, 'primary');
+            }
+        }
+
+        .search-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+
+            input {
+                flex: 1;
+                padding: 12px 16px;
+                border: 1px solid $bg-card;
+                border-radius: 40px;
+                font-size: 1rem;
+
+                &:focus {
+                    outline: none;
+                    border-color: map-get($colors, 'primary');
+                }
             }
 
-            button{
+            .search-close {
+                background: transparent;
                 color: $text-muted;
+                padding: 12px;
+                font-size: 1.2rem;
+            }
+        }
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        .mobile-toggle {
+            display: flex;
+        }
+
+        .main-nav {
+            position: fixed;
+            top: 70px;
+            left: -100%;
+            width: 80%;
+            height: calc(100vh - 70px);
+            background: white;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            z-index: 999;
+            padding: 30px 20px;
+
+            &.active {
+                left: 0;
             }
 
-            button:hover{
-                color: map-get($colors, 'primary');
+            .nav-menu {
+                flex-direction: column;
+                gap: 20px;
+
+                .nav-link {
+                    font-size: 1.1rem;
+                }
             }
         }
     }

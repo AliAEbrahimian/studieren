@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,25 +9,47 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/bootstrap.css' %}">
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/vendor/stylesheet.css' %}">
     <script src="{% static 'js/vendor/jquery.min.js' %}"></script>
-    
+
 </head>
+
 <body class="main-body">
     {% include 'header.html' %}
 
-    
+
     {% if messages %}
-        <ul class="mmessages">
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
+    <ul class="mmessages">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
     {% endif %}
-    
+
     {% block content %}
     {% endblock content %}
 
     {% include 'footer.html' %}
+    <script>
+        // Toggle sidebar on mobile
+        const toggleBtn = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('mobile-open');
+                document.body.classList.toggle('sidebar-open');
+            });
+            // بستن با کلیک بیرون (اختیاری)
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open') &&
+                    !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('mobile-open');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        }
+    </script>
     <script id="themejs" src="{% static 'js/script.js' %}" data-ajax="" defer></script>
     <script src="{% static 'js/vendor/bootstrap.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
+
 </html>

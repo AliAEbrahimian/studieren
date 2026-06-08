@@ -229,7 +229,10 @@ def dashboard(request):
         context['employee'] = employee_profile
         
         if employee_profile.position == Employee.Position.TEACHER:
-            taught_classes = employee_profile.taught_classes.all().select_related('course').order_by('-start_date')
+            #taught_classes = employee_profile.taught_classes.all().select_related('course').order_by('-start_date')
+            
+            today = date.today()
+            taught_classes = employee_profile.taught_classes.filter(end_date__gte=today).select_related('course').order_by ('-start_date')
             
             
             today = date.today()

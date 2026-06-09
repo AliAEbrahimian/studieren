@@ -79,11 +79,28 @@ def registerPage(request):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             activation_link = request.build_absolute_uri(f'/activate/{uid}/{token}/')
             
+            
+            plain_message = (
+                f'Hi {user.username},\n\n'
+                f'Please click the link below to activate your account:\n'
+                f'{activation_link}\n\n'
+                f'If you did not sign up, ignore this message.'
+            )
+            
+            
+            html_message = f"""
+                <p>Hi {user.username},</p>
+                <p>Please click the link below to activate your account:</p>
+                <p><a href="{activation_link}">Activate My Account</a></p>
+                <p>If you did not sign up, ignore this message.</p>
+            """
+            
             send_mail(
                 subject='Activate your account',
-                message=f'Hi {user.username},\n\nPlease click the link below to activate your account:\n{activation_link}\n\nIf you did not sign up, ignore this message.',
+                message=plain_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
+                html_message=html_message,
                 fail_silently=False,
             )
             
@@ -103,6 +120,7 @@ def activateAccount(request, uidb64, token):
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
+        
         messages.success(request, 'Your account has been activated. You can now log in.')
         return redirect('login')
     else:
@@ -140,22 +158,27 @@ def resetPasswordRequest(request):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             rese_tlink = request.build_absolute_uri(f'/resetpassword/{uid}/{token}/')
             
-            # ✅ نمایش لینک سالم و نشکسته در کنسول
-            print(f"\n{'='*50}\n🔗 PASSWORD RESET LINK (Ctrl+Click):\n{rese_tlink}\n{'='*50}\n")
+            
+            subject = 'Reset Password'
+            message = f"Hello {user.username},\nWe received a request to reset your password. To create a new one, please click the link below:\n\n{rese_tlink}\n\nIf you didnt request this, you can safely ignore this message.\nThis link will expire in 1 hour.\n\nBest regards,\nThe Studieren Team"
+            html_message = f"""
+                <p>Hello {user.username},</p>
+                <p>We received a request to reset your password.</p>
+                <p>To create a new one, please click the link below:</p>
+                <p><a href="{rese_tlink}">{rese_tlink}</a></p>
+                <p>If you didn't request this, you can safely ignore this message.</p>
+                <p>This link will expire in 1 hour.</p>
+                <br>
+                <p>Best regards,</p>
+                <p>The Studieren Team</p>
+            """
             
             send_mail(
-                subject='Reset Password',
-                message=(
-                    f"Hello {user.username},\n"
-                    f"We received a request to reset your password.\n"
-                    f"To create a new one, please click the link below:\n\n"
-                    f"{rese_tlink}\n\n"
-                    f"If you didn't request this, you can safely ignore this message.\n"
-                    f"This link will expire in 1 hour.\n\n"
-                    f"Best regards,\nThe Studieren Team"
-                ),
+                subject=subject,
+                message=message,  
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
+                html_message=html_message,  
                 fail_silently=True,
             )
         except User.DoesNotExist:

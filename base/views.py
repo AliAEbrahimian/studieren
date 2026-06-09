@@ -19,8 +19,8 @@ import openpyxl
 
 # Local apps - models
 from .models import UserAccount
-from academy.models import Student, Employee, Course, Class, Enrollment, Session, Attendance
-
+from academy.models import Student, Employee, Course, Class, Enrollment
+from academy.models import Session, Attendance, PlacementTestRequest
 # Local apps - forms
 from .forms import RegisterForm, UserUpdateForm
 
@@ -508,3 +508,37 @@ def export_attendance_excel(request, class_id):
     response['Content-Disposition'] = f'attachment; filename=attendance_{cls.class_code}.xlsx'
     wb.save(response)
     return response
+
+@login_required(login_url='login')
+def request_placement_test(request):
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Only students can request a placement test.')
+        return redirect('dashboard')
+    
+    open_request = PlacementTestRequest.objects.filter(student=student, status='PENDING').first()
+    if open_request:
+        messages.warning(request, 'You already have a pending placement test request.')
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        test_type = request.POST.get('test_type')
+        requested_level = request.POST.get('requested_level','')
+        
+        PlacementTestRequest.objects.create(
+            student=student,
+            test_type=test_type,
+            requested_level=requested_level,
+        )
+        
+        messages.success(request, 'Your placement test request has been submitted.')
+        return redirect('dashboard')
+    
+    context = {
+        'user' : request.user,
+        'student' : student,
+        'test_types' : PlacementTestRequest.TestType.choices,
+    }
+    
+    return render(request, 'base/request_placement_test.html', context)

@@ -17,8 +17,8 @@ urlpatterns = [
     
     path('student/scores/', views.student_scores, name='student_scores'),
     path('student/finance/', views.student_finance, name='student_finance'),
-    
     path('class/<int:class_id>/students/', views.class_students, name='class_students'),
+    path('placement/request/', views.request_placement_test, name='request_placement_test'),
     
     path('class/<int:class_id>/sessions/generate/', views.generate_class_sessions, name='generate_sessions'),
     path('class/<int:class_id>/attendance/', views.attendance_sheet, name='attendance_sheet'),

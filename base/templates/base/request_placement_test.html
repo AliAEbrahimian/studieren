@@ -1,0 +1,41 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Request Placement Test | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="placement-request-section">
+    <h2>Request Placement Test</h2>
+    <p class="text-muted">Choose how you want to determine your level.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Test Type</label>
+            <select name="test_type" class="form-select" required>
+                <option value="">-- Select --</option>
+                {% for value, label in test_types %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Self-assessed Level (optional)</label>
+            <select name="requested_level" class="form-select">
+                <option value="">-- Choose --</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+    </form>
+</div>
+{% endblock %}

@@ -139,16 +139,24 @@ def resetPasswordRequest(request):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             rese_tlink = request.build_absolute_uri(f'/resetpassword/{uid}/{token}/')
+            
+            # ✅ نمایش لینک سالم و نشکسته در کنسول
+            print(f"\n{'='*50}\n🔗 PASSWORD RESET LINK (Ctrl+Click):\n{rese_tlink}\n{'='*50}\n")
+            
             send_mail(
-                subject = 'Reset Password',
-                message = f"Hello {user.username},\nWe received a request to reset your password."
-                + " To create a new one, please click the link below:"
-                + f"\n{rese_tlink}\nIf you didnt request this, you can safely ignore this message."
-                + "\nThis link will expire in 1 hour."
-                + "Best regards,The (Studieren) Team",
-                from_email = settings.DEFAULT_FROM_EMAIL,
-                recipient_list = [user.email],
-                fail_silently = True,
+                subject='Reset Password',
+                message=(
+                    f"Hello {user.username},\n"
+                    f"We received a request to reset your password.\n"
+                    f"To create a new one, please click the link below:\n\n"
+                    f"{rese_tlink}\n\n"
+                    f"If you didn't request this, you can safely ignore this message.\n"
+                    f"This link will expire in 1 hour.\n\n"
+                    f"Best regards,\nThe Studieren Team"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=True,
             )
         except User.DoesNotExist:
             pass
@@ -159,33 +167,31 @@ def resetPasswordRequest(request):
     return render(request,'base/resetpassword.html')
 
 def resetPasswordConfirm(request, uidb64, token):
+    # ✅ پاک کردن Session قدیمی برای جلوگیری از تداخل
+    request.session.flush()
+    
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-        
-    except (User.DoesNotExist, ValueError,TypeError):
+    except (User.DoesNotExist, ValueError, TypeError):
         user = None
         
     if user is not None and default_token_generator.check_token(user, token):
         form = SetPasswordForm(user, request.POST or None)
         
         if request.method == 'POST':
-            
             if form.is_valid():
                 form.save()
-                messages.success(request,'New password successfully set. Sign in now.')
-                request.session.flush()
+                messages.success(request, 'New password successfully set. Sign in now.')
                 return redirect('login')
             else:
                 messages.error(request, 'Password does not meet the required conditions.')
                 
-        context = {'form' : form}
+        context = {'form': form}
         return render(request, 'base/resetpassword_confirm.html', context)
-
     else:
         messages.error(request, 'The link is not valid or has expired.')
         return redirect('resetpassword')
-
 
 
 
@@ -335,18 +341,18 @@ def teacher_schedule(request):
         return redirect('dashboard')
     
     today = date.today()
-    # فقط کلاس‌های جاری (پایان‌نیافته)
+    
     classes = employee.taught_classes.filter(end_date__gte=today).order_by('start_date')
     
-    # گروه‌بندی کلاس‌ها بر اساس روز هفته
+    
     from collections import defaultdict
     schedule = defaultdict(list)
     for cls in classes:
-        if cls.day_of_week:  # اگر day_of_week خالی نباشد
+        if cls.day_of_week:  
             for day in cls.day_of_week:
                 schedule[day].append(cls)
     
-    # مرتب‌سازی کلاس‌های هر روز بر اساس ساعت شروع
+    
     for day in schedule:
         schedule[day].sort(key=lambda x: (x.start_time is None, x.start_time))
     
@@ -444,7 +450,7 @@ def attendance_sheet(request, class_id):
 def export_attendance_excel(request, class_id):
     cls = get_object_or_404(Class, id=class_id)
     
-    # بررسی دسترسی
+    
     if not request.user.is_staff and request.user.employee_profile != cls.teacher:
         messages.error(request, 'You do not have permission.')
         return redirect('dashboard')
@@ -454,18 +460,18 @@ def export_attendance_excel(request, class_id):
         enrolled_class=cls
     ).select_related('student__user').order_by('student__user__last_name')
 
-    # ساخت فایل Excel
+    
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Attendance"
 
-    # هدر
+    
     ws.cell(row=1, column=1, value="#")
     ws.cell(row=1, column=2, value="Student")
     for col, session in enumerate(sessions, start=3):
         ws.cell(row=1, column=col, value=session.date.strftime("%Y-%m-%d"))
 
-    # داده‌ها
+    
     for row, enrollment in enumerate(enrollments, start=2):
         ws.cell(row=row, column=1, value=row-1)
         ws.cell(row=row, column=2, value=enrollment.student.user.get_full_name())
@@ -474,7 +480,7 @@ def export_attendance_excel(request, class_id):
             status = att.status if att else 'P'
             ws.cell(row=row, column=col, value=status)
 
-    # تنظیم پاسخ HTTP
+    
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename=attendance_{cls.class_code}.xlsx'
     wb.save(response)

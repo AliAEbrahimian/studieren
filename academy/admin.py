@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Student, Employee, Course, Class, Enrollment, Session, Attendance
+from .models import Exam, ExamSection, StudentGrade, OralGrade, PlacementTestRequest
 # Register your models here.
 
 @admin.register(Student)
@@ -44,3 +45,23 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_display = ['student', 'session', 'status']
     list_filter = ['status', 'session__date']
     raw_id_fields = ['student', 'session']
+    
+@admin.register(Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ['class_group', 'total_score', 'is_finalized']
+
+@admin.register(ExamSection)
+class ExamSectionAdmin(admin.ModelAdmin):
+    list_display = ['exam', 'name', 'max_score']
+
+@admin.register(StudentGrade)
+class StudentGradeAdmin(admin.ModelAdmin):
+    list_display = ['student', 'exam_section', 'score']
+
+@admin.register(OralGrade)
+class OralGradeAdmin(admin.ModelAdmin):
+    list_display = ['student', 'exam', 'score']
+
+@admin.register(PlacementTestRequest)
+class PlacementTestRequestAdmin(admin.ModelAdmin):
+    list_display = ['student', 'test_type', 'status', 'approved_level']

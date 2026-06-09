@@ -29,6 +29,8 @@ class Employee(models.Model):
         EDUCATION_MANAGER = 'EDU_MGR', 'Education Manager'
         SENIOR_MANAGER = 'SENIOR_MGR', 'Senior Manager'
         STAFF = 'STAFF', 'Staff'
+        EXAM_CORRECTOR = 'EXAM_COR', 'Exam Corrector'
+        EXAM_MANAGER = 'EXAM_MGR', 'Exam Manager'
         
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -324,3 +326,74 @@ class PlacementTestRequest(models.Model):
         
     def __str__(self):
         return f"{self.student.user.get_full_name()} - {self.get_test_type_display()} ({self.get_status_display()})"
+    
+    
+class Exam (models.Model):
+    
+    class_group = models.OneToOneField(
+        Class,
+        on_delete=models.CASCADE,
+        related_name='exam'
+    )
+    
+    total_score = models.PositiveBigIntegerField(default=300)
+    is_finalized = models.BooleanField(default=False)
+    finalized_by = models.ForeignKey(
+        Employee,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='finalized_exam'
+    )
+    finalized_at = models.DateTimeField(null=True, blank=True)
+    Created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Exam: {self.class_group.title}"
+    
+class ExamSection(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='sections')
+    name = models.CharField(max_length=50)
+    max_score = models.PositiveBigIntegerField()
+    
+    class Meta:
+        unique_together = ['exam', 'name']
+        
+    def __str__(self):
+        return f"{self.name} ({self.max_score})"
+    
+
+class StudentGrade(models.Model):
+    
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='written_grades')
+    exam_section = models.ForeignKey(ExanSection, on_delete=models.CASCADE, related_name='grades')
+    score = models.DecimalField(max_digits=5, decimal_places=1)
+    entered_by = models.ForeignKey(
+        Employee,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='entered_grades'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['student', 'exam_section']
+        
+
+class OralGrade(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='oralgrades')
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='oralgrades')
+    score = models.DecimalField(max_digits=5, decimal_places=1)
+    entered_by = models.ForeignKey(
+        Employee,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='oral_grades_entered'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['student', 'exam']

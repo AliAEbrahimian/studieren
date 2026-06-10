@@ -75,6 +75,8 @@ def registerPage(request):
             user.is_active = False
             user.save()
             
+            Student.objects.get_or_create(user=user, defaults={'enrollment_date': date.today()})
+            
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             activation_link = request.build_absolute_uri(f'/activate/{uid}/{token}/')
@@ -261,7 +263,7 @@ def dashboard(request):
             #taught_classes = employee_profile.taught_classes.all().select_related('course').order_by('-start_date')
             
             today = date.today()
-            taught_classes = employee_profile.taught_classes.filter(end_date__gte=today).select_related('course').order_by ('-start_date')
+            taught_classes = employee_profile.taught_classes.filter(end_date__gte=today).select_related('course').order_by('-start_date')
             
             
             today = date.today()
@@ -542,3 +544,31 @@ def request_placement_test(request):
     }
     
     return render(request, 'base/request_placement_test.html', context)
+
+
+def staff_login(request):
+    # اگر کاربر قبلاً وارد شده، مستقیم برو به داشبورد
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').lower()
+        password = request.POST.get('password', '')
+        
+        user = authenticate(request, username=email, password=password)
+        
+        if user is not None and user.is_active:
+            # بررسی اینکه آیا این کاربر Employee است یا نه
+            try:
+                employee = user.employee_profile
+                # کاربر معتبر است و Employee هم هست
+                login(request, user)
+                return redirect('dashboard')
+            except Employee.DoesNotExist:
+                # کاربر وجود دارد اما Employee نیست (احتمالاً دانشجو)
+                messages.error(request, 'You do not have staff access. Please use the student login page.')
+        else:
+            messages.error(request, 'Invalid email or password.')
+    
+    context = {'page': 'staff_login'}
+    return render(request, 'base/staff_login.html', context)

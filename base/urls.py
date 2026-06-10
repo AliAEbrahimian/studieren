@@ -27,6 +27,8 @@ urlpatterns = [
     path('teacher/classes/', views.teacher_classes, name='teacher_classes'),
     path('teacher/schedule/', views.teacher_schedule, name='teacher_schedule'),
     path('teacher/attendance/', views.teacher_attendance, name='teacher_attendance'),
+    
+    path('staff/login/', views.staff_login, name='staff_login'),
 
     
     path('error-test/', lambda request: render(request, 'base/error.html', {'message': 'Test message'})),

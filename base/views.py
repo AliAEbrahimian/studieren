@@ -49,8 +49,17 @@ def loginPage(request):
         user = authenticate(request, username=email, password=password)
         
         if user is not None and user.is_active:
-                login(request, user)
-                return redirect('dashboard')
+            
+            try:
+                emy = user.employee_profile
+                messages.error(request, 'This login is for students only. Please use the staff login page.')
+                return redirect('login')
+            except Employee.DoesNotExist:
+                pass
+            
+            
+            login(request, user)
+            return redirect('dashboard')
         else:
                 messages.error(request, 'Invalid email or password.')
         
@@ -547,7 +556,7 @@ def request_placement_test(request):
 
 
 def staff_login(request):
-    # اگر کاربر قبلاً وارد شده، مستقیم برو به داشبورد
+    
     if request.user.is_authenticated:
         return redirect('dashboard')
     
@@ -558,14 +567,14 @@ def staff_login(request):
         user = authenticate(request, username=email, password=password)
         
         if user is not None and user.is_active:
-            # بررسی اینکه آیا این کاربر Employee است یا نه
+            
             try:
                 employee = user.employee_profile
-                # کاربر معتبر است و Employee هم هست
+                
                 login(request, user)
                 return redirect('dashboard')
             except Employee.DoesNotExist:
-                # کاربر وجود دارد اما Employee نیست (احتمالاً دانشجو)
+                
                 messages.error(request, 'You do not have staff access. Please use the student login page.')
         else:
             messages.error(request, 'Invalid email or password.')

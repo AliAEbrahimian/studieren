@@ -1,0 +1,175 @@
+{% extends 'base/exam_dashboard_base.html' %}
+{% load custom_filters %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'exam_dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock sidebar_menu %}
+
+{% block dashboard_content %}
+<div class="grades-section">
+    <div class="grades-container">
+        <!-- هدر با اطلاعات امتحان و وضعیت -->
+        <div class="grades-header">
+            <div class="header-left">
+                <h2>Enter Written Grades</h2>
+                <div class="exam-info">
+                    <span class="exam-title">{{ exam.class_group.title }}</span>
+                    <span class="exam-badge">{{ exam.class_group.course.language }} | {{ exam.class_group.course.level }}</span>
+                    <span class="exam-total">Total Score: {{ exam.total_score }}</span>
+                    {% if exam.status == 'OPEN' %}
+                        <span class="status-badge open">Open</span>
+                    {% else %}
+                        <span class="status-badge finalized">Finalized</span>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'exam_dashboard' %}" class="btn-back">← Back to Exams</a>
+        </div>
+
+        <!-- نمایش پیام‌های سیستمی -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- نوار پیشرفت کلی -->
+        <div class="progress-overview">
+            <div class="progress-label">Overall Completion</div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-fill" id="overallProgress" style="width: 0%;">0%</div>
+            </div>
+        </div>
+
+        <form method="POST" id="gradesForm">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="grades-table" id="gradesTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            {% for section in sections %}
+                                <th>{{ section.name }}<br><small>{{ section.max_score }} pts</small></th>
+                            {% endfor %}
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr data-student-id="{{ enrollment.student.pk }}" class="student-row">
+                            <td class="counter">{{ forloop.counter }}</td>
+                            <td class="student-name">{{ enrollment.student.user.get_full_name }}</td>
+                            {% for section in sections %}
+                                <td class="score-cell">
+                                    <input type="number"
+                                           step="0.5"
+                                           min="0"
+                                           max="{{ section.max_score }}"
+                                           name="score_{{ enrollment.student.pk }}_{{ section.pk }}"
+                                           value="{{ grades|get_item:enrollment.student.pk|get_item:section.pk|default:'' }}"
+                                           class="grade-input"
+                                           data-section-max="{{ section.max_score }}"
+                                           placeholder="–"
+                                           {% if exam.status == 'FINALIZED' %}disabled{% endif %}>
+                                </td>
+                            {% endfor %}
+                            
+                            <td class="oral-score-cell">
+                                <span class="oral-score-value">{{ oral_grades|get_item:enrollment.student.pk|default:'—' }}</span>
+                            </td>
+
+                            <td class="student-total">0</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                {% if exam.status == 'OPEN' %}
+                    <button type="submit" class="btn-submit">Save All Grades</button>
+                    {% if is_exam_manager %}
+                        <a href="{% url 'finalize_exam' exam.id %}" class="btn-finalize" 
+                           onclick="return confirm('Are you sure you want to finalize this exam? This cannot be undone.');">
+                            Finalize Exam (Lock All Grades)
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </form>
+
+        {% if exam.status == 'FINALIZED' %}
+            <div class="alert-warning-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <circle cx="12" cy="16" r="0.5" fill="currentColor" stroke="none"/>
+                </svg>
+                This exam has been finalized. Grades cannot be changed.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // محاسبه جمع نمرات هر دانشجو و درصد پیشرفت کلی
+    function updateTotalsAndProgress() {
+        const rows = document.querySelectorAll('#gradesTable tbody .student-row');
+        let totalFilled = 0;
+        let totalFields = 0;
+
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('.grade-input');
+            let studentTotal = 0;
+            let filledInRow = 0;
+
+            inputs.forEach(input => {
+                const val = input.value.trim();
+                if (val !== '') {
+                    const num = parseFloat(val);
+                    if (!isNaN(num)) {
+                        studentTotal += num;
+                        filledInRow++;
+                    }
+                }
+                totalFields++;
+            });
+
+            totalFilled += filledInRow;
+            const totalCell = row.querySelector('.student-total');
+            totalCell.textContent = studentTotal.toFixed(1);
+        });
+
+        const percent = totalFields ? (totalFilled / totalFields) * 100 : 0;
+        const progressBar = document.getElementById('overallProgress');
+        if (progressBar) {
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = Math.round(percent) + '%';
+        }
+    }
+
+    // اعتبارسنجی لحظه‌ای (محدودیت min/max)
+    function setupValidation() {
+        const inputs = document.querySelectorAll('.grade-input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                let val = parseFloat(this.value);
+                const max = parseFloat(this.getAttribute('max'));
+                const min = parseFloat(this.getAttribute('min'));
+                if (!isNaN(val)) {
+                    if (val > max) this.value = max;
+                    if (val < min) this.value = min;
+                }
+                updateTotalsAndProgress();
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setupValidation();
+        updateTotalsAndProgress();
+    });
+</script>
+{% endblock %}

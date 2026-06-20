@@ -13,6 +13,7 @@ urlpatterns = [
     
     #path('myprofile/', views.myProfile, name="myprofile"),
     path('dashboard/', views.dashboard, name="dashboard"),
+    path('exams/dashboard/', views.exam_dashboard, name='exam_dashboard'),
     path('myProfile/', lambda request: redirect('dashboard')),
     
     path('student/scores/', views.student_scores, name='student_scores'),
@@ -29,6 +30,15 @@ urlpatterns = [
     path('teacher/attendance/', views.teacher_attendance, name='teacher_attendance'),
     
     path('staff/login/', views.staff_login, name='staff_login'),
+    
+    path('exam/<int:exam_id>/written/', views.enter_written_grades, name='enter_written_grades'),
+    path('exam/<int:exam_id>/oral/', views.enter_oral_grades, name='enter_oral_grades'),
+    path('exam/<int:exam_id>/finalize/', views.finalize_exam, name='finalize_exam'),
+    path('exams/finalized/', views.finalized_exam_list, name='finalized_exam_list'),
+    path('exams/', views.exam_list, name='exam_list'),
+    path('class/<int:class_id>/create-exam/', views.create_exam, name='create_exam'),
+
+    
 
     
     path('error-test/', lambda request: render(request, 'base/error.html', {'message': 'Test message'})),

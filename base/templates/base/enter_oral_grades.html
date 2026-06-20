@@ -1,0 +1,51 @@
+{% extends 'base/exam_dashboard_base.html' %}
+
+{% block title %}Enter Oral Grades | Studieren{% endblock %}
+
+{% block dashboard_content %}
+<div class="oral-grades-section">
+    <h2>Enter Oral Grades (Sprechen)</h2>
+    <p class="text-muted">Exam: {{ exam.class_group.title }} ({{ exam.class_group.course.language }} {{ exam.class_group.course.level }})</p>
+
+    {% if exam.status == 'FINALIZED' %}
+        <div class="alert alert-warning">This exam has been finalized. Grades cannot be changed.</div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student</th>
+                        <th>Oral Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in enrollments %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ enrollment.student.user.get_full_name }}</td>
+                        <td>
+                            <input type="number"
+                                   step="0.5"
+                                   min="0"
+                                   max="100"
+                                   name="oral_score_{{ enrollment.student.pk }}"
+                                   value="{{ oral_grades|get_item:enrollment.student.pk|default:'' }}"
+                                   class="form-control"
+                                   placeholder="Score"
+                                   {% if exam.status == 'FINALIZED' %}disabled{% endif %}>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if exam.status != 'FINALIZED' %}
+            <button type="submit" class="btn btn-primary">Save Oral Grades</button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

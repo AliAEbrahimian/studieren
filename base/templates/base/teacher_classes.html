@@ -55,11 +55,17 @@
                     <td>
                         <div class="d-flex gap-2">
                             <a href="{% url 'class_students' cls.id %}" class="btn btn-sm btn-outline-primary">Students</a>
+                            
                             {% if cls.end_date >= today %}
                             <a href="{% url 'attendance_sheet' cls.id %}" class="btn btn-sm btn-outline-success">Attendance</a>
                             {% endif %}
+                            
+                            {% if cls.end_date < today and cls.exam %}
+                            <a href="{% url 'enter_oral_grades' cls.exam.id %}" class="btn btn-sm btn-outline-info">Oral Grades</a>
+                            {% endif %}
+                            
                         </div>
-                    </td>
+                    /td>
                 </tr>
                 {% endfor %}
             </tbody>

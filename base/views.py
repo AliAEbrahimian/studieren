@@ -671,12 +671,17 @@ def enter_written_grades(request, exam_id):
         if student_pk not in grades:
             grades[student_pk] = {}
         grades[student_pk][section_pk] = grade.score
+        
+    oral_grades = {}
+    for grade in OralGrade.objects.filter(exam=exam).select_related('student'):
+        oral_grades[grade.student.pk] = grade.score
     
     context = {
         'exam': exam,
         'sections': sections,
         'enrollments': enrollments,
         'grades': grades,
+        'oral_grades': oral_grades,
         'is_exam_manager': request.user.employee_profile.position == Employee.Position.EXAM_MANAGER if hasattr(request.user, 'employee_profile') else False,
     }
     return render(request, 'base/enter_written_grades.html', context)
@@ -843,3 +848,14 @@ def finalized_exam_list(request):
     }
     return render(request, 'base/finalized_exam_list.html', context)
 
+@login_required(login_url='login')
+def staff_enrollment(request):
+    return render(request, 'base/staff_enrollment.html', {'user': request.user})
+
+@login_required(login_url='login')
+def staff_student_profiles(request):
+    return render(request, 'base/staff_student_profiles.html', {'user': request.user})
+
+@login_required(login_url='login')
+def staff_finance(request):
+    return render(request, 'base/staff_finance.html', {'user': request.user})

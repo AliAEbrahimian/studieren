@@ -38,6 +38,9 @@ urlpatterns = [
     path('exams/', views.exam_list, name='exam_list'),
     path('class/<int:class_id>/create-exam/', views.create_exam, name='create_exam'),
 
+    path('staff/enrollment/', views.staff_enrollment, name='staff_enrollment'),
+    path('staff/students/', views.staff_student_profiles, name='staff_student_profiles'),
+    path('staff/finance/', views.staff_finance, name='staff_finance'),
     
 
     

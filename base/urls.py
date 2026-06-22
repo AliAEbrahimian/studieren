@@ -42,6 +42,13 @@ urlpatterns = [
     path('staff/students/', views.staff_student_profiles, name='staff_student_profiles'),
     path('staff/finance/', views.staff_finance, name='staff_finance'),
     
+    
+    path('manager/classes/', views.manage_classes, name='manage_classes'),
+    path('manager/courses/', views.manage_courses, name='manage_courses'),
+    path('manager/teachers/', views.manage_teachers, name='manage_teachers'),
+    path('manager/reports/', views.manager_reports, name='manager_reports'),
+    path('manager/users/', views.user_management, name='user_management'),
+    path('manager/finance/', views.finance_reports, name='finance_reports'),
 
     
     path('error-test/', lambda request: render(request, 'base/error.html', {'message': 'Test message'})),

@@ -337,6 +337,8 @@ def dashboard(request):
                 'total_revenue': 0
                 })
             
+            context['is_senior_manager'] = (employee_profile.position == Employee.Position.SENIOR_MANAGER)
+            
             template_name = 'base/dashboard_manager.html'
         
         else:
@@ -349,52 +351,6 @@ def dashboard(request):
             template_name = 'base/dashboard_pending.html'
     
     return render(request, template_name, context)
-
-@login_required(login_url='login')
-def exam_dashboard(request):
-    user = request.user
-    # بررسی دسترسی: فقط کارمندانی که نقش EXAM_MANAGER یا EXAM_CORRECTOR دارند
-    try:
-        employee = user.employee_profile
-        if employee.position not in [Employee.Position.EXAM_MANAGER, Employee.Position.EXAM_CORRECTOR]:
-            messages.error(request, 'You do not have permission to access the exam panel.')
-            return redirect('dashboard')
-    except Employee.DoesNotExist:
-        messages.error(request, 'You do not have permission to access the exam panel.')
-        return redirect('dashboard')
-    
-    today = date.today()
-    context = {
-        'user': user,
-        'employee': employee,
-        'is_exam_manager': employee.position == Employee.Position.EXAM_MANAGER,
-    }
-    
-    # ----- داده‌های مشترک برای هر دو نقش -----
-    # امتحان‌های باز (در حال تصحیح)
-    open_exams = Exam.objects.filter(status=Exam.Status.OPEN).select_related('class_group__course').order_by('exam_date')
-    context['open_exams'] = open_exams
-    
-    # ----- داده‌های مخصوص مدیر -----
-    if employee.position == Employee.Position.EXAM_MANAGER:
-        # کلاس‌هایی که تمام شده‌اند اما هنوز امتحان ندارند
-        classes_without_exam = Class.objects.filter(
-            end_date__lt=today
-        ).exclude(
-            id__in=Exam.objects.values_list('class_group_id', flat=True)
-        ).select_related('course', 'teacher__user').order_by('-end_date')
-        context['classes_without_exam'] = classes_without_exam
-        
-        # امتحان‌های نهایی شده
-        finalized_exams = Exam.objects.filter(status=Exam.Status.FINALIZED).select_related('class_group__course').order_by('-finalized_at')
-        context['finalized_exams'] = finalized_exams
-        
-        template_name = 'base/exam_manager_dashboard.html'
-    else:
-        template_name = 'base/exam_corrector_dashboard.html'
-    
-    return render(request, template_name, context)
-
 
 
 @login_required(login_url='login')
@@ -734,6 +690,53 @@ def enter_oral_grades(request, exam_id):
     return render(request, 'base/enter_oral_grades.html', context)
 
 
+@login_required(login_url='login')
+def exam_dashboard(request):
+    user = request.user
+    # بررسی دسترسی: فقط کارمندانی که نقش EXAM_MANAGER یا EXAM_CORRECTOR دارند
+    try:
+        employee = user.employee_profile
+        if employee.position not in [Employee.Position.EXAM_MANAGER,
+                                     Employee.Position.EXAM_CORRECTOR,
+                                     Employee.Position.EDUCATION_MANAGER]:
+            messages.error(request, 'You do not have permission to access the exam panel.')
+            return redirect('dashboard')
+    except Employee.DoesNotExist:
+        messages.error(request, 'You do not have permission to access the exam panel.')
+        return redirect('dashboard')
+    
+    today = date.today()
+    context = {
+        'user': user,
+        'employee': employee,
+        'is_exam_manager': employee.position in [Employee.Position.EXAM_MANAGER, Employee.Position.EDUCATION_MANAGER],
+    }
+    
+    # ----- داده‌های مشترک برای هر دو نقش -----
+    # امتحان‌های باز (در حال تصحیح)
+    open_exams = Exam.objects.filter(status=Exam.Status.OPEN).select_related('class_group__course').order_by('exam_date')
+    context['open_exams'] = open_exams
+    
+    # ----- داده‌های مخصوص مدیر -----
+    if employee.position == Employee.Position.EXAM_MANAGER:
+        # کلاس‌هایی که تمام شده‌اند اما هنوز امتحان ندارند
+        classes_without_exam = Class.objects.filter(
+            end_date__lt=today
+        ).exclude(
+            id__in=Exam.objects.values_list('class_group_id', flat=True)
+        ).select_related('course', 'teacher__user').order_by('-end_date')
+        context['classes_without_exam'] = classes_without_exam
+        
+        # امتحان‌های نهایی شده
+        finalized_exams = Exam.objects.filter(status=Exam.Status.FINALIZED).select_related('class_group__course').order_by('-finalized_at')
+        context['finalized_exams'] = finalized_exams
+        
+        template_name = 'base/exam_manager_dashboard.html'
+    else:
+        template_name = 'base/exam_corrector_dashboard.html'
+    
+    return render(request, template_name, context)
+
 
 @login_required(login_url='login')
 def exam_list(request):
@@ -764,7 +767,8 @@ def create_exam(request, class_id):
     # فقط مدیر امتحانات یا ادمین
     if not request.user.is_staff and (
         not hasattr(request.user, 'employee_profile') or
-        request.user.employee_profile.position != Employee.Position.EXAM_MANAGER
+        (request.user.employee_profile.position != Employee.Position.EXAM_MANAGER and
+         request.user.employee_profile.position != Employee.Position.EDUCATION_MANAGER)
     ):
         messages.error(request, 'You do not have permission.')
         return redirect('dashboard')
@@ -848,6 +852,8 @@ def finalized_exam_list(request):
     }
     return render(request, 'base/finalized_exam_list.html', context)
 
+
+
 @login_required(login_url='login')
 def staff_enrollment(request):
     return render(request, 'base/staff_enrollment.html', {'user': request.user})
@@ -859,3 +865,27 @@ def staff_student_profiles(request):
 @login_required(login_url='login')
 def staff_finance(request):
     return render(request, 'base/staff_finance.html', {'user': request.user})
+
+@login_required(login_url='login')
+def manage_classes(request):
+    return render(request, 'base/manage_classes.html', {'user': request.user})
+
+@login_required(login_url='login')
+def manage_courses(request):
+    return render(request, 'base/manage_courses.html', {'user': request.user})
+
+@login_required(login_url='login')
+def manage_teachers(request):
+    return render(request, 'base/manage_teachers.html', {'user': request.user})
+
+@login_required(login_url='login')
+def manager_reports(request):
+    return render(request, 'base/manager_reports.html', {'user': request.user})
+
+@login_required(login_url='login')
+def user_management(request):
+    return render(request, 'base/user_management.html', {'user': request.user})
+
+@login_required(login_url='login')
+def finance_reports(request):
+    return render(request, 'base/finance_reports.html', {'user': request.user})

@@ -1,0 +1,110 @@
+.exam-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+
+    .exam-item {
+        background: #ffffff;
+        border: 1px solid #eef2f6;
+        border-radius: 20px;
+        padding: 18px 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        transition: all 0.2s;
+
+        &:hover {
+            background: #fafbff;
+            border-color: #cbd5e1;
+        }
+
+        .exam-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            strong {
+                font-size: 1rem;
+                color: #0f172a;
+            }
+
+            .exam-meta {
+                font-size: 0.75rem;
+                color: #64748b;
+            }
+
+            .exam-details {
+                display: flex;
+                gap: 20px;
+                font-size: 0.7rem;
+                color: #5b6e8c;
+                flex-wrap: wrap;
+            }
+        }
+
+        .btn-grade {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+
+            &:hover {
+                background: #4338ca;
+                transform: translateX(2px);
+            }
+        }
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    background: #f8fafc;
+    border-radius: 24px;
+    border: 1px dashed #cbd5e1;
+    margin-top: 8px;
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        opacity: 0.6;
+    }
+
+    h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #334155;
+    }
+
+    p {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .exam-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+
+        .btn-grade {
+            align-self: stretch;
+            text-align: center;
+        }
+    }
+
+    .exam-details {
+        flex-direction: column;
+        gap: 4px !important;
+    }
+}

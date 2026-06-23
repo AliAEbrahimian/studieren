@@ -1,54 +1,84 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 {% load custom_filters %}
 
 {% block title %}Weekly Schedule | Studieren{% endblock %}
 
 {% block sidebar_menu %}
     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_classes' %}">My Classes</a></li>
     <li class="nav-item"><a class="nav-link active" href="{% url 'teacher_schedule' %}">Weekly Schedule</a></li>
-
+    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_attendance' %}">Attendance</a></li>
 {% endblock %}
 
 {% block dashboard_content %}
 <div class="schedule-section">
-    <h2>My Weekly Schedule</h2>
-    <p class="text-muted">Only active classes (ending after today) are shown.</p>
-    
-    {% if schedule %}
-    <div class="row g-3">
-        {% for day_name in days %}
-        {% with day_index=forloop.counter0 %}
-        <div class="col-lg-3 col-md-4 col-sm-6">
-            <div class="card schedule-day-card">
-                <div class="card-header fw-bold">{{ day_name }}</div>
-                <div class="card-body">
-                    {% if schedule|get_item:day_index %}
-                        {% for cls in schedule|get_item:day_index %}
-                        <div class="class-entry mb-2">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <strong>{{ cls.title }}</strong>
-                                <span class="badge {% if cls.class_type == 'ONLINE' %}bg-success{% else %}bg-primary{% endif %} small">{{ cls.get_class_type_display }}</span>
-                            </div>
-                            <small class="text-muted">{{ cls.course.language }} {{ cls.course.level }}</small>
-                            {% if cls.start_time and cls.end_time %}
-                            <div class="text-muted small">{{ cls.start_time|time:"H:i" }} - {{ cls.end_time|time:"H:i" }}</div>
-                            {% endif %}
-                            {% if cls.location %}
-                            <div class="text-muted small">📍 {{ cls.location }}</div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted small">No classes</p>
-                    {% endif %}
-                </div>
+    <div class="schedule-container">
+        <!-- هدر بخش -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>My Weekly Schedule</h2>
+                <p>Active classes schedule for the current week</p>
+            </div>
+            <div class="week-info">
+                <span class="week-badge">Week {{ current_week|default:"—" }}</span>
+                <span class="date-range">{{ week_start|date:"M d" }} – {{ week_end|date:"M d, Y" }}</span>
             </div>
         </div>
-        {% endwith %}
-        {% endfor %}
+
+        {% if schedule %}
+            <div class="schedule-grid">
+                {% for day_name in days %}
+                {% with day_index=forloop.counter0 %}
+                <div class="day-card {% if not schedule|get_item:day_index %}empty-day{% endif %}">
+                    <div class="day-header">
+                        <span class="day-name">{{ day_name }}</span>
+                        <span class="day-count">
+                            {{ schedule|get_item:day_index|length|default:0 }}
+                            {% if schedule|get_item:day_index|length == 1 %}class{% else %}classes{% endif %}
+                        </span>
+                    </div>
+                    <div class="day-body">
+                        {% if schedule|get_item:day_index %}
+                            {% for cls in schedule|get_item:day_index %}
+                            <div class="class-item">
+                                <div class="class-time">
+                                    {% if cls.start_time and cls.end_time %}
+                                        <span class="time-range">{{ cls.start_time|time:"H:i" }} – {{ cls.end_time|time:"H:i" }}</span>
+                                    {% else %}
+                                        <span class="time-range">—</span>
+                                    {% endif %}
+                                    <span class="class-type-badge {% if cls.class_type == 'ONLINE' %}online{% else %}in-person{% endif %}">
+                                        {{ cls.get_class_type_display }}
+                                    </span>
+                                </div>
+                                <div class="class-info">
+                                    <strong class="class-title">{{ cls.title }}</strong>
+                                    <span class="class-meta">{{ cls.course.language }} | {{ cls.course.level }}</span>
+                                    {% if cls.location %}
+                                        <span class="class-location">📍 {{ cls.location }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-day-message">
+                                <span class="empty-icon">○</span>
+                                <span>No classes</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <h5>No active classes</h5>
+                <p>Your schedule will appear here when classes are assigned.</p>
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="alert alert-info">No active classes found. Your schedule will appear here when classes are assigned.</div>
-    {% endif %}
 </div>
 {% endblock %}

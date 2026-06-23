@@ -1,41 +1,95 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}Attendance | Studieren{% endblock %}
 
 {% block sidebar_menu %}
     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_classes' %}">My Classes</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_schedule' %}">Weekly Schedule</a></li>
     <li class="nav-item"><a class="nav-link active" href="{% url 'teacher_attendance' %}">Attendance</a></li>
 {% endblock %}
 
 {% block dashboard_content %}
 <div class="attendance-list-section">
-    <h2>Select a Class for Attendance</h2>
-    <p class="text-muted">Only active classes (not finished) are shown below.</p>
-    
-    {% if current_classes %}
-    <div class="row g-3 mt-3">
-        {% for cls in current_classes %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card class-select-card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ cls.title }}</h5>
-                    <p class="card-text small text-muted">
-                        {{ cls.course.language }} {{ cls.course.level }}<br>
-                        Schedule: {{ cls.schedule }}<br>
-                        Code: {{ cls.class_code }}
-                    </p>
-                    <a href="{% url 'attendance_sheet' cls.id %}" class="btn btn-primary btn-sm">
-                        Open Attendance Sheet
-                    </a>
-                </div>
+    <div class="attendance-container">
+        <!-- هدر بخش -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>Select a Class for Attendance</h2>
+                <p>Only active classes (not finished) are shown below</p>
+            </div>
+            <div class="header-stats">
+                <span class="stat-item">
+                    <span class="stat-number">{{ current_classes|length }}</span>
+                    <span class="stat-label">Active Classes</span>
+                </span>
             </div>
         </div>
-        {% endfor %}
+
+        {% if current_classes %}
+            <div class="classes-grid">
+                {% for cls in current_classes %}
+                <div class="class-card">
+                    <div class="card-accent" data-type="{{ cls.class_type }}"></div>
+                    <div class="card-body">
+                        <div class="card-header-info">
+                            <h5 class="class-title">{{ cls.title }}</h5>
+                            <span class="status-badge active">Active</span>
+                        </div>
+                        <div class="class-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">🌐</span>
+                                <span class="detail-text">{{ cls.course.language }} | {{ cls.course.level }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-icon">📅</span>
+                                <span class="detail-text">{{ cls.schedule|default:"—" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-icon">🔑</span>
+                                <span class="detail-text">Code: {{ cls.class_code }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-icon">👥</span>
+                                <span class="detail-text">{{ cls.enrollments.count }} Students</span>
+                            </div>
+                            {% if cls.location %}
+                            <div class="detail-item">
+                                <span class="detail-icon">📍</span>
+                                <span class="detail-text">{{ cls.location }}</span>
+                            </div>
+                            {% elif cls.class_type == 'ONLINE' %}
+                            <div class="detail-item">
+                                <span class="detail-icon">📍</span>
+                                <span class="detail-text"><a href="{{ cls.meeting_link }}">Start Class (Link)</a></span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-actions">
+                            <a href="{% url 'attendance_sheet' cls.id %}" class="btn-attendance">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                Open Attendance Sheet
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                    <polyline points="12 5 19 12 12 19"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h5>No active classes</h5>
+                <p>You don't have any active classes at the moment. Please check your schedule or contact the administrator.</p>
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="alert alert-info mt-4">
-        No active classes found. Please check your schedule or contact the administrator.
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

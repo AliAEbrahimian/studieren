@@ -53,6 +53,7 @@
                             {% for section in sections %}
                                 <th>{{ section.name }}<br><small>{{ section.max_score }} pts</small></th>
                             {% endfor %}
+                            <th>Oral</th>
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -75,7 +76,7 @@
                                            {% if exam.status == 'FINALIZED' %}disabled{% endif %}>
                                 </td>
                             {% endfor %}
-                            
+
                             <td class="oral-score-cell">
                                 <span class="oral-score-value">{{ oral_grades|get_item:enrollment.student.pk|default:'—' }}</span>
                             </td>

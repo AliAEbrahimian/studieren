@@ -1,0 +1,56 @@
+{% extends 'base/exam_dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Exams Management | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item"><a class="nav-link" href="{% url 'exam_dashboard' %}">Dashboard</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="exam-management-section">
+    <div class="management-container">
+        <div class="header-section">
+            <h2>Exams Management</h2>
+            <p>Classes ready for exam creation</p>
+        </div>
+
+        {% if classes %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Course</th>
+                            <th>Ended On</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cls in classes %}
+                        <tr>
+                            <td class="class-info">
+                                <strong>{{ cls.title }}</strong>
+                                <span class="class-code">{{ cls.class_code }}</span>
+                            </td>
+                            <td>{{ cls.course.language }} | {{ cls.course.level }}</td>
+                            <td>{{ cls.end_date|date:"Y/m/d" }}</td>
+                            <td>
+                                <a href="{% url 'create_exam' cls.id %}" class="btn-create">Create Exam →</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <h5>All good!</h5>
+                <p>All finished classes already have exams.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

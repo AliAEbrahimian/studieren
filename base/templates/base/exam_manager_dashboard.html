@@ -1,0 +1,130 @@
+{% extends 'base/exam_dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Exam Manager Panel | Studieren{% endblock %}
+
+{% block dashboard_content %}
+<div class="exam-manager-section">
+    <!-- کارت‌های آماری (Stats) -->
+    <div class="stats-grid">
+        <!-- Open Exams -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 6v6l4 2" />
+                    <circle cx="12" cy="12" r="10" />
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ open_exams|length }}</h3>
+                <p class="stat-label">Open Exams</p>
+                <div class="stat-footer">
+                    <span class="stat-info">Grading in progress</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classes Ready for Exam -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ classes_without_exam|length }}</h3>
+                <p class="stat-label">Classes Ready for Exam</p>
+                <div class="stat-footer">
+                    <span class="stat-info">Awaiting creation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finalized Exams -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ finalized_exams|length }}</h3>
+                <p class="stat-label">Finalized Exams</p>
+                <div class="stat-footer">
+                    <span class="stat-info">Completed & Graded</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش کلاس‌های آماده برای ایجاد امتحان -->
+    <div class="info-section">
+        <div class="section-header">
+            <h3>📋 Classes Waiting for Exam</h3>
+        </div>
+        {% if classes_without_exam %}
+            <div class="exam-class-list">
+                {% for cls in classes_without_exam %}
+                <div class="exam-class-item">
+                    <div class="class-info">
+                        <strong>{{ cls.title }}</strong>
+                        <span class="class-meta">{{ cls.course.language }} | {{ cls.course.level }}</span>
+                    </div>
+                    <a href="{% url 'create_exam' cls.id %}" class="btn-create-exam">Create Exam →</a>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <h5>All classes have exams</h5>
+                <p>No pending classes waiting for exam creation.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- بخش امتحان‌های باز (Open Exams) -->
+    <div class="info-section">
+        <div class="section-header">
+            <h3>📝 Open Exams (Grading in Progress)</h3>
+        </div>
+        {% if open_exams %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Exam Title</th>
+                            <th>Class</th>
+                            <th>Total Score</th>
+                            <th>Submissions</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exam in open_exams %}
+                        <tr>
+                            <td>{{ exam.class_group.title }}</td>  {# قبلاً exam.name بود #}
+                            <td>{{ exam.class_group.title }}</td>
+                            <td>{{ exam.total_score }}</td>
+                            <td>{{ exam.class_group.enrollments.count }}</td>  {# تعداد دانشجویان ثبت‌نامی در کلاس #}
+                            <td><span class="status-badge open">Open</span></td>
+                            <td><a href="{% url 'enter_written_grades' exam.id %}" class="btn-action">Grade →</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h5>No open exams</h5>
+                <p>All exams are either finalized or not yet created.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

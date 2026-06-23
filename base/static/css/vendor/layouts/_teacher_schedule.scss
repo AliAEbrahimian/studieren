@@ -1,0 +1,265 @@
+.schedule-section {
+    .schedule-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 28px;
+
+        .header-left {
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0 0 6px 0;
+                color: #0f172a;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin: 0;
+            }
+        }
+
+        .week-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 8px 18px;
+            border-radius: 60px;
+            border: 1px solid #eef2f6;
+
+            .week-badge {
+                background: #4f46e5;
+                color: white;
+                padding: 2px 10px;
+                border-radius: 40px;
+                font-size: 0.7rem;
+                font-weight: 600;
+            }
+
+            .date-range {
+                font-size: 0.8rem;
+                color: #475569;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 16px;
+
+        @media (max-width: 1200px) {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+    }
+
+    .day-card {
+        background: #ffffff;
+        border: 1px solid #eef2f6;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+
+        &:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        &.empty-day {
+            background: #fafbfc;
+
+            .day-header {
+                border-bottom-color: #eef2f6;
+            }
+        }
+
+        .day-header {
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .day-name {
+                font-weight: 600;
+                font-size: 0.85rem;
+                color: #0f172a;
+            }
+
+            .day-count {
+                font-size: 0.65rem;
+                font-weight: 500;
+                color: #94a3b8;
+                background: #eef2f6;
+                padding: 2px 8px;
+                border-radius: 40px;
+            }
+        }
+
+        .day-body {
+            padding: 12px 14px;
+            flex: 1;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .class-item {
+            background: #ffffff;
+            border: 1px solid #eef2f6;
+            border-radius: 14px;
+            padding: 12px 14px;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #fafbff;
+                border-color: #cbd5e1;
+            }
+
+            .class-time {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 6px;
+                flex-wrap: wrap;
+                gap: 4px;
+
+                .time-range {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    color: #64748b;
+                }
+
+                .class-type-badge {
+                    font-size: 0.55rem;
+                    font-weight: 600;
+                    padding: 2px 8px;
+                    border-radius: 40px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+
+                    &.online {
+                        background: #d1fae5;
+                        color: #065f46;
+                    }
+
+                    &.in-person {
+                        background: #e0e7ff;
+                        color: #3730a3;
+                    }
+                }
+            }
+
+            .class-info {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+
+                .class-title {
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+
+                .class-meta {
+                    font-size: 0.65rem;
+                    color: #94a3b8;
+                }
+
+                .class-location {
+                    font-size: 0.6rem;
+                    color: #64748b;
+                    margin-top: 2px;
+                }
+            }
+        }
+
+        .empty-day-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 0;
+            color: #94a3b8;
+            font-size: 0.7rem;
+
+            .empty-icon {
+                font-size: 1.5rem;
+                margin-bottom: 4px;
+                opacity: 0.5;
+            }
+        }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        background: #f8fafc;
+        border-radius: 24px;
+        border: 1px dashed #cbd5e1;
+        margin-top: 12px;
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        p {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 0;
+        }
+    }
+
+    // وضعیت امروز (اختیاری - با جاوااسکریپت قابل اضافه است)
+    .day-card.today {
+        border-color: #4f46e5;
+
+        .day-header {
+            background: #eef2ff;
+
+            .day-name {
+                color: #4f46e5;
+            }
+        }
+    }
+}

@@ -66,6 +66,19 @@ body{
 @import 'layouts/classrostersection';
 @import 'layouts/teacher_attendance';
 @import 'layouts/teacher_classes';
+@import 'layouts/exam_manager';
+@import 'layouts/exam_corrector';
+@import 'layouts/exam_list';
+@import 'layouts/create_exam';
+@import 'layouts/exam_management';
+@import 'layouts/enter_written_grades';
+@import 'layouts/enter_oral_grades';
+@import 'layouts/finalized_exam_list';
+@import 'layouts/teacher_schedule';
+@import 'layouts/staff-dashboard';
+@import 'layouts/manager_dashboard';
+
+
 //Other Layouts
 @import 'layouts/footer';
 @import 'responsive';

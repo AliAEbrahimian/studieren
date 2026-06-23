@@ -1,0 +1,23 @@
+{% if exams %}
+<div class="exam-list">
+    {% for exam in exams %}
+    <div class="exam-item">
+        <div class="exam-info">
+            <strong>{{ exam.class_group.title }}</strong>
+            <span class="exam-meta">{{ exam.class_group.course.language }} | {{ exam.class_group.course.level }}</span>
+            <div class="exam-details">
+                <span>📊 Total Score: {{ exam.total_score }}</span>
+                <span>📅 Created: {{ exam.created_at|date:"Y/m/d" }}</span>
+            </div>
+        </div>
+        <a href="{% url 'enter_written_grades' exam.id %}" class="btn-grade">View/Edit Grades →</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <h5>No exams to show</h5>
+    <p>There are no exams available at the moment.</p>
+</div>
+{% endif %}

@@ -328,26 +328,34 @@ class PlacementTestRequest(models.Model):
         return f"{self.student.user.get_full_name()} - {self.get_test_type_display()} ({self.get_status_display()})"
     
     
-class Exam (models.Model):
-    
+class Exam(models.Model):
+    class Status(models.TextChoices):
+        OPEN = 'OPEN', 'Open for Grading'
+        FINALIZED = 'FINALIZED', 'Finalized'
+
     class_group = models.OneToOneField(
         Class,
         on_delete=models.CASCADE,
         related_name='exam'
     )
-    
-    total_score = models.PositiveBigIntegerField(default=300)
-    is_finalized = models.BooleanField(default=False)
+    exam_date = models.DateField(null=True, blank=True, verbose_name="Exam Date")
+    total_score = models.PositiveIntegerField(default=300)
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.OPEN,
+        verbose_name="Status"
+    )
     finalized_by = models.ForeignKey(
         Employee,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='finalized_exam'
+        related_name='finalized_exams'
     )
     finalized_at = models.DateTimeField(null=True, blank=True)
-    Created_at = models.DateTimeField(auto_now_add=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"Exam: {self.class_group.title}"
     
@@ -366,7 +374,7 @@ class ExamSection(models.Model):
 class StudentGrade(models.Model):
     
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='written_grades')
-    exam_section = models.ForeignKey(ExanSection, on_delete=models.CASCADE, related_name='grades')
+    exam_section = models.ForeignKey(ExamSection, on_delete=models.CASCADE, related_name='grades')
     score = models.DecimalField(max_digits=5, decimal_places=1)
     entered_by = models.ForeignKey(
         Employee,

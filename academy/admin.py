@@ -48,7 +48,7 @@ class AttendanceAdmin(admin.ModelAdmin):
     
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ['class_group', 'total_score', 'is_finalized']
+    list_display = ['class_group', 'total_score', 'status']
 
 @admin.register(ExamSection)
 class ExamSectionAdmin(admin.ModelAdmin):

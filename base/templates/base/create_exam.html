@@ -1,0 +1,131 @@
+{% extends 'base/exam_dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Create Exam | Studieren{% endblock %}
+
+{% block dashboard_content %}
+<div class="create-exam-section">
+    <div class="create-exam-container">
+        <div class="header-info">
+            <h2>Create Exam</h2>
+            <div class="class-details">
+                <strong>{{ class.title }}</strong>
+                <span>{{ class.course.language }} | {{ class.course.level }}</span>
+                <span class="class-code">Code: {{ class.class_code }}</span>
+            </div>
+        </div>
+
+        <form method="POST" id="examForm" class="exam-form">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="exam_date">Exam Date</label>
+                    <div class="input-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <input type="date" name="exam_date" id="exam_date" required>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="total_score">Total Score</label>
+                    <div class="input-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                        <input type="number" name="total_score" id="total_score" value="300" step="10" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sections-section">
+                <h3>Exam Sections</h3>
+                <div id="sections-container" class="sections-container">
+                    <!-- یک بخش پیش‌فرض (نمونه) -->
+                    <div class="section-card" id="section-0">
+                        <div class="section-header">
+                            <span class="section-number">1</span>
+                            <button type="button" class="remove-section" style="display: none;">Remove</button>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label>Section Name</label>
+                                <input type="text" name="section_name[]" placeholder="e.g., Hören, Lesen, Schreiben" required>
+                            </div>
+                            <div class="form-field">
+                                <label>Max Score</label>
+                                <input type="number" name="max_score[]" placeholder="Points" step="0.5" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-section" id="add-section">+ Add Section</button>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Create Exam</button>
+                <a href="{% url 'exam_dashboard' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let sectionCounter = 1;
+
+    document.getElementById('add-section').addEventListener('click', function() {
+        const container = document.getElementById('sections-container');
+        const newId = sectionCounter++;
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'section-card';
+        sectionDiv.id = `section-${newId}`;
+        sectionDiv.innerHTML = `
+            <div class="section-header">
+                <span class="section-number">${newId + 1}</span>
+                <button type="button" class="remove-section">Remove</button>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Section Name</label>
+                    <input type="text" name="section_name[]" placeholder="e.g., Hören, Lesen, Schreiben" required>
+                </div>
+                <div class="form-field">
+                    <label>Max Score</label>
+                    <input type="number" name="max_score[]" placeholder="Points" step="0.5" required>
+                </div>
+            </div>
+        `;
+        container.appendChild(sectionDiv);
+        
+        // فعال‌سازی دکمه حذف
+        sectionDiv.querySelector('.remove-section').addEventListener('click', function() {
+            sectionDiv.remove();
+            // به‌روزرسانی شماره‌های بخش‌ها
+            const sections = document.querySelectorAll('.section-card');
+            sections.forEach((sec, idx) => {
+                sec.querySelector('.section-number').textContent = idx + 1;
+            });
+        });
+    });
+
+    // فعال‌سازی دکمه حذف برای اولین بخش (در صورت نیاز)
+    document.querySelectorAll('.remove-section').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const section = this.closest('.section-card');
+            section.remove();
+            // به‌روزرسانی شماره‌ها
+            const sections = document.querySelectorAll('.section-card');
+            sections.forEach((sec, idx) => {
+                sec.querySelector('.section-number').textContent = idx + 1;
+            });
+        });
+    });
+</script>
+{% endblock %}

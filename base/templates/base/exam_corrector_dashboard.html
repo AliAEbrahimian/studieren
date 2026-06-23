@@ -1,0 +1,102 @@
+{% extends 'base/exam_dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Exam Corrector Panel | Studieren{% endblock %}
+
+{% block dashboard_content %}
+<div class="exam-corrector-section">
+    <!-- کارت‌های آماری (Stats) -->
+    <div class="stats-grid">
+        <!-- Exams Ready for Grading -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ open_exams|length }}</h3>
+                <p class="stat-label">Exams Ready for Grading</p>
+                <div class="stat-footer">
+                    <span class="stat-info">Awaiting your correction</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Your Graded Exams (اختیاری) -->
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-value">{{ graded_exams_count|default:0 }}</h3>
+                <p class="stat-label">Graded by You</p>
+                <div class="stat-footer">
+                    <span class="stat-info">Completed corrections</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش امتحان‌های آماده برای تصحیح -->
+    <div class="info-section">
+        <div class="section-header">
+            <h3>📝 Exams Ready for Grading</h3>
+            {% if open_exams %}
+                <span class="badge-count">{{ open_exams|length }} pending</span>
+            {% endif %}
+        </div>
+        {% if open_exams %}
+            <div class="exam-list">
+                {% for exam in open_exams %}
+                <div class="exam-item">
+                    <div class="exam-info">
+                        <strong>{{ exam.class_group.title }}</strong>
+                        <span class="exam-meta">{{ exam.class_group.course.language }} | {{ exam.class_group.course.level }}</span>
+                        <div class="exam-details">
+                            <span>📊 Total Score: {{ exam.total_score }}</span>
+                            <span>📅 Created: {{ exam.created_at|date:"Y/m/d" }}</span>
+                        </div>
+                    </div>
+                    <a href="{% url 'enter_written_grades' exam.id %}" class="btn-grade">Enter Grades →</a>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <h5>No open exams</h5>
+                <p>All exams have been graded. Check back later for new assignments.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- (اختیاری) نمایش امتحان‌های اخیراً تصحیح شده -->
+    {% if recent_graded_exams %}
+    <div class="info-section">
+        <div class="section-header">
+            <h3>✅ Recently Graded</h3>
+        </div>
+        <div class="exam-list">
+            {% for exam in recent_graded_exams %}
+            <div class="exam-item graded">
+                <div class="exam-info">
+                    <strong>{{ exam.class_group.title }}</strong>
+                    <span class="exam-meta">{{ exam.class_group.course.language }} | {{ exam.class_group.course.level }}</span>
+                    <div class="exam-details">
+                        <span>📊 Total Score: {{ exam.total_score }}</span>
+                        <span>🗓️ Graded: {{ exam.graded_at|date:"Y/m/d" }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'view_graded_exam' exam.id %}" class="btn-view">View →</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

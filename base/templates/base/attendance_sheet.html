@@ -1,4 +1,5 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 {% load custom_filters %}
 
 {% block title %}Attendance Sheet | {{ cls.title }} | Studieren{% endblock %}
@@ -6,110 +7,188 @@
 {% block sidebar_menu %}
 <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
 <li class="nav-item"><a class="nav-link active" href="{% url 'teacher_attendance' %}">Attendance</a></li>
-
 {% endblock %}
 
 {% block dashboard_content %}
-<div class="attendance-section">
-
-    <div class="attendance-header">
-        <div class="header-info">
-            <h2>Attendance Sheet</h2>
-            <p>{{ cls.title }} | {{ cls.course.title }} | Code: {{ cls.class_code }}</p>
+<div class="attendance-sheet-section">
+    <div class="attendance-container">
+        <!-- هدر -->
+        <div class="sheet-header">
+            <div class="header-left">
+                <h2>Attendance Sheet</h2>
+                <div class="class-info">
+                    <span class="class-title">{{ cls.title }}</span>
+                    <span class="class-meta">{{ cls.course.title }} | Code: {{ cls.class_code }}</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'generate_sessions' cls.id %}" class="btn-action btn-generate">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Generate Sessions
+                </a>
+                <a href="{% url 'export_attendance_excel' cls.id %}" class="btn-action btn-export">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <polyline points="9 15 12 12 15 15"/>
+                    </svg>
+                    Export Excel
+                </a>
+            </div>
         </div>
-        <div class="header-actions no-print">
-            <a href="{% url 'generate_sessions' cls.id %}" class="btn btn-secondary">Generate Sessions</a>
-            <a href="{% url 'export_attendance_excel' cls.id %}" class="btn btn-outline-success no-print">Export Excel</a>
-        </div>
-    </div>
 
-    {% if sessions %}
-    <form method="POST" id="attendance-form">
-        {% csrf_token %}
-        <div class="attendance-table-wrapper">
-            <table class="attendance-grid">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Student</th>
-                        {% for session in sessions %}
-                        <th>
-                            <div class="date-stack">
-                                <span class="date-year">{{ session.date|date:"Y" }}</span>
-                                <span class="date-month">{{ session.date|date:"m" }}</span>
-                                <span class="date-day">{{ session.date|date:"d" }}</span>
-                            </div>
-                        </th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for enrollment in enrollments %}
-                    {% with student=enrollment.student %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td class="student-name">{{ student.user.get_full_name }}</td>
-                        {% for session in sessions %}
-                        {% with att=attendance_data|get_item:student.pk %}
-                        {% with att_status=att|get_item:session.pk %}
-                        <td class="att-cell {% if session.date > today %}future{% endif %}"
-                            data-student="{{ student.pk }}" data-session="{{ session.pk }}"
-                            data-status="{{ att_status.status }}">
-                            {% if session.date <= today %} <button type="button"
-                                class="toggle-btn status-{{ att_status.status }}" onclick="cycleStatus(this)" title="Click to change: P=Present, A=Absent, L=Late, E=Excused"> {{ att_status.status }}</button>
+        <!-- آمار سریع -->
+        <div class="stats-summary">
+            <div class="stat-item">
+                <span class="stat-value">{{ enrollments|length }}</span>
+                <span class="stat-label">Students</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">{{ sessions|length }}</span>
+                <span class="stat-label">Sessions</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="presentCount">0</span>
+                <span class="stat-label">Present</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="absentCount">0</span>
+                <span class="stat-label">Absent</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="lateCount">0</span>
+                <span class="stat-label">Late</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="excusedCount">0</span>
+                <span class="stat-label">Excused</span>
+            </div>
+        </div>
+
+        {% if sessions %}
+        <form method="POST" id="attendance-form">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="attendance-table" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th class="sticky-col">#</th>
+                            <th class="sticky-col student-name-header">Student</th>
+                            {% for session in sessions %}
+                            <th>
+                                <div class="date-cell">
+                                    <span class="date-day">{{ session.date|date:"d" }}</span>
+                                    <span class="date-month">{{ session.date|date:"M" }}</span>
+                                    <span class="date-year">{{ session.date|date:"Y" }}</span>
+                                </div>
+                            </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        {% with student=enrollment.student %}
+                        <tr>
+                            <td class="sticky-col counter">{{ forloop.counter }}</td>
+                            <td class="sticky-col student-name">{{ student.user.get_full_name }}</td>
+                            {% for session in sessions %}
+                            {% with att=attendance_data|get_item:student.pk %}
+                            {% with att_status=att|get_item:session.pk %}
+                            <td class="att-cell {% if session.date > today %}future{% endif %}"
+                                data-student="{{ student.pk }}" data-session="{{ session.pk }}"
+                                data-status="{{ att_status.status|default:'A' }}">
+                                {% if session.date <= today %}
+                                    <button type="button" class="toggle-btn status-{{ att_status.status|default:'A' }}"
+                                        onclick="cycleStatus(this)" title="Click to change status">
+                                        {{ att_status.status|default:'A' }}
+                                    </button>
                                 {% else %}
-                                <span class="future-mark">—</span>
+                                    <span class="future-mark">—</span>
                                 {% endif %}
-                                <input type="hidden" name="status_{{ student.pk }}_{{ session.pk }}"value="{{ att_status.status }}">
-                        </td>
-                        {% endwith %}
+                                <input type="hidden" name="status_{{ student.pk }}_{{ session.pk }}"
+                                    value="{{ att_status.status|default:'A' }}">
+                            </td>
+                            {% endwith %}
+                            {% endwith %}
+                            {% endfor %}
+                        </tr>
                         {% endwith %}
                         {% endfor %}
-                    </tr>
-                    {% endwith %}
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Save Changes</button>
+            </div>
+        </form>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <h5>No Sessions Found</h5>
+            <p>Click <strong>Generate Sessions</strong> to create them automatically.</p>
         </div>
-        <div class="attendance-footer no-print">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-    </form>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-icon">📅</div>
-        <h5>No Sessions Found</h5>
-        <p>Click <strong>Generate Sessions</strong> to create them automatically.</p>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
     // ترتیب چرخش وضعیت‌ها
     const statusOrder = ['P', 'A', 'L', 'E'];
+    const statusLabels = {
+        'P': 'Present',
+        'A': 'Absent',
+        'L': 'Late',
+        'E': 'Excused'
+    };
 
     function cycleStatus(btn) {
         const cell = btn.parentElement;
-        // اگر جلسه در آینده است، اجازه تغییر نده
         if (cell.classList.contains('future')) return;
 
-        const currentStatus = cell.dataset.status;
+        const currentStatus = cell.dataset.status || 'A';
         let currentIndex = statusOrder.indexOf(currentStatus);
         let nextIndex = (currentIndex + 1) % statusOrder.length;
         let newStatus = statusOrder[nextIndex];
 
-        // بروزرسانی data-status سلول
         cell.dataset.status = newStatus;
-
-        // بروزرسانی ظاهر دکمه
         btn.textContent = newStatus;
         btn.className = 'toggle-btn status-' + newStatus;
+        btn.title = statusLabels[newStatus];
 
-        // بروزرسانی input مخفی
         const hiddenInput = cell.querySelector('input[type="hidden"]');
         hiddenInput.value = newStatus;
+
+        updateStats();
     }
+
+    function updateStats() {
+        const rows = document.querySelectorAll('#attendanceTable tbody tr');
+        let present = 0, absent = 0, late = 0, excused = 0;
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('.att-cell');
+            cells.forEach(cell => {
+                if (cell.classList.contains('future')) return;
+                const status = cell.dataset.status || 'A';
+                switch (status) {
+                    case 'P': present++; break;
+                    case 'A': absent++; break;
+                    case 'L': late++; break;
+                    case 'E': excused++; break;
+                }
+            });
+        });
+        document.getElementById('presentCount').textContent = present;
+        document.getElementById('absentCount').textContent = absent;
+        document.getElementById('lateCount').textContent = late;
+        document.getElementById('excusedCount').textContent = excused;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateStats();
+    });
 </script>
 {% endblock %}

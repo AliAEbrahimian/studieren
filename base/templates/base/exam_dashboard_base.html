@@ -1,0 +1,19 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'exam_dashboard' %}">Main Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'exam_dashboard' %}">Exam Panel</a></li>
+    
+    {% if is_exam_manager %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'exam_list' %}active{% endif %}" 
+               href="{% url 'exam_list' %}">Create New Exam</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'finalized_exam_list' %}active{% endif %}" 
+               href="{% url 'finalized_exam_list' %}">Finalized Exams</a>
+        </li>
+    {% endif %}
+    
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}

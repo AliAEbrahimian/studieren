@@ -1,467 +1,200 @@
-.main-content {
-    padding: 30px;
+
+// ============================================
+// PLACEHOLDER: پروفایل
+// ============================================
+%profile-card {
+    background: $bg-card;
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    border: 1px solid $border-color;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border-color: #c7d2fe;
+    }
 }
 
-#StudentProfileSection {
-    margin-bottom: 32px;
+%profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
 
-    .profile-card {
-        background: $bg-card;
-        border-radius: $border-radius;
-        padding: 28px 32px;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-        border: 1px solid #e5e7eb;
-        transition: all 0.3s ease;
-
-        &:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border-color: #c7d2fe;
-        }
-    }
-
-    .profile-header {
+    .avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        border-radius: 20px;
         display: flex;
         align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
+        justify-content: center;
+        color: #4f46e5;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
+        flex-shrink: 0;
 
-        .avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-            border-radius: 16px;
+        svg {
+            width: 44px;
+            height: 44px;
+        }
+    }
+
+    .greeting {
+        flex: 1;
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #1f2937;
+            letter-spacing: -0.025em;
+
+            span {
+                background: linear-gradient(135deg, #4f46e5, #818cf8);
+                background-clip: text;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+        }
+
+        .badge-group {
             display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             align-items: center;
-            justify-content: center;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            background: #e0e7ff;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
             color: #4f46e5;
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
 
             svg {
-                width: 44px;
-                height: 44px;
+                width: 14px;
+                height: 14px;
+                stroke: currentColor;
             }
         }
 
-        .greeting {
-            flex: 1;
-
-            h2 {
-                font-size: 1.75rem;
-                font-weight: 600;
-                margin: 0 0 8px 0;
-                color: #1f2937;
-                letter-spacing: -0.025em;
-
-                span {
-                    background: linear-gradient(135deg, #4f46e5, #818cf8);
-                    background-clip: text;
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-            }
-
-            .badge-group {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                align-items: center;
-            }
-
-            .role-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 4px 14px;
-                background: #e0e7ff;
-                border-radius: 40px;
-                font-size: 0.75rem;
-                font-weight: 600;
-                color: #4f46e5;
-
-                &.student::before {
-                    content: "👨‍🎓";
-                    font-size: 0.8rem;
-                }
-            }
-
-            .since-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 4px 12px;
-                background: #f3f4f6;
-                border-radius: 40px;
-                font-size: 0.7rem;
-                font-weight: 500;
-                color: #6b7280;
-
-                &::before {
-                    content: "📅";
-                    font-size: 0.7rem;
-                }
-            }
-        }
-    }
-
-    .profile-divider {
-        margin: 24px 0 20px 0;
-        height: 1px;
-        background: linear-gradient(90deg, #e5e7eb, #c7d2fe, #e5e7eb);
-    }
-
-    .profile-info {
-        h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #374151;
-            margin: 0 0 18px 0;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            display: flex;
+        .since-badge {
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            padding: 4px 12px;
+            background: #f3f4f6;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #6b7280;
 
-            &::before {
-                content: "";
-                width: 4px;
-                height: 18px;
-                background: #4f46e5;
-                border-radius: 4px;
-                display: inline-block;
-            }
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px 28px;
-
-            .info-field {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-
-                label {
-                    font-size: 0.7rem;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    color: #6b7280;
-                }
-
-                .field-value {
-                    font-size: 1rem;
-                    font-weight: 500;
-                    color: #1f2937;
-                    background: #f9fafb;
-                    padding: 10px 14px;
-                    border-radius: 14px;
-                    border: 1px solid #f3f4f6;
-                    transition: all 0.2s;
-
-                    &:hover {
-                        background: #ffffff;
-                        border-color: #e0e7ff;
-                    }
-                }
-
-                &.full-width {
-                    grid-column: span 2;
-                }
+            svg {
+                width: 12px;
+                height: 12px;
+                stroke: currentColor;
             }
         }
     }
 
-    // Responsive
-    @media (max-width: 768px) {
-        .profile-card {
-            padding: 20px 24px;
+    @media (max-width: 640px) {
+        flex-direction: column;
+        text-align: center;
+        .badge-group {
+            justify-content: center;
         }
+    }
+}
 
-        .profile-header {
-            .avatar {
-                width: 64px;
-                height: 64px;
+%profile-info {
+    margin-top: 8px;
 
-                svg {
-                    width: 34px;
-                    height: 34px;
+    h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #374151;
+        margin: 0 0 18px 0;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &::before {
+            content: "";
+            width: 4px;
+            height: 18px;
+            background: #4f46e5;
+            border-radius: 4px;
+            display: inline-block;
+        }
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px 28px;
+
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            label {
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #6b7280;
+            }
+
+            .field-value {
+                font-size: 1rem;
+                font-weight: 500;
+                color: #1f2937;
+                background: #f9fafb;
+                padding: 10px 14px;
+                border-radius: 14px;
+                border: 1px solid #f3f4f6;
+                transition: all 0.2s;
+
+                &:hover {
+                    background: #ffffff;
+                    border-color: #e0e7ff;
                 }
             }
 
-            .greeting h2 {
-                font-size: 1.35rem;
+            &.full-width {
+                grid-column: span 2;
             }
         }
+    }
 
-        .profile-info .info-grid {
+    @media (max-width: 768px) {
+        .info-grid {
             grid-template-columns: 1fr;
             gap: 16px;
-
             .info-field.full-width {
                 grid-column: span 1;
             }
         }
     }
-
-    @media (max-width: 480px) {
-        .profile-card {
-            padding: 16px 18px;
-        }
-
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-
-            .greeting h2 {
-                font-size: 1.2rem;
-            }
-
-            .badge-group {
-                justify-content: center;
-            }
-        }
-
-        .profile-info .info-grid .info-field .field-value {
-            font-size: 0.9rem;
-            padding: 8px 12px;
-        }
-    }
 }
 
-#TeacherProfileSection {
-    margin-bottom: 32px;
-
-    .profile-card {
-        background: #ffffff;
-        border-radius: 24px;
-        padding: 28px 32px;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-        border: 1px solid #e5e7eb;
-        transition: all 0.3s ease;
-
-        &:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border-color: #c7d2fe;
-        }
-    }
-
-    .profile-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-
-        .avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-            border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #4f46e5;
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
-
-            svg {
-                width: 44px;
-                height: 44px;
-            }
-        }
-
-        .greeting {
-            flex: 1;
-
-            h2 {
-                font-size: 1.75rem;
-                font-weight: 600;
-                margin: 0 0 8px 0;
-                color: #1f2937;
-                letter-spacing: -0.025em;
-
-                span {
-                    background: linear-gradient(135deg, #4f46e5, #818cf8);
-                    background-clip: text;
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-            }
-
-            .badge-group {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                align-items: center;
-            }
-
-            .role-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 4px 12px;
-                background: #e0e7ff;
-                border-radius: 40px;
-                font-size: 0.75rem;
-                font-weight: 500;
-                color: #4f46e5;
-
-                svg {
-                    width: 14px;
-                    height: 14px;
-                    stroke: currentColor;
-                }
-            }
-
-            .since-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 4px 12px;
-                background: #f3f4f6;
-                border-radius: 40px;
-                font-size: 0.7rem;
-                font-weight: 500;
-                color: #6b7280;
-
-                svg {
-                    width: 12px;
-                    height: 12px;
-                    stroke: currentColor;
-                }
-            }
-        }
-    }
-
-    .profile-info {
-        margin-top: 8px;
-
-        h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #374151;
-            margin: 0 0 18px 0;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            &::before {
-                content: "";
-                width: 4px;
-                height: 18px;
-                background: #4f46e5;
-                border-radius: 4px;
-                display: inline-block;
-            }
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px 28px;
-
-            .info-field {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-
-                label {
-                    font-size: 0.7rem;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    color: #6b7280;
-                }
-
-                .field-value {
-                    font-size: 1rem;
-                    font-weight: 500;
-                    color: #1f2937;
-                    background: #f9fafb;
-                    padding: 10px 14px;
-                    border-radius: 14px;
-                    border: 1px solid #f3f4f6;
-                    transition: all 0.2s;
-
-                    &:hover {
-                        background: #ffffff;
-                        border-color: #e0e7ff;
-                    }
-                }
-
-                &.full-width {
-                    grid-column: span 2;
-                }
-            }
-        }
-    }
-
-    // Responsive
-    @media (max-width: 768px) {
-        .profile-card {
-            padding: 20px 24px;
-        }
-
-        .profile-header {
-            .avatar {
-                width: 64px;
-                height: 64px;
-
-                svg {
-                    width: 34px;
-                    height: 34px;
-                }
-            }
-
-            .greeting h2 {
-                font-size: 1.35rem;
-            }
-        }
-
-        .profile-info .info-grid {
-            grid-template-columns: 1fr;
-            gap: 16px;
-
-            .info-field.full-width {
-                grid-column: span 1;
-            }
-        }
-    }
-
-    @media (max-width: 480px) {
-        .profile-card {
-            padding: 16px 18px;
-        }
-
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-
-            .greeting h2 {
-                font-size: 1.2rem;
-            }
-
-            .badge-group {
-                justify-content: center;
-            }
-        }
-
-        .profile-info .info-grid .info-field .field-value {
-            font-size: 0.9rem;
-            padding: 8px 12px;
-        }
-    }
-}
-
-$stat-card-bg: $bg-card;
-$stat-card-radius: $border-radius;
+// ============================================
+// PLACEHOLDER: کارت‌های آماری
+// ============================================
 $stat-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
 
 %stat-card-base {
-    background: $stat-card-bg;
-    border-radius: $stat-card-radius;
+    background: $bg-card;
+    border-radius: 20px;
     padding: 24px 20px;
     display: flex;
     align-items: flex-start;
@@ -543,7 +276,6 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     }
 }
 
-
 @mixin stats-grid($columns-desktop, $columns-tablet: 2, $columns-mobile: 1) {
     .stats-grid {
         display: grid;
@@ -563,105 +295,9 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     }
 }
 
-#StatisticalCardsStudents {
-    @include stats-grid(3);
-
-    .stat-card {
-        @extend %stat-card-base;
-
-        .stat-icon {
-            &.active {
-                background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
-                color: #4f46e5;
-            }
-
-            &.completed {
-                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-                color: #059669;
-            }
-
-            &.tuition {
-                background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-                color: #dc2626;
-            }
-        }
-
-        .stat-footer {
-            .stat-info {
-                font-weight: 500;
-                color: #6b7280;
-            }
-
-            .stat-warning {
-                font-weight: 600;
-                color: #dc2626;
-                background: #fee2e2;
-                padding: 2px 8px;
-                border-radius: 12px;
-                font-size: 0.65rem;
-            }
-        }
-    }
-}
-
-
-#StatisticalCardsTeachers {
-    @include stats-grid(4, 2, 1);
-
-    .stat-card {
-        @extend %stat-card-base;
-
-        .stat-icon {
-            background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
-            color: #4f46e5;
-
-            &.completed {
-                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-                color: #059669;
-            }
-
-            &.department {
-                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-                color: #d97706;
-            }
-
-            &.students {
-                background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-                color: #db2777;
-            }
-        }
-
-        .stat-footer {
-            .stat-total {
-                font-weight: 500;
-                color: #6b7280;
-            }
-
-            .stat-completed {
-                font-weight: 500;
-                color: #059669;
-            }
-
-            .stat-percentage {
-                font-weight: 500;
-                color: #4f46e5;
-                background: #e0e7ff;
-                padding: 2px 8px;
-                border-radius: 12px;
-            }
-
-            .stat-languages {
-                font-weight: 500;
-                color: #d97706;
-                background: #fef3c7;
-                padding: 2px 8px;
-                border-radius: 12px;
-            }
-        }
-    }
-}
-
-
+// ============================================
+// PLACEHOLDER: بخش کلاس‌ها
+// ============================================
 %section-header {
     display: flex;
     justify-content: space-between;
@@ -685,13 +321,11 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     }
 }
 
-
 %classes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 24px;
 }
-
 
 %class-card-base {
     background: $bg-card;
@@ -700,7 +334,7 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     transition: all 0.3s ease;
     overflow: hidden;
     position: relative;
-    border: 1px solid #e5e7eb;
+    border: 1px solid $border-color;
 
     &:hover {
         transform: translateY(-4px);
@@ -753,11 +387,19 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
             .info-label {
                 width: 85px;
                 font-weight: 450;
+                color: #6b7280;
             }
 
             .info-value {
                 flex: 1;
                 font-weight: 500;
+                a {
+                    color: #4f46e5;
+                    text-decoration: none;
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
             }
         }
     }
@@ -766,24 +408,27 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
 %card-footer {
     padding: 16px 20px;
     background: #fafbfc;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid $border-color;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 
     .btn-view {
         display: inline-flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         width: 100%;
         gap: 8px;
         background: $bg-card;
         border: 1px solid $border-color;
         padding: 10px 16px;
-        margin-bottom: 10px;
-        border-radius: $border-radius;
+        border-radius: 10px;
         font-size: 0.875rem;
         font-weight: 500;
         text-decoration: none;
         transition: all 0.3s ease;
         cursor: pointer;
+        color: #4f46e5;
 
         span {
             flex: 1;
@@ -898,12 +543,14 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     }
 }
 
+// ============================================
+// انیمیشن
+// ============================================
 @keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(50px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -920,6 +567,298 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     }
 }
 
+// ============================================
+// برچسب Completed برای کلاس‌های تمام شده
+// ============================================
+.class-finished {
+    opacity: 0.8;
+    position: relative;
+    transition: opacity 0.3s ease;
+    padding-bottom: 36px;
+
+    &:hover {
+        opacity: 0.9;
+    }
+}
+
+.ribbon-finished {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    background: #6c757d;
+    color: #ffffff;
+    padding: 4px 14px;
+    border-radius: 40px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+// ============================================
+// استایل دانشجو
+// ============================================
+#StudentProfileSection {
+    margin-bottom: 32px;
+
+    .profile-card {
+        @extend %profile-card;
+    }
+    .profile-header {
+        @extend %profile-header;
+    }
+    .profile-info {
+        @extend %profile-info;
+    }
+}
+
+#StatisticalCardsStudents {
+    margin-bottom: 32px;
+    @include stats-grid(3);
+
+    .stat-card {
+        @extend %stat-card-base;
+
+        .stat-icon {
+            &.active {
+                background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
+                color: #4f46e5;
+            }
+            &.completed {
+                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+                color: #059669;
+            }
+            &.tuition {
+                background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+                color: #dc2626;
+            }
+        }
+
+        .stat-footer {
+            .stat-info {
+                font-weight: 500;
+                color: #6b7280;
+            }
+            .stat-warning {
+                font-weight: 600;
+                color: #dc2626;
+                background: #fee2e2;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.65rem;
+            }
+        }
+    }
+}
+
+.student-section {
+    max-width: 1400px;
+    padding: 24px;
+
+    .section-header {
+        @extend %section-header;
+    }
+    .classes-grid {
+        @extend %classes-grid;
+    }
+    .class-card {
+        @extend %class-card-base;
+        @include card-accent-colors(
+            ("ONLINE": linear-gradient(90deg, #10b981, #34d399),
+             "IN_PERSON": linear-gradient(90deg, #4f46e5, #818cf8),
+             "hybrid": linear-gradient(90deg, #f59e0b, #fbbf24)),
+            ("PAID": linear-gradient(90deg, #10b981, #34d399),
+             "PENDING": linear-gradient(90deg, #f59e0b, #fbbf24),
+             "FAILED": linear-gradient(90deg, #ef4444, #f87171))
+        );
+
+        .card-header {
+            @extend %card-header;
+            flex-wrap: wrap;
+            gap: 10px;
+
+            .course-meta {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                flex: 1;
+
+                .language-badge {
+                    background: #f3f4f6;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                }
+                .course-title-badge {
+                    background: #f3f4f6;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                }
+                .location-badge {
+                    background: #e0e7ff;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                    color: #4f46e5;
+                }
+                .online-badge {
+                    background: #d1fae5;
+                    padding: 4px 10px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                    color: #059669;
+                }
+            }
+
+            .payment-badge {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+
+                &.payment-paid {
+                    background: #d1fae5;
+                    color: #059669;
+                }
+                &.payment-pending {
+                    background: #fef3c7;
+                    color: #d97706;
+                }
+                &.payment-failed {
+                    background: #fee2e2;
+                    color: #dc2626;
+                }
+            }
+        }
+
+        .card-body {
+            @extend %card-body;
+
+            .class-status {
+                margin-top: 16px;
+                padding-top: 12px;
+                border-top: 1px solid #f3f4f6;
+
+                .status-indicator {
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+
+                    &.active {
+                        background: #e0e7ff;
+                        color: #4f46e5;
+                    }
+                    &.finished {
+                        background: #d1fae5;
+                        color: #059669;
+                    }
+                }
+            }
+        }
+
+        .card-footer {
+            @extend %card-footer;
+            .btn-view-details {
+                @extend .btn-view;
+            }
+        }
+    }
+
+    .empty-state {
+        @extend %empty-state;
+    }
+    @extend %responsive-styles;
+
+    @media (max-width: 480px) {
+        .class-card .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+}
+
+// ============================================
+// استایل استاد
+// ============================================
+#TeacherProfileSection {
+    margin-bottom: 32px;
+
+    .profile-card {
+        @extend %profile-card;
+    }
+    .profile-header {
+        @extend %profile-header;
+    }
+    .profile-info {
+        @extend %profile-info;
+    }
+}
+
+#StatisticalCardsTeachers {
+    margin-bottom: 32px;
+    @include stats-grid(4, 2, 1);
+
+    .stat-card {
+        @extend %stat-card-base;
+
+        .stat-icon {
+            background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
+            color: #4f46e5;
+
+            &.completed {
+                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+                color: #059669;
+            }
+            &.department {
+                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                color: #d97706;
+            }
+            &.students {
+                background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+                color: #db2777;
+            }
+        }
+
+        .stat-footer {
+            .stat-total {
+                font-weight: 500;
+                color: #6b7280;
+            }
+            .stat-completed {
+                font-weight: 500;
+                color: #059669;
+            }
+            .stat-percentage {
+                font-weight: 500;
+                color: #4f46e5;
+                background: #e0e7ff;
+                padding: 2px 8px;
+                border-radius: 12px;
+            }
+            .stat-languages {
+                font-weight: 500;
+                color: #d97706;
+                background: #fef3c7;
+                padding: 2px 8px;
+                border-radius: 12px;
+            }
+        }
+    }
+}
+
 .instructor-section {
     max-width: 1400px;
     padding: 24px;
@@ -927,17 +866,16 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     .section-header {
         @extend %section-header;
     }
-
     .classes-grid {
         @extend %classes-grid;
     }
-
     .class-card {
         @extend %class-card-base;
-
-        @include card-accent-colors(("ONLINE": linear-gradient(90deg, #10b981, #34d399),
-                "IN_PERSON": linear-gradient(90deg, #4f46e5, #818cf8),
-                "hybrid": linear-gradient(90deg, #f59e0b, #fbbf24)));
+        @include card-accent-colors(
+            ("ONLINE": linear-gradient(90deg, #10b981, #34d399),
+             "IN_PERSON": linear-gradient(90deg, #4f46e5, #818cf8),
+             "hybrid": linear-gradient(90deg, #f59e0b, #fbbf24))
+        );
 
         .card-header {
             @extend %card-header;
@@ -954,7 +892,6 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
                     font-size: 0.75rem;
                     font-weight: 500;
                 }
-
                 .level-badge {
                     background: #e0e7ff;
                     padding: 4px 10px;
@@ -978,14 +915,9 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
             @extend %card-body;
 
             .info-item .info-value {
-                a{
-                    color: blue;
-                }
-
                 .enrolled-count {
                     font-weight: 700;
                 }
-
                 .capacity {
                     font-weight: 400;
                 }
@@ -1008,7 +940,6 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
 
         .card-footer {
             @extend %card-footer;
-
             .btn-view-students {
                 @extend .btn-view;
             }
@@ -1018,183 +949,18 @@ $stat-card-shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.12);
     .empty-state {
         @extend %empty-state;
     }
-
     @extend %responsive-styles;
 }
 
-.student-section {
-    max-width: 1400px;
-    padding: 24px;
-
-    .section-header {
-        @extend %section-header;
-    }
-
-    .classes-grid {
-        @extend %classes-grid;
-    }
-
-    .class-card {
-        @extend %class-card-base;
-
-        @include card-accent-colors(("ONLINE": linear-gradient(90deg, #10b981, #34d399),
-                "IN_PERSON": linear-gradient(90deg, #4f46e5, #818cf8),
-                "hybrid": linear-gradient(90deg, #f59e0b, #fbbf24)),
-            ("PAID": linear-gradient(90deg, #10b981, #34d399),
-                "PENDING": linear-gradient(90deg, #f59e0b, #fbbf24),
-                "FAILED": linear-gradient(90deg, #ef4444, #f87171)));
-
-        .card-header {
-            @extend %card-header;
-            flex-wrap: wrap;
-            gap: 10px;
-
-            .course-meta {
-                display: flex;
-                gap: 8px;
-                flex-wrap: wrap;
-                flex: 1;
-
-                .language-badge {
-                    background: #f3f4f6;
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                }
-
-                .course-title-badge {
-                    background: #f3f4f6;
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                }
-
-                .location-badge {
-                    background: #e0e7ff;
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                    color: #4f46e5;
-                }
-
-                .online-badge {
-                    background: #d1fae5;
-                    padding: 4px 10px;
-                    border-radius: 20px;
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                    color: #059669;
-                }
-            }
-
-            .payment-badge {
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 0.7rem;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-
-                &.payment-paid {
-                    background: #d1fae5;
-                    color: #059669;
-                }
-
-                &.payment-pending {
-                    background: #fef3c7;
-                    color: #d97706;
-                }
-
-                &.payment-failed {
-                    background: #fee2e2;
-                    color: #dc2626;
-                }
-            }
-        }
-
-        .card-body {
-            @extend %card-body;
-
-            .info-item .info-value {
-                a{
-                    color: blue;
-                }
-            }
-
-            .class-status {
-                margin-top: 16px;
-                padding-top: 12px;
-                border-top: 1px solid #f3f4f6;
-
-                .status-indicator {
-                    font-size: 0.75rem;
-                    font-weight: 500;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 4px 12px;
-                    border-radius: 20px;
-
-                    &.active {
-                        background: #e0e7ff;
-                        color: #4f46e5;
-                    }
-
-                    &.finished {
-                        background: #d1fae5;
-                        color: #059669;
-                    }
-                }
-            }
-        }
-
-        .card-footer {
-            @extend %card-footer;
-
-            .btn-view-details {
-                @extend .btn-view;
-            }
-        }
-    }
-
-    .empty-state {
-        @extend %empty-state;
-    }
-
-    @extend %responsive-styles;
-
-    @media (max-width: 480px) {
-        .class-card .card-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-    }
+// ============================================
+// استایل کلی
+// ============================================
+.main-content {
+    padding: 30px;
 }
 
-.class-finished {
-    opacity: 0.7;
-    position: relative;
-    transition: opacity 0.3s ease;
-    // padding bottom را کمی بیشتر می‌کنیم تا نوار جا شود
-    padding-bottom: 30px; 
-    &:hover {
-        opacity: 0.85;
+@media (max-width: 768px) {
+    .main-content {
+        padding: 20px 16px;
     }
-}
-.ribbon-finished {
-    position: absolute;
-    // به جای top، از bottom استفاده کن
-    bottom: 3px;
-    // از لبهٔ راست فاصله بده
-    right: 10px;
-    background: #6c757d;
-    color: #ffffff;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    z-index: 5;
 }

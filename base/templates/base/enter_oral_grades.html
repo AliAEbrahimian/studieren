@@ -1,51 +1,145 @@
 {% extends 'base/exam_dashboard_base.html' %}
+{% load static %}
+{% load custom_filters %}
 
 {% block title %}Enter Oral Grades | Studieren{% endblock %}
 
 {% block dashboard_content %}
 <div class="oral-grades-section">
-    <h2>Enter Oral Grades (Sprechen)</h2>
-    <p class="text-muted">Exam: {{ exam.class_group.title }} ({{ exam.class_group.course.language }} {{ exam.class_group.course.level }})</p>
-
-    {% if exam.status == 'FINALIZED' %}
-        <div class="alert alert-warning">This exam has been finalized. Grades cannot be changed.</div>
-    {% endif %}
-
-    <form method="POST">
-        {% csrf_token %}
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Student</th>
-                        <th>Oral Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for enrollment in enrollments %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ enrollment.student.user.get_full_name }}</td>
-                        <td>
-                            <input type="number"
-                                   step="0.5"
-                                   min="0"
-                                   max="100"
-                                   name="oral_score_{{ enrollment.student.pk }}"
-                                   value="{{ oral_grades|get_item:enrollment.student.pk|default:'' }}"
-                                   class="form-control"
-                                   placeholder="Score"
-                                   {% if exam.status == 'FINALIZED' %}disabled{% endif %}>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="oral-container">
+        <!-- هدر با اطلاعات امتحان و دکمه بازگشت -->
+        <div class="oral-header">
+            <div class="header-left">
+                <h2>Enter Oral Grades</h2>
+                <div class="exam-info">
+                    <span class="exam-title">{{ exam.class_group.title }}</span>
+                    <span class="exam-badge">{{ exam.class_group.course.language }} | {{ exam.class_group.course.level }}</span>
+                    <span class="exam-total">Total Score: {{ exam.total_score }}</span>
+                    {% if exam.status == 'OPEN' %}
+                        <span class="status-badge open">Open</span>
+                    {% else %}
+                        <span class="status-badge finalized">Finalized</span>
+                    {% endif %}
+                </div>
+            </div>
+            <a href="{% url 'teacher_classes' %}" class="btn-back">← Back to Classes</a>
         </div>
-        {% if exam.status != 'FINALIZED' %}
-            <button type="submit" class="btn btn-primary">Save Oral Grades</button>
+
+        <!-- نمایش پیام‌های سیستمی -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
         {% endif %}
-    </form>
+
+        <!-- هشدار نهایی‌سازی -->
+        {% if exam.status == 'FINALIZED' %}
+            <div class="alert-warning-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <circle cx="12" cy="16" r="0.5" fill="currentColor" stroke="none"/>
+                </svg>
+                This exam has been finalized. Grades cannot be changed.
+            </div>
+        {% endif %}
+
+        <!-- نمایش پیشرفت کلی (اختیاری) -->
+        <div class="progress-overview">
+            <div class="progress-label">Overall Completion</div>
+            <div class="progress-bar-wrapper">
+                <div class="progress-fill" id="overallProgress" style="width: 0%;">0%</div>
+            </div>
+        </div>
+
+        <form method="POST" id="oralGradesForm">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="oral-table" id="oralTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Oral Score (Sprechen)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr data-student-id="{{ enrollment.student.pk }}" class="student-row">
+                            <td class="counter">{{ forloop.counter }}</td>
+                            <td class="student-name">{{ enrollment.student.user.get_full_name }}</td>
+                            <td class="score-cell">
+                                <input type="number"
+                                       step="0.5"
+                                       min="0"
+                                       max="100"
+                                       name="oral_score_{{ enrollment.student.pk }}"
+                                       value="{{ oral_grades|get_item:enrollment.student.pk|default:'' }}"
+                                       class="grade-input"
+                                       placeholder="–"
+                                       {% if exam.status == 'FINALIZED' %}disabled{% endif %}>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions">
+                {% if exam.status == 'OPEN' %}
+                    <button type="submit" class="btn-submit">Save Oral Grades</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+    // محاسبه درصد پیشرفت کلی
+    function updateProgress() {
+        const rows = document.querySelectorAll('#oralTable tbody .student-row');
+        let totalFilled = 0;
+        let totalFields = 0;
+
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('.grade-input');
+            inputs.forEach(input => {
+                const val = input.value.trim();
+                if (val !== '') {
+                    totalFilled++;
+                }
+                totalFields++;
+            });
+        });
+
+        const percent = totalFields ? (totalFilled / totalFields) * 100 : 0;
+        const progressBar = document.getElementById('overallProgress');
+        if (progressBar) {
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = Math.round(percent) + '%';
+        }
+    }
+
+    // اعتبارسنجی لحظه‌ای (محدودیت min/max)
+    function setupValidation() {
+        const inputs = document.querySelectorAll('.grade-input');
+        inputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                let val = parseFloat(this.value);
+                const max = parseFloat(this.getAttribute('max')) || 100;
+                const min = parseFloat(this.getAttribute('min')) || 0;
+                if (!isNaN(val)) {
+                    if (val > max) this.value = max;
+                    if (val < min) this.value = min;
+                }
+                updateProgress();
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setupValidation();
+        updateProgress();
+    });
+</script>
 {% endblock %}

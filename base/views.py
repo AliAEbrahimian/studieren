@@ -889,3 +889,47 @@ def user_management(request):
 @login_required(login_url='login')
 def finance_reports(request):
     return render(request, 'base/finance_reports.html', {'user': request.user})
+
+@login_required(login_url='login')
+def available_courses(request):
+    today = date.today()
+    
+    # پایهٔ QuerySet: کلاس‌هایی که شروع نشده‌اند یا در حال برگزاری هستند
+    courses = Class.objects.filter(
+        end_date__gte=today  # کلاس‌هایی که هنوز تمام نشده‌اند
+    ).select_related('course', 'teacher__user').order_by('start_date')
+    
+    # گرفتن پارامترهای فیلتر از URL
+    search_query = request.GET.get('q', '')
+    language_filter = request.GET.get('language', '')
+    level_filter = request.GET.get('level', '')
+    type_filter = request.GET.get('type', '')
+    
+    # اعمال جستجو (در عنوان کلاس، نام دوره و زبان)
+    if search_query:
+        courses = courses.filter(
+            Q(title__icontains=search_query) |
+            Q(course__title__icontains=search_query) |
+            Q(course__language__icontains=search_query)
+        )
+    
+    # فیلتر زبان
+    if language_filter:
+        courses = courses.filter(course__language__iexact=language_filter)
+    
+    # فیلتر سطح
+    if level_filter:
+        courses = courses.filter(course__level__iexact=level_filter)
+    
+    # فیلتر نوع کلاس (حضوری/آنلاین)
+    if type_filter:
+        courses = courses.filter(class_type=type_filter)
+    
+    context = {
+        'courses': courses,
+        'search_query': search_query,
+        'language_filter': language_filter,
+        'level_filter': level_filter,
+        'type_filter': type_filter,
+    }
+    return render(request, 'base/available_courses.html', context)

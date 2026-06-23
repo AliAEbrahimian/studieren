@@ -933,3 +933,25 @@ def available_courses(request):
         'type_filter': type_filter,
     }
     return render(request, 'base/available_courses.html', context)
+
+@login_required(login_url='login')
+def class_detail(request, class_id):
+    cls = get_object_or_404(Class, id=class_id)
+    
+    # محاسبهٔ صندلی‌های باقی‌مانده
+    remaining_seats = cls.capacity - cls.enrollments.count()
+    
+    # چک کردن اینکه آیا دانشجوی فعلی قبلاً در این کلاس ثبت‌نام کرده یا نه
+    already_enrolled = False
+    if hasattr(request.user, 'student_profile'):
+        already_enrolled = Enrollment.objects.filter(
+            student=request.user.student_profile,
+            enrolled_class=cls
+        ).exists()
+    
+    context = {
+        'class': cls,
+        'remaining_seats': remaining_seats,
+        'already_enrolled': already_enrolled,
+    }
+    return render(request, 'base/class_detail.html', context)

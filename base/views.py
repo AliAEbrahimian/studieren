@@ -32,12 +32,6 @@ from .models import  UserAccount
 
 # Create your views here.
 
-#rooms = [
-#    {'id' : 1, 'name' : 'Kurs 1'},
-#    {'id' : 2, 'name' : 'Kurs 2'},
-#    {'id' : 3, 'name' : 'Kurs 3'},
-#    {'id' : 4, 'name' : 'Kurs 4'},
-#]
 
 User = get_user_model()
 
@@ -858,7 +852,80 @@ def finalized_exam_list(request):
 
 @login_required(login_url='login')
 def staff_enrollment(request):
-    return render(request, 'base/staff_enrollment.html', {'user': request.user})
+    # فقط کارمندان اداری یا مدیران
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.STAFF,
+            Employee.Position.EDUCATION_MANAGER,
+            Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+    
+    # --- بخش جستجوی دانشجو ---
+    search_query = request.GET.get('q', '')
+    selected_student = None
+    student_results = []
+    
+    if search_query:
+        student_results = UserAccount.objects.filter(
+            Q(email__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(national_code__icontains=search_query),
+            student_profile__isnull=False  # فقط کاربرانی که Student هستند
+        ).select_related('student_profile')[:10]  # حداکثر ۱۰ نتیجه
+    
+    student_id = request.GET.get('student_id', '')
+    if student_id:
+        selected_student = get_object_or_404(Student, pk=student_id)
+    
+    # --- بخش انتخاب کلاس ---
+    today = date.today()
+    available_classes = Class.objects.filter(
+        end_date__gte=today
+    ).select_related('course', 'teacher__user').order_by('start_date')
+    
+    # --- پردازش ثبت‌نام ---
+    if request.method == 'POST':
+        student_pk = request.POST.get('student_pk')
+        class_pk = request.POST.get('class_pk')
+        
+        if student_pk and class_pk:
+            student = get_object_or_404(Student, pk=student_pk)
+            cls = get_object_or_404(Class, pk=class_pk)
+            
+            # چک تکراری
+            if Enrollment.objects.filter(student=student, enrolled_class=cls).exists():
+                messages.warning(request, f'{student.user.get_full_name()} is already enrolled in {cls.title}.')
+            else:
+                # ایجاد فاکتور
+                Invoice.objects.create(
+                    student=student,
+                    class_group=cls,
+                    amount=100,  # مبلغ ثابت (بعداً از مدل Class می‌خوانیم)
+                    status=Invoice.Status.PAID,
+                    paid_at=timezone.now(),
+                    reference_code=f"REF-STAFF-{uuid.uuid4().hex[:8].upper()}"
+                )
+                # ایجاد ثبت‌نام
+                Enrollment.objects.create(
+                    student=student,
+                    enrolled_class=cls,
+                    payment_status=Enrollment.PaymentStatus.PAID
+                )
+                messages.success(request, f'{student.user.get_full_name()} has been enrolled in {cls.title}.')
+                return redirect('staff_enrollment')
+    
+    context = {
+        'search_query': search_query,
+        'student_results': student_results,
+        'selected_student': selected_student,
+        'available_classes': available_classes,
+    }
+    return render(request, 'base/staff_enrollment.html', context)
 
 @login_required(login_url='login')
 def staff_student_profiles(request):

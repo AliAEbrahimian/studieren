@@ -26,6 +26,9 @@ urlpatterns = [
     path('class/<int:class_id>/attendance/export/', views.export_attendance_excel, name='export_attendance_excel'),
     path('courses/', views.available_courses, name='available_courses'),
     path('class/<int:class_id>/detail/', views.class_detail, name='class_detail'),
+    path('class/<int:class_id>/enroll/', views.enroll_class, name='enroll_class'),
+    path('class/<int:class_id>/review/', views.enroll_review, name='enroll_review'),
+    path('class/<int:class_id>/payment/', views.mock_payment, name='mock_payment'),
     
     path('teacher/classes/', views.teacher_classes, name='teacher_classes'),
     path('teacher/schedule/', views.teacher_schedule, name='teacher_schedule'),

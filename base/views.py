@@ -17,11 +17,13 @@ from django.conf import settings
 # Python standard library
 from datetime import date
 import openpyxl
+import uuid
 
 # Local apps - models
 from .models import UserAccount
 from academy.models import Student, Employee, Course, Class, Enrollment
 from academy.models import Session, Attendance, PlacementTestRequest, Exam, ExamSection, StudentGrade, OralGrade
+from payments.models import Invoice
 # Local apps - forms
 from .forms import RegisterForm, UserUpdateForm
 
@@ -955,3 +957,115 @@ def class_detail(request, class_id):
         'already_enrolled': already_enrolled,
     }
     return render(request, 'base/class_detail.html', context)
+
+@login_required(login_url='login')
+def enroll_class(request, class_id):
+    # ۱. پیدا کردن کلاس
+    print("DEBUG: enroll_class view called!")
+    cls = get_object_or_404(Class, id=class_id)
+    
+    # ۲. بررسی دانشجو بودن کاربر
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Only students can enroll in classes.')
+        return redirect('available_courses')
+    
+    # ۳. بررسی ظرفیت کلاس
+    remaining_seats = cls.capacity - cls.enrollments.count()
+    if remaining_seats <= 0:
+        print("DEBUG: Class is full!")
+        messages.error(request, 'Sorry, this class is already full.')
+        return redirect('class_detail', class_id=cls.id)
+    
+    # ۴. بررسی ثبت‌نام تکراری
+    if Enrollment.objects.filter(student=student, enrolled_class=cls).exists():
+        print("DEBUG: Student is already enrolled!")
+        messages.warning(request, 'You are already enrolled in this class.')
+        return redirect('class_detail', class_id=cls.id)
+    
+    # ۵. Eligibility Check (بررسی سطح زبان)
+    # تعریف ترتیب سطوح
+    LEVEL_ORDER = {'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6}
+    
+    student_level = student.current_level.upper() if student.current_level else ''
+    class_level = cls.course.level
+    
+    if student_level and class_level:
+        student_level_num = LEVEL_ORDER.get(student_level, 0)
+        class_level_num = LEVEL_ORDER.get(class_level, 0)
+        
+        # دانشجو فقط می‌تواند در کلاس‌های هم‌سطح یا پایین‌تر ثبت‌نام کند
+        print(f"DEBUG: Student level: {student_level_num}, Class level: {class_level_num}")
+        if student_level_num < class_level_num:
+            messages.error(
+                request, 
+                f'Your current level ({student_level}) is lower than the required level for this class ({class_level}). '
+                f'Please complete lower levels first or request a placement test.'
+            )
+            return redirect('class_detail', class_id=cls.id)
+    
+    # ۶. هدایت به صفحهٔ Review
+    return redirect('enroll_review', class_id=cls.id)
+
+@login_required(login_url='login')
+def enroll_review(request, class_id):
+    cls = get_object_or_404(Class, id=class_id)
+    
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Only students can enroll.')
+        return redirect('available_courses')
+    
+    # دوباره چک می‌کنیم که ثبت‌نام تکراری نباشد
+    if Enrollment.objects.filter(student=student, enrolled_class=cls).exists():
+        messages.warning(request, 'You are already enrolled.')
+        return redirect('class_detail', class_id=cls.id)
+    
+    context = {
+        'class': cls,
+        'student': student,
+    }
+    return render(request, 'base/enroll_review.html', context)
+
+@login_required(login_url='login')
+def mock_payment(request, class_id):
+    cls = get_object_or_404(Class, id=class_id)
+    
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Only students can enroll.')
+        return redirect('available_courses')
+    
+    # چک تکراری (امنیتی)
+    if Enrollment.objects.filter(student=student, enrolled_class=cls).exists():
+        messages.warning(request, 'You are already enrolled.')
+        return redirect('class_detail', class_id=cls.id)
+    
+    if request.method == 'POST':
+        # ۱. ایجاد فاکتور پرداخت‌شده
+        Invoice.objects.create(
+            student=student,
+            class_group=cls,
+            amount=100,  # فعلاً مبلغ ثابت. بعداً می‌توانی واقعی‌اش کنی
+            status=Invoice.Status.PAID,
+            paid_at=timezone.now(),
+            reference_code=f"REF-{uuid.uuid4().hex[:8].upper()}"
+        )
+        
+        # ۲. ایجاد ثبت‌نام
+        Enrollment.objects.create(
+            student=student,
+            enrolled_class=cls,
+            payment_status=Enrollment.PaymentStatus.PAID
+        )
+        
+        messages.success(request, f'You have successfully enrolled in {cls.title}!')
+        return redirect('dashboard')  # یا redirect('my_courses')
+    
+    context = {
+        'class': cls,
+    }
+    return render(request, 'base/mock_payment.html', context)

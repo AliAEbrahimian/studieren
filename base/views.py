@@ -937,7 +937,39 @@ def staff_finance(request):
 
 @login_required(login_url='login')
 def manage_classes(request):
-    return render(request, 'base/manage_classes.html', {'user': request.user})
+    # دسترسی: مدیر آموزشی، مدیر ارشد، یا ادمین
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER,
+            Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+    
+    # جستجو
+    search_query = request.GET.get('q', '')
+    classes = Class.objects.select_related('course', 'teacher__user').order_by('-start_date')
+    
+    if search_query:
+        classes = classes.filter(
+            Q(title__icontains=search_query) |
+            Q(class_code__icontains=search_query) |
+            Q(course__language__icontains=search_query) |
+            Q(course__level__icontains=search_query) |
+            Q(teacher__user__first_name__icontains=search_query) |
+            Q(teacher__user__last_name__icontains=search_query)
+        )
+    
+    today = date.today()
+    
+    context = {
+        'classes': classes,
+        'search_query': search_query,
+        'today': today,
+    }
+    return render(request, 'base/manage_classes.html', context)
 
 @login_required(login_url='login')
 def manage_courses(request):
@@ -1134,5 +1166,10 @@ def mock_payment(request, class_id):
     
     context = {
         'class': cls,
+        'student': student,
+        'course_fee': cls.tuition_fee,          # ← مقدار واقعی از مدل
+        'registration_fee': 0,                   # ← فعلاً صفر (بعداً می‌توانی اضافه کنی)
+        'discount': 0,                           # ← فعلاً صفر
+        'total_due': cls.tuition_fee,            # ← مجموع قابل پرداخت
     }
     return render(request, 'base/mock_payment.html', context)

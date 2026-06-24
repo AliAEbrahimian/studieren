@@ -22,7 +22,7 @@ class CourseAdmin(admin.ModelAdmin):
     
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):
-    list_display = ['class_code', 'title', 'course', 'teacher', 'class_type', 'start_date', 'capacity']
+    list_display = ['class_code', 'title', 'course', 'teacher', 'tuition_fee', 'class_type', 'start_date', 'capacity']
     list_filter = ['class_type', 'course__language', 'start_date']
     raw_id_fields = ['teacher']
     search_fields = ['class_code', 'title', 'course__title']

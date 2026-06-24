@@ -905,7 +905,7 @@ def staff_enrollment(request):
                 Invoice.objects.create(
                     student=student,
                     class_group=cls,
-                    amount=100,  # مبلغ ثابت (بعداً از مدل Class می‌خوانیم)
+                    amount=cls.tuition_fee,  # مبلغ ثابت (بعداً از مدل Class می‌خوانیم)
                     status=Invoice.Status.PAID,
                     paid_at=timezone.now(),
                     reference_code=f"REF-STAFF-{uuid.uuid4().hex[:8].upper()}"

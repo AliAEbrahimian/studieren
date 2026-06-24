@@ -119,6 +119,7 @@ class Class(models.Model):
     )
     
     capacity = models.PositiveIntegerField(default=10)
+    tuition_fee = models.PositiveIntegerField(default=0, verbose_name="Tuition Fee")
     schedule = models.CharField(max_length=200)
     start_date = models.DateField()
     end_date = models.DateField()

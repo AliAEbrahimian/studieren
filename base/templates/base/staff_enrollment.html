@@ -1,4 +1,100 @@
 {% extends 'base/dashboard_base.html' %}
-{% block title %}Enrollment | Studieren{% endblock %}
-{% block sidebar_menu %}<li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back to Dashboard</a></li>{% endblock %}
-{% block dashboard_content %}<h2>Student Enrollment</h2><div class="alert alert-info">This section will be completed soon.</div>{% endblock %}
+
+{% block title %}Student Enrollment | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'staff_enrollment' %}">Student Enrollment</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'staff_student_profiles' %}">Student Profiles</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'staff_finance' %}">Finance</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="staff-enrollment-section">
+    <h2>Student Enrollment</h2>
+    <p class="text-muted">Search for a student and enroll them in a class.</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- بخش جستجوی دانشجو -->
+    <div class="card mb-4">
+        <div class="card-header">Step 1: Find Student</div>
+        <div class="card-body">
+            <form method="GET" class="row g-2">
+                <input type="hidden" name="student_id" value="{{ selected_student.pk|default:'' }}">
+                <div class="col-md-8">
+                    <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search by email, first name or last name...">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+            
+            {% if student_results %}
+                <div class="list-group mt-3">
+                    {% for user in student_results %}
+                        <a href="?q={{ search_query }}&student_id={{ user.student_profile.pk }}" 
+                           class="list-group-item list-group-item-action {% if selected_student and selected_student.pk == user.student_profile.pk %}active{% endif %}">
+                            {{ user.get_full_name }} — {{ user.email }} {% if user.national_code %}(National code: {{ user.national_code }}){% endif %}(Level: {{ user.student_profile.current_level|default:"N/A" }})
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- بخش انتخاب کلاس و ثبت‌نام -->
+    {% if selected_student %}
+    <div class="card">
+        <div class="card-header">Step 2: Select Class & Enroll — Student: {{ selected_student.user.get_full_name }}</div>
+        <div class="card-body">
+            {% if available_classes %}
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="student_pk" value="{{ selected_student.pk }}">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Class</th>
+                                <th>Level</th>
+                                <th>Fee</th>
+                                <th>Capacity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cls in available_classes %}
+                            <tr>
+                                <td>{{ cls.class_code }}</td>
+                                <td>{{ cls.title }}</td>
+                                <td>{{ cls.course.language }} {{ cls.course.level }}</td>
+                                <td>{{ cls.tuition_fee|default:"0" }} T</td>
+                                <td>{{ cls.enrollments.count }} / {{ cls.capacity }}</td>
+                                <td>
+                                    <button type="submit" name="class_pk" value="{{ cls.pk }}" class="btn btn-sm btn-success">
+                                        Enroll
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            {% else %}
+                <p class="text-muted">No available classes at the moment.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

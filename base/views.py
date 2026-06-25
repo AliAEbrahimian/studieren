@@ -397,36 +397,49 @@ def class_students(request, class_id):
 
 
 @login_required(login_url='login')
-def teacher_schedule(request):
+def teacher_schedule(request, teacher_id=None):  # ← پارامتر جدید اضافه می‌شود
     user = request.user
-    try:
-        employee = user.employee_profile
-    except Employee.DoesNotExist:
-        messages.error(request, 'You do not have a teacher profile.')
-        return redirect('dashboard')
+    
+    # اگر مدیر یک teacher_id مشخص فرستاده باشد، همان استاد را پیدا کن
+    if teacher_id and (request.user.is_staff or (
+        hasattr(request.user, 'employee_profile') and
+        request.user.employee_profile.position in [
+            Employee.Position.EDUCATION_MANAGER,
+            Employee.Position.SENIOR_MANAGER
+        ]
+    )):
+        teacher = get_object_or_404(Employee, pk=teacher_id, position=Employee.Position.TEACHER)
+    else:
+        # در غیر این صورت، استاد خودِ کاربر لاگین‌شده
+        try:
+            teacher = request.user.employee_profile
+            if teacher.position != Employee.Position.TEACHER:
+                messages.error(request, 'You do not have a teacher profile.')
+                return redirect('dashboard')
+        except Employee.DoesNotExist:
+            messages.error(request, 'You do not have a teacher profile.')
+            return redirect('dashboard')
     
     today = date.today()
-    
-    classes = employee.taught_classes.filter(end_date__gte=today).order_by('start_date')
-    
+    classes = teacher.taught_classes.filter(end_date__gte=today).order_by('start_date')
     
     from collections import defaultdict
     schedule = defaultdict(list)
     for cls in classes:
-        if cls.day_of_week:  
+        if cls.day_of_week:
             for day in cls.day_of_week:
                 schedule[day].append(cls)
-    
     
     for day in schedule:
         schedule[day].sort(key=lambda x: (x.start_time is None, x.start_time))
     
     context = {
         'user': user,
-        'employee': employee,
+        'employee': teacher,
         'schedule': dict(schedule),
         'days': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
         'today': today,
+        'viewing_as_manager': teacher_id is not None,  # ← پرچم برای نمایش در قالب
     }
     return render(request, 'base/teacher_schedule.html', context)
 
@@ -467,7 +480,12 @@ def generate_class_sessions(request, class_id):
 def attendance_sheet(request, class_id):
     cls = get_object_or_404(Class, id=class_id)
     
-    if request.user.employee_profile != cls.teacher and not request.user.is_staff:
+    is_teacher = hasattr(request.user, 'employee_profile') and request.user.employee_profile == cls.teacher
+    is_manager = hasattr(request.user, 'employee_profile') and request.user.employee_profile.position in [
+    Employee.Position.EDUCATION_MANAGER,
+    Employee.Position.SENIOR_MANAGER
+]
+    if not (is_teacher or is_manager or request.user.is_staff):
         messages.error(request, 'You do not have permission to perform this action.')
         return redirect('dashboard')
     
@@ -924,6 +942,8 @@ def staff_enrollment(request):
         'student_results': student_results,
         'selected_student': selected_student,
         'available_classes': available_classes,
+        'total_students': Student.objects.count(),
+        'available_classes_count': available_classes.count(),
     }
     return render(request, 'base/staff_enrollment.html', context)
 
@@ -964,10 +984,17 @@ def manage_classes(request):
     
     today = date.today()
     
+    total_classes = classes.count()
+    active_classes_count = classes.filter(end_date__gte=today).count()
+    finished_classes_count = classes.filter(end_date__lt=today).count()
+    
     context = {
         'classes': classes,
         'search_query': search_query,
         'today': today,
+        'total_classes': total_classes,                  # ← جدید
+        'active_classes_count': active_classes_count,    # ← جدید
+        'finished_classes_count': finished_classes_count,# ← جدید
     }
     return render(request, 'base/manage_classes.html', context)
 
@@ -977,7 +1004,49 @@ def manage_courses(request):
 
 @login_required(login_url='login')
 def manage_teachers(request):
-    return render(request, 'base/manage_teachers.html', {'user': request.user})
+    # دسترسی: مدیر آموزشی، مدیر ارشد، یا ادمین
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER,
+            Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+    
+    search_query = request.GET.get('q', '')
+    teachers = Employee.objects.filter(
+        position=Employee.Position.TEACHER
+    ).select_related('user').order_by('user__last_name', 'user__first_name')
+    
+    if search_query:
+        teachers = teachers.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__email__icontains=search_query) |
+            Q(department__icontains=search_query)
+        )
+    
+    # محاسبه تعداد کلاس‌های جاری و دانشجویان برای هر استاد
+    today = date.today()
+    teacher_data = []
+    for teacher in teachers:
+        current_classes = teacher.taught_classes.filter(end_date__gte=today)
+        total_students = Student.objects.filter(
+            enrollments__enrolled_class__teacher=teacher
+        ).distinct().count()
+        teacher_data.append({
+            'teacher': teacher,
+            'current_classes_count': current_classes.count(),
+            'total_students': total_students,
+        })
+    
+    context = {
+        'teacher_data': teacher_data,
+        'search_query': search_query,
+    }
+    return render(request, 'base/manage_teachers.html', context)
 
 @login_required(login_url='login')
 def manager_reports(request):

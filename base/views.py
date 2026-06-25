@@ -355,7 +355,41 @@ def student_scores(request):
 
 @login_required(login_url='login')
 def student_finance(request):
-    return render(request, 'base/student_finance.html', {'user': request.user})
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Only students can view financial records.')
+        return redirect('dashboard')
+
+    # گرفتن وضعیت فیلتر از URL (پیش‌فرض 'all' یعنی همه)
+    status_filter = request.GET.get('status', 'all')
+
+    # تمام فاکتورهای این دانشجو
+    invoices = Invoice.objects.filter(
+        student=student
+    ).select_related('class_group__course')
+
+    # اعمال فیلتر وضعیت (اگر غیر از 'all' باشد)
+    if status_filter in ['PAID', 'PENDING', 'CANCELED']:
+        invoices = invoices.filter(status=status_filter)
+
+    invoices = invoices.order_by('-created_at')
+
+    # محاسبه آمارهای مالی بر اساس فاکتورهای فیلترشده
+    total_amount = sum(inv.amount for inv in invoices)
+    paid_amount = sum(inv.amount for inv in invoices if inv.status == Invoice.Status.PAID)
+    pending_amount = sum(inv.amount for inv in invoices if inv.status == Invoice.Status.PENDING)
+
+    context = {
+        'user': request.user,
+        'student': student,
+        'invoices': invoices,
+        'status_filter': status_filter,
+        'total_amount': total_amount,
+        'paid_amount': paid_amount,
+        'pending_amount': pending_amount,
+    }
+    return render(request, 'base/student_finance.html', context)
 
 
 
@@ -949,7 +983,52 @@ def staff_enrollment(request):
 
 @login_required(login_url='login')
 def staff_student_profiles(request):
-    return render(request, 'base/staff_student_profiles.html', {'user': request.user})
+    # دسترسی: STAFF, EDUCATION_MANAGER, SENIOR_MANAGER
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.STAFF,
+            Employee.Position.EDUCATION_MANAGER,
+            Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+    
+    search_query = request.GET.get('q', '')
+    
+    students = UserAccount.objects.filter(
+        student_profile__isnull=False  # فقط کاربرانی که پروفایل دانشجویی دارند
+    ).select_related('student_profile').order_by('last_name', 'first_name')
+    
+    if search_query:
+        students = students.filter(
+            Q(email__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(national_code__icontains=search_query)
+        )
+    
+    today = date.today()
+    
+    student_data = []
+    for user in students:
+        student = user.student_profile
+        active_enrollments = Enrollment.objects.filter(
+            student=student,
+            enrolled_class__end_date__gte=today
+        ).count()
+        student_data.append({
+            'user': user,
+            'student': student,
+            'active_classes': active_enrollments,
+        })
+    
+    context = {
+        'student_data': student_data,
+        'search_query': search_query,
+    }
+    return render(request, 'base/staff_student_profiles.html', context)
 
 @login_required(login_url='login')
 def staff_finance(request):
@@ -1242,3 +1321,57 @@ def mock_payment(request, class_id):
         'total_due': cls.tuition_fee,            # ← مجموع قابل پرداخت
     }
     return render(request, 'base/mock_payment.html', context)
+
+@login_required(login_url='login')
+def pay_invoice(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    
+    # امنیت: فقط دانشجوی صاحب فاکتور می‌تواند پرداخت کند
+    if not hasattr(request.user, 'student_profile') or request.user.student_profile != invoice.student:
+        messages.error(request, 'You do not have permission to pay this invoice.')
+        return redirect('student_finance')
+    
+    if invoice.status != Invoice.Status.PENDING:
+        messages.warning(request, 'This invoice is not pending payment.')
+        return redirect('student_finance')
+    
+    # پرداخت موفق
+    invoice.status = Invoice.Status.PAID
+    invoice.paid_at = timezone.now()
+    invoice.save()
+    
+    # اگر ثبت‌نامی برای این دانشجو و کلاس وجود دارد و وضعیتش PENDING است، آن را هم PAID کن
+    enrollment = Enrollment.objects.filter(
+        student=invoice.student,
+        enrolled_class=invoice.class_group,
+        payment_status=Enrollment.PaymentStatus.PENDING
+    ).first()
+    if enrollment:
+        enrollment.payment_status = Enrollment.PaymentStatus.PAID
+        enrollment.save()
+    
+    messages.success(request, f'Invoice {invoice.reference_code or invoice.id} has been paid successfully.')
+    return redirect('student_finance')
+
+@login_required(login_url='login')
+def invoice_receipt(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    
+    # امنیت: فقط دانشجوی صاحب فاکتور یا مدیران مجاز
+    if not (
+        hasattr(request.user, 'student_profile') and request.user.student_profile == invoice.student
+    ) and not (
+        request.user.is_staff or (
+            hasattr(request.user, 'employee_profile') and
+            request.user.employee_profile.position in [
+                Employee.Position.STAFF, Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+            ]
+        )
+    ):
+        messages.error(request, 'You do not have permission to view this receipt.')
+        return redirect('dashboard')
+    
+    context = {
+        'invoice': invoice,
+    }
+    return render(request, 'base/invoice_receipt.html', context)

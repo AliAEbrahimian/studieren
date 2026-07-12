@@ -268,6 +268,18 @@
         }
     }
 
+    .toggle-btn.status-empty {
+        background: #ffffff;
+        color: #94a3b8;
+        border: 2px dashed #cbd5e1;
+        font-size: 0.8rem;
+
+        &:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+    }
+
     .form-actions {
         display: flex;
         justify-content: flex-end;

@@ -1,0 +1,823 @@
+// ============================================
+// Reports Dashboard
+// ============================================
+.reports-dashboard {
+    .reports-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 30px 34px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px;
+        }
+    }
+
+    // ==================== هدر و فیلترها ====================
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+
+        .header-left {
+            h2 {
+                font-size: 1.6rem;
+                font-weight: 700;
+                margin: 0 0 4px;
+                color: #0f172a;
+            }
+
+            p {
+                font-size: 0.9rem;
+                color: #64748b;
+                margin: 0;
+            }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 24px;
+            background: #f8fafc;
+            padding: 8px 24px;
+            border-radius: 60px;
+            border: 1px solid #eef2f6;
+
+            .stat-item {
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+
+                .stat-number {
+                    font-weight: 700;
+                    font-size: 1.2rem;
+                    color: #4f46e5;
+                }
+
+                .stat-label {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    color: #64748b;
+                }
+            }
+        }
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                padding: 8px 12px;
+            }
+        }
+    }
+
+    .filter-form {
+        background: #f8fafc;
+        border-radius: 18px;
+        padding: 16px 20px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 28px;
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 120px;
+
+            label {
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: #64748b;
+                letter-spacing: 0.3px;
+            }
+
+            .filter-select,
+            .filter-input {
+                padding: 8px 12px;
+                border: 1px solid #e2e8f0;
+                border-radius: 40px;
+                background: white;
+                font-size: 0.8rem;
+
+                &:focus {
+                    outline: none;
+                    border-color: #4f46e5;
+                    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+                }
+            }
+
+            .filter-input {
+                width: 140px;
+            }
+
+            &.custom-dates {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+
+                label {
+                    margin: 0;
+                }
+
+                .filter-input {
+                    width: 120px;
+                }
+            }
+
+            &.filter-actions {
+                flex-direction: row;
+                gap: 8px;
+                align-items: center;
+
+                .btn-apply,
+                .btn-reset {
+                    padding: 8px 20px;
+                    border-radius: 40px;
+                    border: none;
+                    font-weight: 500;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .btn-apply {
+                    background: #4f46e5;
+                    color: white;
+
+                    &:hover {
+                        background: #4338ca;
+                        transform: translateY(-1px);
+                    }
+                }
+
+                .btn-reset {
+                    background: white;
+                    color: #64748b;
+                    border: 1px solid #e2e8f0;
+                    text-decoration: none;
+                    padding: 8px 18px;
+
+                    &:hover {
+                        background: #f1f5f9;
+                    }
+                }
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                min-width: auto;
+            }
+
+            .filter-group.custom-dates {
+                flex-wrap: wrap;
+            }
+
+            .filter-group.filter-actions {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+    }
+
+    // ==================== تب‌ها ====================
+    .tabs-nav {
+        display: flex;
+        gap: 6px;
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 6px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+
+        .tab-item {
+            list-style: none;
+            flex: 1;
+            min-width: 100px;
+
+            .tab-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                width: 100%;
+                padding: 10px 14px;
+                border: none;
+                border-radius: 12px;
+                background: transparent;
+                font-size: 0.85rem;
+                font-weight: 500;
+                color: #64748b;
+                cursor: pointer;
+                transition: all 0.25s;
+
+                svg {
+                    stroke: currentColor;
+                    width: 18px;
+                    height: 18px;
+                    flex-shrink: 0;
+                }
+
+                &:hover {
+                    color: #0f172a;
+                    background: rgba(79, 70, 229, 0.06);
+                }
+
+                &.active {
+                    background: #4f46e5;
+                    color: white;
+                    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+
+                    svg {
+                        stroke: white;
+                    }
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            .tab-item {
+                min-width: auto;
+            }
+        }
+    }
+
+    .tab-pane {
+        display: none;
+
+        &.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    // ==================== کارت‌های آماری ====================
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-bottom: 28px;
+
+        &.single-stat {
+            grid-template-columns: 1fr;
+            max-width: 340px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+            max-width: 100%;
+        }
+    }
+
+    .stat-card {
+        background: #f8fafc;
+        border-radius: 18px;
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 1px solid #eef2f6;
+        transition: all 0.2s;
+
+        &:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            &.revenue-icon {
+                background: #e0e7ff;
+                color: #4f46e5;
+            }
+
+            &.paid-icon {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            &.pending-icon {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+            &.students-icon {
+                background: #e0e7ff;
+                color: #4f46e5;
+            }
+
+            &.classes-icon {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            &.completion-icon {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            &.attendance-icon {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+            &.exams-icon {
+                background: #ede9fe;
+                color: #7c3aed;
+            }
+
+            &.pass-icon {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            &.feedback-icon {
+                background: #e0e7ff;
+                color: #4f46e5;
+            }
+
+            &.rating-icon {
+                background: #fef3c7;
+                color: #d97706;
+            }
+
+            &.total-feedback-icon {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            svg {
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+            }
+        }
+
+        .stat-content {
+            flex: 1;
+
+            .stat-value {
+                font-size: 1.8rem;
+                font-weight: 700;
+                margin: 0 0 2px;
+                color: #0f172a;
+                line-height: 1.1;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+                font-weight: 500;
+                text-transform: uppercase;
+                color: #64748b;
+                margin: 0 0 4px;
+            }
+
+            .stat-footer {
+                font-size: 0.65rem;
+                color: #94a3b8;
+                border-top: 1px solid #eef2f6;
+                padding-top: 6px;
+
+                span {
+                    font-weight: 500;
+                    color: #64748b;
+                }
+            }
+        }
+    }
+
+    // ==================== نمودارها ====================
+    .chart-wrapper {
+        background: #fafbfc;
+        border-radius: 18px;
+        padding: 16px 16px 8px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 20px;
+
+        h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0 0 12px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 150px !important;
+            max-height: 160px;
+        }
+    }
+
+    .chart-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+
+        .chart-wrapper {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    // ==================== توزیع درآمد ====================
+    .distribution-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 4px 0;
+
+        .dist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+
+            .dist-label {
+                font-weight: 500;
+                color: #0f172a;
+                min-width: 70px;
+            }
+
+            .dist-bar {
+                flex: 1;
+                height: 6px;
+                background: #e2e8f0;
+                border-radius: 10px;
+                overflow: hidden;
+
+                span {
+                    display: block;
+                    height: 100%;
+                    background: linear-gradient(90deg, #4f46e5, #818cf8);
+                    border-radius: 10px;
+                }
+            }
+
+            .dist-value {
+                font-weight: 600;
+                color: #0f172a;
+                min-width: 60px;
+                text-align: right;
+            }
+        }
+    }
+
+    // ==================== توزیع سطح ====================
+    .level-distribution {
+        background: #fafbfc;
+        border-radius: 18px;
+        padding: 20px 24px;
+        border: 1px solid #eef2f6;
+        margin-top: 20px;
+
+        h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0 0 18px;
+        }
+
+        .level-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            .level-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 0.85rem;
+
+                .level-name {
+                    font-weight: 500;
+                    color: #0f172a;
+                    min-width: 48px;
+                }
+
+                .level-bar {
+                    flex: 1;
+                    height: 6px;
+                    background: #e2e8f0;
+                    border-radius: 10px;
+                    overflow: hidden;
+
+                    .level-fill {
+                        display: block;
+                        height: 100%;
+                        background: linear-gradient(90deg, #4f46e5, #818cf8);
+                        border-radius: 10px;
+                        transition: width 0.4s ease;
+                    }
+                }
+
+                .level-count {
+                    font-weight: 500;
+                    color: #64748b;
+                    min-width: 30px;
+                    text-align: right;
+                }
+            }
+        }
+    }
+
+    // ==================== جدول‌ها ====================
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eef2f6;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 0.4px;
+        }
+
+        tr:hover td {
+            background: #fafbff;
+        }
+
+        .level-badge {
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .score-value {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+
+            &.good {
+                background: #d1fae5;
+                color: #065f46;
+            }
+        }
+
+        // Teacher Feedback Table
+        &.feedback-table {
+            .teacher-cell {
+                display: flex;
+                flex-direction: column;
+
+                .teacher-dept {
+                    font-size: 0.7rem;
+                    color: #94a3b8;
+                }
+            }
+
+            .rating-badge {
+                display: inline-block;
+                padding: 2px 10px;
+                border-radius: 40px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                min-width: 40px;
+                text-align: center;
+
+                &.high {
+                    background: #d1fae5;
+                    color: #065f46;
+                }
+
+                &.medium {
+                    background: #fef3c7;
+                    color: #92400e;
+                }
+
+                &.low {
+                    background: #fee2e2;
+                    color: #991b1b;
+                }
+
+                &.overall {
+                    font-size: 0.85rem;
+                    padding: 4px 14px;
+                }
+            }
+
+            .feedback-count {
+                display: inline-block;
+                background: #f1f5f9;
+                padding: 2px 10px;
+                border-radius: 40px;
+                font-size: 0.75rem;
+                font-weight: 500;
+                color: #475569;
+            }
+        }
+    }
+
+    // ==================== بخش پایین ====================
+    .bottom-section {
+        margin-top: 32px;
+
+        .bottom-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+
+            @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bottom-card {
+            background: #fafbfc;
+            border-radius: 18px;
+            padding: 20px 24px;
+            border: 1px solid #eef2f6;
+
+            h4 {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: #0f172a;
+                margin: 0 0 16px;
+            }
+
+            .pending-list,
+            .class-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .pending-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.85rem;
+                padding: 6px 0;
+                border-bottom: 1px solid #eef2f6;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                .pending-student {
+                    font-weight: 500;
+                    color: #0f172a;
+                }
+
+                .pending-amount {
+                    font-weight: 600;
+                    color: #4f46e5;
+                }
+
+                .pending-date {
+                    font-size: 0.7rem;
+                    color: #94a3b8;
+                }
+            }
+
+            .class-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.85rem;
+                padding: 6px 0;
+                border-bottom: 1px solid #eef2f6;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                .class-title {
+                    font-weight: 500;
+                    color: #0f172a;
+                }
+
+                .class-teacher {
+                    font-size: 0.75rem;
+                    color: #64748b;
+                }
+
+                .class-students {
+                    font-size: 0.75rem;
+                    color: #94a3b8;
+                }
+            }
+
+            .empty-text {
+                font-size: 0.85rem;
+                color: #94a3b8;
+                text-align: center;
+                padding: 16px 0;
+                margin: 0;
+            }
+        }
+    }
+
+    // ==================== حالت خالی ====================
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        background: #f8fafc;
+        border-radius: 24px;
+        border: 1px dashed #cbd5e1;
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .data-table {
+            display: block;
+            overflow-x: auto;
+            min-width: 500px;
+        }
+
+        .chart-wrapper canvas {
+            height: 120px !important;
+        }
+
+        .chart-row {
+            grid-template-columns: 1fr;
+        }
+    }
+}

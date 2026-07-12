@@ -1,12 +1,15 @@
 @charset "UTF-8";
 @import 'variables';
 @import 'plugins';
-:root{
+
+:root {
 	--gutter: #{$gutter};
-	@each $name,$hex in $colors {
+
+	@each $name, $hex in $colors {
 		--#{$name}-color: #{$hex};
 		--#{$name}-color-rgb: #{RGB_Values($hex)};
 	}
+
 	--bg-card: #{$bg-card};
 	--bg-body: #{$bg-body};
 	--border-color: #{$border-color};
@@ -21,7 +24,7 @@
 	--form-control-border-width: 1px;
 	--form-control-border-color: var(--border-color);
 	--form-control-bg: var(--bg-card);
-	--form-control-radius: calc( var(--border-radius) * 0.5 );
+	--form-control-radius: calc(var(--border-radius) * 0.5);
 
 	//Buttons
 	--btn-text: inherit;
@@ -30,23 +33,28 @@
 	// --btn-border: 1px;
 	--btn-py: .55rem;
 	--btn-px: 1rem;
-	--btn-border-radius: calc( var(--border-radius) * 0.5 );
+	--btn-border-radius: calc(var(--border-radius) * 0.5);
 
 	--backdrop-bg: black;
 }
 
-::selection{color:#fff;background-color:var(--primary-color);}
+::selection {
+	color: #fff;
+	background-color: var(--primary-color);
+}
 
 @import 'fonts';
 
-body{
+body {
 	color: var(--text-body);
 	direction: $direction;
 	background-color: var(--bg-body);
-	&.rtl{
+
+	&.rtl {
 		direction: rtl;
 	}
-	&.ltr{
+
+	&.ltr {
 		direction: ltr;
 	}
 }
@@ -77,7 +85,14 @@ body{
 @import 'layouts/teacher_schedule';
 @import 'layouts/staff-dashboard';
 @import 'layouts/manager_dashboard';
-
+@import 'layouts/available-courses';
+@import 'layouts/class-detail';
+@import 'layouts/review-enrollment';
+@import 'layouts/staff_enrollment';
+@import 'layouts/manage_classes';
+@import 'layouts/student_finance';
+@import 'layouts/student-profiles';
+@import 'layouts/manager_reports';
 
 //Other Layouts
 @import 'layouts/footer';

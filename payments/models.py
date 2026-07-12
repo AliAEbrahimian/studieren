@@ -18,7 +18,18 @@ class Invoice(models.Model):
     class_group = models.ForeignKey(
         Class,
         on_delete=models.PROTECT,
-        related_name='invoices'
+        related_name='invoices',
+        null=True,       # ← اضافه شود
+        blank=True
+    )
+    
+    placement_request = models.ForeignKey(
+        'academy.PlacementTestRequest',
+        on_delete=models.PROTECT,
+        related_name='invoices',
+        null=True,
+        blank=True,
+        verbose_name="Placement Test Request"
     )
     
     amount = models.DecimalField(max_digits=10, decimal_places=2)

@@ -181,8 +181,29 @@ class Class(models.Model):
         return int(f"{prefix}{counter:03d}")
 
     def save(self, *args, **kwargs):
+    # تولید کد کلاس اگر خالی باشد
         if not self.class_code and self.start_date:
             self.class_code = self._generate_class_code()
+    
+    # اتوماتیک کردن جلسات (اگر تاریخ‌ها یا روزهای هفته تغییر کرده باشند)
+        if self.pk:  # یعنی کلاس قبلاً ذخیره شده و الان در حال ویرایش است
+            old_instance = Class.objects.filter(pk=self.pk).first()
+            
+            if old_instance:
+                if (old_instance.start_date != self.start_date or
+                    old_instance.end_date != self.end_date or
+                    old_instance.day_of_week != self.day_of_week):
+                    # حذف جلسات قبلی و ساخت مجدد
+                    self.sessions.all().delete()
+                    super().save(*args, **kwargs)
+                    self.generate_sessions()
+                    return
+        else:
+        # کلاس جدید است، اول ذخیره کن بعد جلسات را بساز
+            super().save(*args, **kwargs)
+            self.generate_sessions()
+            return
+    
         super().save(*args, **kwargs)
         
     def generate_sessions(self):
@@ -319,6 +340,9 @@ class PlacementTestRequest(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     payment_status = models.CharField(max_length=20, choices=Enrollment.PaymentStatus.choices, default=Enrollment.PaymentStatus.PENDING)
     notes = models.TextField(blank=True)
+    test_date = models.DateField(null=True, blank=True, verbose_name="Test Date")
+    test_time = models.TimeField(null=True, blank=True, verbose_name="Test Time")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -328,6 +352,26 @@ class PlacementTestRequest(models.Model):
     def __str__(self):
         return f"{self.student.user.get_full_name()} - {self.get_test_type_display()} ({self.get_status_display()})"
     
+
+class PlacementTestSettings(models.Model):
+    """تنظیمات تعیین سطح (فقط یک رکورد)"""
+    test_fee = models.PositiveIntegerField(default=0, verbose_name="Placement Test Fee")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        """مطمئن شو فقط یک رکورد وجود دارد"""
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        """تنظیمات را بارگذاری کن (اگر نبود، بساز)"""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return f"Placement Test Settings (Fee: {self.test_fee} T)"
+
     
 class Exam(models.Model):
     class Status(models.TextChoices):
@@ -406,3 +450,38 @@ class OralGrade(models.Model):
     
     class Meta:
         unique_together = ['student', 'exam']
+        
+class ClassFeedback(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='feedbacks')
+    class_group = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='feedbacks')
+    
+    # جنبه‌های مختلف تدریس (امتیاز ۱ تا ۵)
+    teaching_quality = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Quality of teaching"
+    )
+    communication = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    punctuality = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    engagement = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Student engagement and interaction"
+    )
+    overall_satisfaction = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    
+    comments = models.TextField(blank=True, help_text="Optional comments")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['student', 'class_group']  # هر دانشجو فقط یک بار می‌تواند نظر بدهد
+        ordering = ['-created_at']
+        verbose_name = "Class Feedback"
+        verbose_name_plural = "Class Feedbacks"
+    
+    def __str__(self):
+        return f"{self.student.user.get_full_name()} - {self.class_group.title}"

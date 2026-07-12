@@ -1,0 +1,95 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}User Management | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_classes' %}">Manage Classes</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_courses' %}">Manage Courses</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_teachers' %}">Manage Teachers</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'exam_dashboard' %}">Exam Panel</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manager_reports' %}">Reports</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'user_management' %}">User Management</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'finance_reports' %}">Finance Reports</a></li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'manage_placement_requests' %}">Placement Requests</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'placement_test_settings' %}">Placement Settings</a>
+    </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="user-management-section">
+    <h2>User Management</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="text-muted mb-0">View and manage all users (staff and students).</p>
+        <a href="{% url 'create_user' %}" class="btn btn-success">+ Add New User</a>
+    </div>
+    
+    <p class="text-muted">View and manage all users (staff and students).</p>
+    
+    <!-- نوار جستجو -->
+    <form method="GET" class="search-bar mb-3">
+        <div class="input-group">
+            <input type="text" name="q" value="{{ search_query }}" class="form-control" 
+                   placeholder="Search by name, email, or position (e.g., Teacher)...">
+            <button type="submit" class="btn btn-primary">Search</button>
+            {% if search_query %}
+                <a href="{% url 'user_management' %}" class="btn btn-outline-secondary">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+    
+    {% if users %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ user.get_full_name }}</strong></td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.employee_profile %}
+                            <span class="badge bg-primary">{{ user.employee_profile.get_position_display }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Student</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'manage_user' user.id %}" class="btn btn-sm btn-outline-primary">Manage</a>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+                            <a href="{% url 'manage_user' user.id %}" class="btn btn-sm btn-outline-primary">Manage</a>
+                            {% if user.is_active %}
+                                <a href="{% url 'deactivate_user' user.id %}" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Are you sure you want to deactivate this user?');">
+                                Deactivate
+                                </a>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No users found{% if search_query %} matching your search{% endif %}.</div>
+    {% endif %}
+</div>
+{% endblock %}

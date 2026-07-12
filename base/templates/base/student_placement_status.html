@@ -1,0 +1,96 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Placement Test Status | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+<li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
+{% endblock sidebar_menu %}
+
+{% block dashboard_content %}
+<div class="placement-status-section">
+    <h2>My Placement Test Requests</h2>
+    <p class="text-muted">All your placement test requests (active and archived).</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if requests %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Type</th>
+                        <th>Requested Level</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Test Date</th>
+                        <th>Test Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ req.get_test_type_display }}</td>
+                        <td>{{ req.requested_level|default:"—" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if req.status == 'PENDING' %}bg-warning
+                                {% elif req.status == 'APPROVED' %}bg-success
+                                {% else %}bg-danger{% endif %}">
+                                {{ req.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if req.payment_status == 'PAID' %}bg-success
+                                {% elif req.payment_status == 'PENDING' %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ req.get_payment_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ req.test_date|date:"Y/m/d"|default:"—" }}</td>
+                        <td>{{ req.test_time|time:"H:i"|default:"—" }}</td>
+                        <td>
+                            {% if req.status == 'APPROVED' and req.payment_status == 'PENDING' %}
+                                <a href="{% url 'pay_placement_test' req.id %}" class="btn btn-sm btn-success">
+                                    Pay ({{ settings.test_fee }} T)
+                                </a>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# دکمه درخواست جدید فقط در صورت مجاز بودن #}
+        {% with latest=requests.0 %}
+            {% if latest.status == 'REJECTED' or latest.payment_status == 'PAID' %}
+                <hr>
+                <a href="{% url 'request_placement_test' %}" class="btn btn-outline-primary">
+                    + Request New Placement Test
+                </a>
+            {% endif %}
+        {% endwith %}
+
+    {% else %}
+        <div class="alert alert-info text-center py-5">
+            <h4>No Placement Test Requests Yet</h4>
+            <p>Click the button below to submit your first request.</p>
+            <a href="{% url 'request_placement_test' %}" class="btn btn-primary btn-lg mt-2">
+                Request Placement Test
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

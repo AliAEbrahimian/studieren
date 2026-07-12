@@ -1,4 +1,142 @@
 {% extends 'base/dashboard_base.html' %}
-{% block title %}Finance | Studieren{% endblock %}
-{% block sidebar_menu %}<li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back to Dashboard</a></li>{% endblock %}
-{% block dashboard_content %}<h2>Finance</h2><div class="alert alert-info">This section will be completed soon.</div>{% endblock %}
+
+{% block title %}Student Finance | Studieren{% endblock %}
+
+{% block content %}
+<div class="staff-finance-container">
+
+    <!-- ==================== ۱. هدر ==================== -->
+    <div class="page-header">
+        <h2>Student Finance</h2>
+        <p>View all invoices and track payment status</p>
+    </div>
+
+    <!-- کارت‌های آماری -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_count }}</div>
+            <div class="stat-label">Total Invoices</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ paid_count }}</div>
+            <div class="stat-label">Paid</div>
+            <div class="stat-amount">{{ total_paid|floatformat:0 }} T</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ pending_count }}</div>
+            <div class="stat-label">Pending</div>
+            <div class="stat-amount">{{ total_pending|floatformat:0 }} T</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ canceled_count }}</div>
+            <div class="stat-label">Canceled</div>
+        </div>
+    </div>
+
+    <!-- فیلترها و جستجو -->
+    <div class="filters-bar">
+        <form method="GET" class="search-form">
+            <input type="text" name="q" placeholder="Search student name, email, national code..." 
+                   value="{{ search_query }}">
+            
+            <select name="status" onchange="this.form.submit()">
+                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Statuses</option>
+                <option value="PAID" {% if status_filter == 'PAID' %}selected{% endif %}>Paid</option>
+                <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+                <option value="CANCELED" {% if status_filter == 'CANCELED' %}selected{% endif %}>Canceled</option>
+            </select>
+            
+            <button type="submit">Search</button>
+            {% if search_query or status_filter != 'all' %}
+                <a href="{% url 'staff_finance' %}" class="btn-clear">Clear Filters</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- ==================== ۲. جدول فاکتورها ==================== -->
+    {% if invoices %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Email</th>
+                    <th>Class / Item</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Reference Code</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                <tr>
+                    <td>{{ invoice.id }}</td>
+                    <td>
+                        <strong>{{ invoice.student.user.get_full_name }}</strong>
+                        {% if invoice.student.user.national_code %}
+                            <br><small>{{ invoice.student.user.national_code }}</small>
+                        {% endif %}
+                    </td>
+                    <td>{{ invoice.student.user.email }}</td>
+                    <td>
+                        {% if invoice.class_group %}
+                            {{ invoice.class_group.title }}
+                            <br><small>{{ invoice.class_group.course.language }} | {{ invoice.class_group.course.level }}</small>
+                        {% elif invoice.placement_request %}
+                            Placement Test
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>{{ invoice.amount|floatformat:0 }} T</td>
+                    <td>
+                        {% if invoice.status == 'PAID' %}
+                            <span class="badge badge-paid">Paid</span>
+                        {% elif invoice.status == 'PENDING' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% else %}
+                            <span class="badge badge-canceled">Canceled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if invoice.reference_code %}
+                            <code>{{ invoice.reference_code }}</code>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if invoice.paid_at %}
+                            {{ invoice.paid_at|date:"Y/m/d" }}
+                        {% else %}
+                            {{ invoice.created_at|date:"Y/m/d" }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if invoice.status == 'PAID' %}
+                            <a href="{% url 'invoice_receipt' invoice.id %}" class="btn-action">Receipt</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h4>No invoices found</h4>
+        <p>
+            {% if search_query or status_filter != 'all' %}
+                No results match your filters. <a href="{% url 'staff_finance' %}">Clear filters</a>
+            {% else %}
+                No invoices have been created yet.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

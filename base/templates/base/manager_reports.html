@@ -1,0 +1,732 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Management Reports | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+           href="{% url 'dashboard' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'manage_classes' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            Manage Classes
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'manage_courses' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Manage Courses
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'manage_teachers' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M5 20v-2a7 7 0 0 1 14 0v2"/>
+                <polyline points="12 12 10 16 12 18 14 16 12 12"/>
+            </svg>
+            Manage Teachers
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'exam_dashboard' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Exam Panel
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="{% url 'manager_reports' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12v-2a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v2"/>
+                <circle cx="12" cy="16" r="5"/>
+                <path d="M12 11v5l2 2"/>
+            </svg>
+            Reports
+        </a>
+    </li>
+    
+    {% if is_senior_manager %}
+        <hr class="divider">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'user_management' %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                User Management
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'finance_reports' %}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Finance Reports
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'placement_test_settings' %}">Placement Settings</a>
+        </li>
+    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'manage_placement_requests' %}">Placement Requests</a>
+    </li>
+    
+    <hr class="divider">
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'logout' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
+        </a>
+    </li>
+{% endblock sidebar_menu %}
+
+{% block dashboard_content %}
+<div class="reports-dashboard">
+    <div class="reports-container">
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>📊 Management Reports</h2>
+                <p>Financial, academic, attendance, exam analytics & teacher feedback</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_revenue|floatformat:0|default:"0" }}</span>
+                    <span class="stat-label">Revenue</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ active_students|default:0 }}</span>
+                    <span class="stat-label">Active Students</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ active_classes_count|default:0 }}</span>
+                    <span class="stat-label">Active Classes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== فیلترها ==================== -->
+        <form method="GET" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Date Range</label>
+                    <select name="range" class="filter-select">
+                        <option value="7d" {% if date_range == '7d' %}selected{% endif %}>Last 7 Days</option>
+                        <option value="30d" {% if date_range == '30d' %}selected{% endif %}>Last 30 Days</option>
+                        <option value="90d" {% if date_range == '90d' %}selected{% endif %}>Last 90 Days</option>
+                        <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom</option>
+                    </select>
+                </div>
+                <div class="filter-group custom-dates" {% if date_range != 'custom' %}style="display:none;"{% endif %}>
+                    <label>From</label>
+                    <input type="date" name="start_date" value="{{ start_date }}" class="filter-input">
+                    <label>To</label>
+                    <input type="date" name="end_date" value="{{ end_date }}" class="filter-input">
+                </div>
+                <div class="filter-group">
+                    <label>Language</label>
+                    <select name="language" class="filter-select">
+                        <option value="">All</option>
+                        {% for lang in languages %}
+                        <option value="{{ lang }}" {% if language_filter == lang %}selected{% endif %}>{{ lang }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Level</label>
+                    <select name="level" class="filter-select">
+                        <option value="">All</option>
+                        {% for level in levels %}
+                        <option value="{{ level }}" {% if level_filter == level %}selected{% endif %}>{{ level }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group filter-actions">
+                    <button type="submit" class="btn-apply">Apply Filters</button>
+                    <a href="{% url 'manager_reports' %}" class="btn-reset">Reset</a>
+                </div>
+            </div>
+        </form>
+
+        <!-- ==================== تب‌ها ==================== -->
+        <ul class="tabs-nav" id="reportTabs">
+            <li class="tab-item">
+                <button class="tab-btn active" data-target="finance">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Finance
+                </button>
+            </li>
+            <li class="tab-item">
+                <button class="tab-btn" data-target="academic">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L3 7l9 5 9-5-9-5z"/><path d="M3 7v5l9 5 9-5V7"/><line x1="3" y1="17" x2="3" y2="19"/><line x1="21" y1="17" x2="21" y2="19"/>
+                    </svg>
+                    Academic
+                </button>
+            </li>
+            <li class="tab-item">
+                <button class="tab-btn" data-target="attendance">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Attendance
+                </button>
+            </li>
+            <li class="tab-item">
+                <button class="tab-btn" data-target="exams">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Exams
+                </button>
+            </li>
+            <li class="tab-item">
+                <button class="tab-btn" data-target="feedback">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    </svg>
+                    Teacher Feedback
+                </button>
+            </li>
+        </ul>
+
+        <div class="tabs-content">
+            <!-- ============================================================ -->
+            <!-- تب مالی -->
+            <!-- ============================================================ -->
+            <div class="tab-pane active" id="finance">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon revenue-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">${{ total_revenue|floatformat:0|default:"0" }}</h3>
+                            <p class="stat-label">Total Revenue</p>
+                            <div class="stat-footer"><span>Period: {{ date_range }}</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon paid-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ paid_count|default:0 }}</h3>
+                            <p class="stat-label">Paid Invoices</p>
+                            <div class="stat-footer"><span>Settled</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ pending_count|default:0 }}</h3>
+                            <p class="stat-label">Pending Invoices</p>
+                            <div class="stat-footer"><span>Awaiting payment</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <h4>Monthly Revenue Trend</h4>
+                    <canvas id="revenueChart" height="140"></canvas>
+                </div>
+
+                {% if pie_language_labels %}
+                <div class="chart-row">
+                    <div class="chart-wrapper half">
+                        <h4>Revenue by Language</h4>
+                        <canvas id="pieLanguageChart" height="160"></canvas>
+                    </div>
+                    <div class="chart-wrapper half">
+                        <h4>Revenue Distribution</h4>
+                        <div class="distribution-list">
+                            {% for item in revenue_by_language %}
+                            <div class="dist-item">
+                                <span class="dist-label">{{ item.class_group__course__language }}</span>
+                                <span class="dist-bar"><span style="width: {% widthratio item.total total_revenue 100 %}%;"></span></span>
+                                <span class="dist-value">${{ item.total|floatformat:0 }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- تب آموزشی -->
+            <!-- ============================================================ -->
+            <div class="tab-pane" id="academic">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon students-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ total_students|default:0 }}</h3>
+                            <p class="stat-label">Total Students</p>
+                            <div class="stat-footer"><span>All time</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon classes-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ total_classes|default:0 }}</h3>
+                            <p class="stat-label">Total Classes</p>
+                            <div class="stat-footer"><span>All time</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon completion-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ completion_rate|default:0 }}%</h3>
+                            <p class="stat-label">Completion Rate</p>
+                            <div class="stat-footer"><span>Finished classes</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <h4>Monthly Enrollments</h4>
+                    <canvas id="enrollmentChart" height="140"></canvas>
+                </div>
+
+                {% if level_distribution %}
+                <div class="level-distribution">
+                    <h4>Level Distribution</h4>
+                    <div class="level-list">
+                        {% for item in level_distribution %}
+                        <div class="level-item">
+                            <span class="level-name">{{ item.current_level|default:"N/A" }}</span>
+                            <span class="level-bar">
+                                <span class="level-fill" style="width: {% widthratio item.count total_students 100 %}%;"></span>
+                            </span>
+                            <span class="level-count">{{ item.count }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- تب حضور و غیاب -->
+            <!-- ============================================================ -->
+            <div class="tab-pane" id="attendance">
+                <div class="stats-grid single-stat">
+                    <div class="stat-card attendance-main">
+                        <div class="stat-icon attendance-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ attendance_percent|default:0 }}%</h3>
+                            <p class="stat-label">Overall Attendance Rate</p>
+                            <div class="stat-footer"><span>Weekly average</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <h4>Weekly Attendance Trend</h4>
+                    <canvas id="attendanceChart" height="140"></canvas>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- تب امتحانات -->
+            <!-- ============================================================ -->
+            <div class="tab-pane" id="exams">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon exams-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ avg_score|default:0 }}</h3>
+                            <p class="stat-label">Average Score</p>
+                            <div class="stat-footer"><span>Finalized exams</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pass-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ overall_pass_rate|default:0 }}%</h3>
+                            <p class="stat-label">Pass Rate</p>
+                            <div class="stat-footer"><span>Students passed</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if pass_rate_labels %}
+                <div class="chart-wrapper">
+                    <h4>Pass Rate by Level</h4>
+                    <canvas id="passRateChart" height="140"></canvas>
+                </div>
+                {% endif %}
+
+                {% if exam_stats %}
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Level</th><th>Avg Score</th><th>Students</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in exam_stats %}
+                            <tr>
+                                <td><span class="level-badge">{{ stat.exam_section__exam__class_group__course__level|default:"N/A" }}</span></td>
+                                <td><span class="score-value">{{ stat.avg_score|floatformat:1 }}</span></td>
+                                <td>{{ stat.count_students|default:0 }}</td>
+                                <td><span class="status-badge good">Finalized</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <h5>No exam data available</h5>
+                    <p>Exam statistics will appear here once exams are finalized.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- تب بازخورد اساتید (Teacher Feedback) -->
+            <!-- ============================================================ -->
+            <div class="tab-pane" id="feedback">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon feedback-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ teacher_feedbacks|length|default:0 }}</h3>
+                            <p class="stat-label">Teachers Evaluated</p>
+                            <div class="stat-footer"><span>With feedback data</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon rating-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ overall_avg_rating|default:0 }}</h3>
+                            <p class="stat-label">Avg. Overall Rating</p>
+                            <div class="stat-footer"><span>Out of 5</span></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon total-feedback-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value">{{ total_feedbacks_count|default:0 }}</h3>
+                            <p class="stat-label">Total Feedbacks</p>
+                            <div class="stat-footer"><span>Collected</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if teacher_feedbacks %}
+                <div class="table-responsive">
+                    <table class="data-table feedback-table">
+                        <thead>
+                            <tr>
+                                <th>Teacher</th>
+                                <th>Teaching</th>
+                                <th>Communication</th>
+                                <th>Punctuality</th>
+                                <th>Engagement</th>
+                                <th>Overall</th>
+                                <th># Feedbacks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fb in teacher_feedbacks %}
+                            <tr>
+                                <td>
+                                    <div class="teacher-cell">
+                                        <strong>{{ fb.class_group__teacher__user__first_name }} {{ fb.class_group__teacher__user__last_name }}</strong>
+                                        <span class="teacher-dept">{{ fb.class_group__teacher__department|default:"—" }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="rating-badge {% if fb.avg_teaching >= 4 %}high{% elif fb.avg_teaching >= 3 %}medium{% else %}low{% endif %}">
+                                        {{ fb.avg_teaching|floatformat:1 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="rating-badge {% if fb.avg_communication >= 4 %}high{% elif fb.avg_communication >= 3 %}medium{% else %}low{% endif %}">
+                                        {{ fb.avg_communication|floatformat:1 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="rating-badge {% if fb.avg_punctuality >= 4 %}high{% elif fb.avg_punctuality >= 3 %}medium{% else %}low{% endif %}">
+                                        {{ fb.avg_punctuality|floatformat:1 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="rating-badge {% if fb.avg_engagement >= 4 %}high{% elif fb.avg_engagement >= 3 %}medium{% else %}low{% endif %}">
+                                        {{ fb.avg_engagement|floatformat:1 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="rating-badge overall {% if fb.avg_overall >= 4 %}high{% elif fb.avg_overall >= 3 %}medium{% else %}low{% endif %}">
+                                        {{ fb.avg_overall|floatformat:1 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="feedback-count">{{ fb.total_feedbacks }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <h5>No teacher feedback available</h5>
+                    <p>Feedback data will appear here once students submit evaluations.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ==================== بخش پایین: فاکتورهای معوق و کلاس‌های جاری ==================== -->
+        <div class="bottom-section">
+            <div class="bottom-row">
+                <div class="bottom-card">
+                    <h4>⚠️ Pending Invoices</h4>
+                    {% if pending_invoices %}
+                    <div class="pending-list">
+                        {% for inv in pending_invoices %}
+                        <div class="pending-item">
+                            <span class="pending-student">{{ inv.student.user.get_full_name }}</span>
+                            <span class="pending-amount">${{ inv.amount }}</span>
+                            <span class="pending-date">{{ inv.created_at|date:"Y/m/d" }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-text">No pending invoices</p>
+                    {% endif %}
+                </div>
+
+                <div class="bottom-card">
+                    <h4>📚 Current Classes</h4>
+                    {% if current_classes %}
+                    <div class="class-list">
+                        {% for cls in current_classes %}
+                        <div class="class-item">
+                            <span class="class-title">{{ cls.title }}</span>
+                            <span class="class-teacher">{{ cls.teacher.user.get_full_name }}</span>
+                            <span class="class-students">{{ cls.enrollments.count }} / {{ cls.capacity }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="empty-text">No active classes</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ==================== مدیریت فیلترها ====================
+        const rangeSelect = document.querySelector('select[name="range"]');
+        const customDates = document.querySelector('.custom-dates');
+        if (rangeSelect) {
+            rangeSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDates.style.display = 'flex';
+                } else {
+                    customDates.style.display = 'none';
+                }
+            });
+        }
+
+        // ==================== مدیریت تب‌ها ====================
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                
+                this.classList.add('active');
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) {
+                    targetPane.classList.add('active');
+                }
+            });
+        });
+
+        // ==================== داده‌های نمودارها ====================
+        const revenueLabels = {{ monthly_revenue_labels|safe|default:'[]' }};
+        const revenueData = {{ monthly_revenue_data|safe|default:'[]' }};
+        const enrollmentLabels = {{ enrollment_labels|safe|default:'[]' }};
+        const enrollmentData = {{ enrollment_data|safe|default:'[]' }};
+        const attLabels = {{ weekly_att_labels|safe|default:'[]' }};
+        const attData = {{ weekly_att_data|safe|default:'[]' }};
+        const pieLabels = {{ pie_language_labels|safe|default:'[]' }};
+        const pieData = {{ pie_language_data|safe|default:'[]' }};
+        const passLabels = {{ pass_rate_labels|safe|default:'[]' }};
+        const passData = {{ pass_rate_data|safe|default:'[]' }};
+
+        // ==================== رسم امن نمودار ====================
+        function safelyCreateChart(ctxId, chartCallback) {
+            const canvas = document.getElementById(ctxId);
+            if (!canvas) return;
+            
+            const parentPane = canvas.closest('.tab-pane');
+            const wasActive = parentPane && parentPane.classList.contains('active');
+            
+            if (!wasActive) {
+                canvas.style.position = 'absolute';
+                canvas.style.visibility = 'hidden';
+                canvas.style.display = 'block';
+            }
+            
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) existingChart.destroy();
+            
+            chartCallback(canvas);
+            
+            if (!wasActive) {
+                canvas.style.position = '';
+                canvas.style.visibility = '';
+                canvas.style.display = '';
+            }
+        }
+
+        function drawChart(ctxId, type, config) {
+            safelyCreateChart(ctxId, function(ctx) {
+                new Chart(ctx, config(ctx));
+            });
+        }
+
+        // ==================== رسم نمودارها ====================
+        if (revenueLabels.length && revenueData.length) {
+            drawChart('revenueChart', 'line', function(ctx) {
+                return {
+                    type: 'line',
+                    data: {
+                        labels: revenueLabels,
+                        datasets: [{ data: revenueData, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.1)', fill: true, tension: 0.3 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                };
+            });
+        }
+
+        if (pieLabels.length && pieData.length) {
+            drawChart('pieLanguageChart', 'doughnut', function(ctx) {
+                return {
+                    type: 'doughnut',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{ data: pieData, backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } } }
+                };
+            });
+        }
+
+        if (enrollmentLabels.length && enrollmentData.length) {
+            drawChart('enrollmentChart', 'line', function(ctx) {
+                return {
+                    type: 'line',
+                    data: {
+                        labels: enrollmentLabels,
+                        datasets: [{ data: enrollmentData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                };
+            });
+        }
+
+        if (attLabels.length && attData.length) {
+            drawChart('attendanceChart', 'line', function(ctx) {
+                return {
+                    type: 'line',
+                    data: {
+                        labels: attLabels,
+                        datasets: [{ data: attData, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: true, tension: 0.3 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { ticks: { callback: val => val + '%' } } }
+                    }
+                };
+            });
+        }
+
+        if (passLabels.length && passData.length) {
+            drawChart('passRateChart', 'bar', function(ctx) {
+                return {
+                    type: 'bar',
+                    data: {
+                        labels: passLabels,
+                        datasets: [{ data: passData, backgroundColor: 'rgba(139,92,246,0.6)', borderColor: '#8b5cf6', borderWidth: 1.5 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { callback: val => val + '%' } } }
+                    }
+                };
+            });
+        }
+    });
+</script>
+{% endblock %}

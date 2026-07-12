@@ -1,14 +1,100 @@
 {% extends 'base/dashboard_base.html' %}
-
-{% block title %}Studieren | {% endblock title %}
-
-{% block sidebar_menu %}
-<li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
-{% endblock sidebar_menu %}
-
+{% block title %}Scores & Status | Studieren{% endblock %}
 {% block dashboard_content %}
-<div class="boxstyle">
-    <h2>Scores and Status</h2>
-    <div class="alert alert-info">This section will be completed soon.</div>
+<div class="student-scores-section">
+    <h2>My Scores & Status</h2>
+    
+    <!-- خلاصه وضعیت -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>📊 Summary</h5>
+            <p><strong>Current Level:</strong> {{ student.current_level|default:"Not set" }}</p>
+            {% if latest_passed_level %}
+                <p><strong>Latest Passed Level:</strong> {{ latest_passed_level }}</p>
+            {% endif %}
+            <p><strong>Total Finalized Exams:</strong> {{ scores_data|length }}</p>
+        </div>
+    </div>
+
+    {% if scores_data %}
+        {% for item in scores_data %}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>{{ item.class.title }}</strong>
+                <span class="badge {% if item.passed %}bg-success{% else %}bg-danger{% endif %}">
+                    {% if item.passed %}Passed{% else %}Failed{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                {% if not item.feedback_given %}
+                    <div class="alert alert-warning">
+                        ⚠️ You must submit feedback for this course before viewing scores.
+                        <a href="{% url 'submit_feedback' item.class.id %}" class="btn btn-sm btn-primary ms-2">Submit Feedback</a>
+                    </div>
+                {% else %}
+                    <!-- نمایش نمرات -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6>Written Exam</h6>
+                            {% if item.written_grades %}
+                            <table class="table table-sm">
+                                <thead><tr><th>Section</th><th>Score</th><th>Max</th></tr></thead>
+                                <tbody>
+                                    {% for grade in item.written_grades %}
+                                    <tr>
+                                        <td>{{ grade.exam_section.name }}</td>
+                                        <td>{{ grade.score }}</td>
+                                        <td>{{ grade.exam_section.max_score }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-muted">No written grades recorded.</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Oral Exam</h6>
+                            {% if item.oral_grade %}
+                            <p><strong>Score:</strong> {{ item.oral_grade.score }}</p>
+                            {% else %}
+                            <p class="text-muted">No oral grade.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-end">
+                        <strong>Total Written:</strong> {{ item.total_written }} |
+                        <strong>Oral:</strong> {{ item.oral_score }} |
+                        <strong>Grand Total:</strong> {{ item.grand_total }} / {{ item.exam.total_score }}
+                    </div>
+                    
+                    <!-- تحلیل نقاط قوت و ضعف -->
+                    {% if item.written_grades %}
+                    <div class="mt-3">
+                        <h6>Performance Analysis</h6>
+                        <div class="row">
+                            {% for grade in item.written_grades %}
+                                {% widthratio grade.score grade.exam_section.max_score 100 as percent %}
+                                <div class="col-md-6 mb-2">
+                                    <span>{{ grade.exam_section.name }}: </span>
+                                    <span class="badge {% if percent >= 70 %}bg-success{% elif percent >= 50 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ grade.score }}/{{ grade.exam_section.max_score }} ({{ percent }}%)
+                                    </span>
+                                    <small class="text-muted">
+                                        {% if percent >= 70 %}💪 Strength{% elif percent < 50 %}🎯 Needs Improvement{% endif %}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No finalized exams found. Your scores will appear here once exams are completed and graded.</div>
+    {% endif %}
 </div>
-{% endblock dashboard_content %}
+{% endblock %}

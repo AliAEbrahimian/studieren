@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt | Studieren</title>
+    <style>
+        /* ========== Reset & Base ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+            margin: 0;
+            direction: rtl;
+        }
+
+        /* ========== Receipt Container ========== */
+        .receipt-wrapper {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .receipt-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 40px 36px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eef2f6;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* خط تزئینی بالایی */
+        .receipt-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #818cf8);
+        }
+
+        /* ========== Header ========== */
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4f46e5, #818cf8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .brand-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .receipt-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========== عنوان اصلی ========== */
+        .receipt-title {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .receipt-title h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .receipt-title span {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        /* ========== بخش اطلاعات ========== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 24px;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .info-item .label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.3px;
+        }
+
+        .info-item .value {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        .info-item.full-width {
+            grid-column: span 2;
+        }
+
+        /* ========== جدول مبلغ ========== */
+        .amount-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+        }
+
+        .amount-table tr {
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .amount-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .amount-table td {
+            padding: 10px 0;
+        }
+
+        .amount-table .label-cell {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .amount-table .value-cell {
+            text-align: left;
+            font-weight: 500;
+            color: #0f172a;
+        }
+
+        .amount-table .total-row td {
+            padding-top: 14px;
+            border-top: 2px solid #e2e8f0;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .amount-table .total-row .value-cell {
+            color: #4f46e5;
+            font-size: 1.15rem;
+        }
+
+        /* ========== وضعیت ========== */
+        .status-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-badge.paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .status-badge.canceled {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        /* ========== فوتر ========== */
+        .receipt-footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            border-top: 1px solid #eef2f6;
+            padding-top: 20px;
+            margin-top: 8px;
+        }
+
+        .receipt-footer p {
+            margin: 4px 0;
+        }
+
+        /* ========== دکمه چاپ ========== */
+        .print-section {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .print-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 32px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+        }
+
+        .print-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
+        }
+
+        .print-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: white;
+        }
+
+        /* ========== حالت چاپ ========== */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                min-height: auto;
+            }
+
+            .receipt-wrapper {
+                max-width: 100%;
+            }
+
+            .receipt-card {
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+                padding: 20px;
+            }
+
+            .receipt-card::before {
+                display: none;
+            }
+
+            .print-section {
+                display: none !important;
+            }
+
+            .receipt-badge {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .status-badge {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .brand-icon {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .amount-table .total-row td {
+                border-top-color: #94a3b8;
+            }
+        }
+
+        /* ========== ریسپانسیو ========== */
+        @media (max-width: 480px) {
+            .receipt-card {
+                padding: 24px 18px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .info-item.full-width {
+                grid-column: span 1;
+            }
+
+            .receipt-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .status-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .receipt-title h2 {
+                font-size: 1.3rem;
+            }
+
+            .amount-table {
+                font-size: 0.8rem;
+            }
+
+            .amount-table .total-row td {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-wrapper">
+        <div class="receipt-card">
+            <!-- هدر -->
+            <div class="receipt-header">
+                <div class="brand">
+                    <div class="brand-icon">S</div>
+                    <span class="brand-name">Studieren</span>
+                </div>
+                <span class="receipt-badge">✓ Confirmed</span>
+            </div>
+
+            <!-- عنوان -->
+            <div class="receipt-title">
+                <h2>🧾 Payment Receipt</h2>
+                <span>Thank you for your payment</span>
+            </div>
+
+            <!-- اطلاعات -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Invoice Reference</span>
+                    <span class="value">{{ invoice.reference_code|default:invoice.id }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Status</span>
+                    <span class="value">
+                        <span class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                            {{ invoice.get_status_display|default:invoice.status }}
+                        </span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Student</span>
+                    <span class="value">{{ invoice.student.user.get_full_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Class</span>
+                    <span class="value">{{ invoice.class_group.title }}</span>
+                </div>
+                <div class="info-item full-width">
+                    <span class="label">Issued On</span>
+                    <span class="value">{{ invoice.created_at|date:"Y/m/d H:i" }}</span>
+                </div>
+                {% if invoice.paid_at %}
+                <div class="info-item full-width">
+                    <span class="label">Paid On</span>
+                    <span class="value">{{ invoice.paid_at|date:"Y/m/d H:i" }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- جدول مبلغ -->
+            <table class="amount-table">
+                <tr>
+                    <td class="label-cell">Course Fee</td>
+                    <td class="value-cell">${{ invoice.amount }}</td>
+                </tr>
+                <tr>
+                    <td class="label-cell">Tax (0%)</td>
+                    <td class="value-cell">$0</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total Amount</td>
+                    <td class="value-cell">${{ invoice.amount }}</td>
+                </tr>
+            </table>
+
+            <!-- وضعیت پرداخت -->
+            <div class="status-section">
+                <span class="status-label">Payment Status</span>
+                <span class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                    {{ invoice.get_status_display|default:invoice.status }}
+                </span>
+            </div>
+
+            <!-- فوتر -->
+            <div class="receipt-footer">
+                <p>This receipt is automatically generated and serves as confirmation of payment.</p>
+                <p>Studieren — Empowering Education</p>
+            </div>
+        </div>
+
+        <!-- دکمه چاپ -->
+        <div class="print-section">
+            <button class="print-btn" onclick="window.print()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M18 9H6"/>
+                    <path d="M18 5v4H6V5"/>
+                    <rect x="4" y="12" width="16" height="8" rx="2"/>
+                    <line x1="8" y1="16" x2="16" y2="16"/>
+                </svg>
+                Print Receipt
+            </button>
+        </div>
+    </div>
+</body>
+</html>

@@ -94,19 +94,22 @@
             <div class="summary-items">
                 <div class="summary-row">
                     <span class="summary-label">Course Fee</span>
-                    <span class="summary-value">${{ course_fee|default:"350" }}</span>
+                    <span class="summary-value">{{ course_fee|default:"0" }} </span>  {# ← دیگر ثابت نیست #}
                 </div>
+
                 <div class="summary-row">
                     <span class="summary-label">Registration Fee</span>
-                    <span class="summary-value">${{ registration_fee|default:"25" }}</span>
+                    <span class="summary-value">{{ registration_fee|default:"0" }} </span>
                 </div>
+
                 <div class="summary-row">
                     <span class="summary-label">Discount</span>
-                    <span class="summary-value discount">-${{ discount|default:"0" }}</span>
+                    <span class="summary-value discount">-{{ discount|default:"0" }} </span>
                 </div>
+
                 <div class="summary-row total">
                     <span class="summary-label">Total Due</span>
-                    <span class="summary-value">${{ total_due|default:"375" }}</span>
+                    <span class="summary-value">{{ total_due|default:"0" }} </span>
                 </div>
             </div>
         </div>

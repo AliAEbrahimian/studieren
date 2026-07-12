@@ -1,0 +1,21 @@
+{% extends 'base/dashboard_base.html' %}
+{% block title %}My Performance | Studieren{% endblock %}
+{% block dashboard_content %}
+<div class="teacher-performance-section">
+    <h2>My Performance</h2>
+    <p class="text-muted">Average ratings from student feedbacks.</p>
+    
+    {% if total_feedbacks > 0 %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="card p-3 text-center"><h5>{{ avg_teaching }}</h5><small>Teaching Quality</small></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center"><h5>{{ avg_communication }}</h5><small>Communication</small></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center"><h5>{{ avg_punctuality }}</h5><small>Punctuality</small></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center"><h5>{{ avg_engagement }}</h5><small>Engagement</small></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center"><h5>{{ avg_overall }}</h5><small>Overall Satisfaction</small></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center"><h5>{{ total_feedbacks }}</h5><small>Total Feedbacks</small></div></div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No feedbacks received yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

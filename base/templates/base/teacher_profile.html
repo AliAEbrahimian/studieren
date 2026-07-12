@@ -1,0 +1,41 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}{{ teacher.user.get_full_name }} | Profile{% endblock %}
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_teachers' %}">Manage Teachers</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="teacher-profile-section">
+    <a href="{% url 'manage_teachers' %}" class="btn btn-outline-secondary mb-3">← Back to Teachers</a>
+    
+    <h2>{{ teacher.user.get_full_name }}</h2>
+    <p><strong>Email:</strong> {{ teacher.user.email }}</p>
+    <p><strong>Department:</strong> {{ teacher.department|default:"—" }}</p>
+    <p><strong>Hire Date:</strong> {{ teacher.hire_date|date:"Y/m/d"|default:"—" }}</p>
+    
+    <h4 class="mt-4">Current Classes ({{ current_classes|length }})</h4>
+    {% if current_classes %}
+        <ul class="list-group">
+            {% for cls in current_classes %}
+                <li class="list-group-item">{{ cls.title }} ({{ cls.course.language }} {{ cls.course.level }})</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No current classes.</p>
+    {% endif %}
+    
+    <h4 class="mt-4">Finished Classes ({{ finished_classes|length }})</h4>
+    {% if finished_classes %}
+        <ul class="list-group">
+            {% for cls in finished_classes %}
+                <li class="list-group-item">{{ cls.title }} ({{ cls.course.language }} {{ cls.course.level }})</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No finished classes.</p>
+    {% endif %}
+</div>
+{% endblock %}

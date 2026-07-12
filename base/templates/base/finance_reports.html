@@ -1,0 +1,119 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Finance Reports | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_classes' %}">Manage Classes</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_courses' %}">Manage Courses</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_teachers' %}">Manage Teachers</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'exam_dashboard' %}">Exam Panel</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manager_reports' %}">Reports</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'user_management' %}">User Management</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'finance_reports' %}">Finance Reports</a></li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'manage_placement_requests' %}">Placement Requests</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'placement_test_settings' %}">Placement Settings</a>
+    </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="finance-reports-section">
+    <h2>Finance Reports</h2>
+    <p class="text-muted">Overview of all invoices and financial status.</p>
+    
+    <!-- کارت‌های آماری -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white p-3 text-center">
+                <h5>{{ total_revenue }} T</h5>
+                <small>Total Revenue (Paid)</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark p-3 text-center">
+                <h5>{{ total_pending }} T</h5>
+                <small>Total Pending</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white p-3 text-center">
+                <h5>{{ paid_count }}</h5>
+                <small>Paid Invoices</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white p-3 text-center">
+                <h5>{{ pending_count }}</h5>
+                <small>Pending Invoices</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نوار جستجو و فیلتر -->
+    <form method="GET" class="search-filter-bar mb-3">
+        <div class="row g-2">
+            <div class="col-md-6">
+                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search by student name, email, or reference code...">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Statuses</option>
+                    <option value="PAID" {% if status_filter == 'PAID' %}selected{% endif %}>Paid</option>
+                    <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+                    <option value="CANCELED" {% if status_filter == 'CANCELED' %}selected{% endif %}>Canceled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+    
+    {% if invoices %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Reference</th>
+                    <th>Student</th>
+                    <th>Class</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Issued</th>
+                    <th>Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice in invoices %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><code>{{ invoice.reference_code|default:"N/A" }}</code></td>
+                    <td>{{ invoice.student.user.get_full_name }}</td>
+                    <td>{{ invoice.class_group.title }}</td>
+                    <td>{{ invoice.amount }} T</td>
+                    <td>
+                        {% if invoice.status == 'PAID' %}
+                            <span class="badge bg-success">Paid</span>
+                        {% elif invoice.status == 'PENDING' %}
+                            <span class="badge bg-warning">Pending</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Canceled</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ invoice.created_at|date:"Y/m/d" }}</td>
+                    <td>{{ invoice.paid_at|date:"Y/m/d"|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No invoices found matching your criteria.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Assign Classes - {{ teacher.user.get_full_name }}{% endblock %}
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_teachers' %}">Manage Teachers</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="assign-classes-section">
+    <h2>Assign Classes to {{ teacher.user.get_full_name }}</h2>
+    
+    <h4 class="mt-4">Currently Assigned ({{ assigned_classes|length }})</h4>
+    {% if assigned_classes %}
+        <ul class="list-group mb-3">
+            {% for cls in assigned_classes %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ cls.title }}
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="class_id" value="{{ cls.pk }}">
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No classes assigned yet.</p>
+    {% endif %}
+    
+    <h4 class="mt-4">Available to Assign ({{ available_classes|length }})</h4>
+    {% if available_classes %}
+        <ul class="list-group">
+            {% for cls in available_classes %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ cls.title }} ({{ cls.course.language }} {{ cls.course.level }})
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="class_id" value="{{ cls.pk }}">
+                        <input type="hidden" name="action" value="assign">
+                        <button type="submit" class="btn btn-sm btn-outline-success">Assign</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No available classes at the moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

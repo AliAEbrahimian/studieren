@@ -17,7 +17,12 @@
         <!-- هدر بخش -->
         <div class="header-section">
             <div class="header-left">
-                <h2>My Weekly Schedule</h2>
+                {% if viewing_as_manager %}
+                    <h2>{{ employee.user.get_full_name }}'s Weekly Schedule</h2>
+                {% else %}
+                    <h2>My Weekly Schedule</h2>
+                {% endif %}
+                
                 <p>Active classes schedule for the current week</p>
             </div>
             <div class="week-info">

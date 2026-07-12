@@ -84,7 +84,13 @@
                 Finance Reports
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'placement_test_settings' %}">Placement Settings</a>
+        </li>
     {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'manage_placement_requests' %}">Placement Requests</a>
+    </li>
     
     <hr class="divider">
     <li class="nav-item">
@@ -97,7 +103,7 @@
             Logout
         </a>
     </li>
-{% endblock %}
+{% endblock sidebar_menu%}
 
 {% block dashboard_content %}
 <div class="manager-dashboard">

@@ -1,8 +1,20 @@
 {% extends 'base/dashboard_base.html' %}
 
 {% block sidebar_menu %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'exam_dashboard' %}">Main Dashboard</a></li>
-    <li class="nav-item"><a class="nav-link active" href="{% url 'exam_dashboard' %}">Exam Panel</a></li>
+    {% if can_go_to_main_dashboard %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">← Main Dashboard</a>
+        </li>
+    {% elif is_exam_manager %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'exam_dashboard' %}">Main Dashboard</a>
+        </li>
+    {% endif %}
+    
+    <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'exam_dashboard' %}active{% endif %}" 
+           href="{% url 'exam_dashboard' %}">Exam Panel</a>
+    </li>
     
     {% if is_exam_manager %}
         <li class="nav-item">

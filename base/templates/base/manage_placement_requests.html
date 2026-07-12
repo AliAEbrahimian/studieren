@@ -1,0 +1,54 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Placement Requests | Studieren{% endblock %}
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'manage_placement_requests' %}">Placement Requests</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="placement-requests-section">
+    <h2>Placement Test Requests</h2>
+    
+    <div class="btn-group mb-3">
+        <a href="?status=" class="btn btn-outline-secondary {% if not status_filter %}active{% endif %}">All</a>
+        <a href="?status=PENDING" class="btn btn-outline-secondary {% if status_filter == 'PENDING' %}active{% endif %}">Pending</a>
+        <a href="?status=APPROVED" class="btn btn-outline-secondary {% if status_filter == 'APPROVED' %}active{% endif %}">Approved</a>
+        <a href="?status=REJECTED" class="btn btn-outline-secondary {% if status_filter == 'REJECTED' %}active{% endif %}">Rejected</a>
+    </div>
+    
+    {% if requests %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Requested Level</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.student.user.get_full_name }}</td>
+                    <td>{{ req.requested_level|default:"—" }}</td>
+                    <td><span class="badge bg-{% if req.status == 'PENDING' %}warning{% elif req.status == 'APPROVED' %}success{% else %}danger{% endif %}">{{ req.get_status_display }}</span></td>
+                    <td><span class="badge bg-{% if req.payment_status == 'PAID' %}success{% elif req.payment_status == 'PENDING' %}warning{% else %}danger{% endif %}">{{ req.get_payment_status_display }}</span></td>
+                    <td>{{ req.created_at|date:"Y/m/d" }}</td>
+                    <td>
+                        <a href="{% url 'review_placement_request' req.id %}" class="btn btn-sm btn-outline-primary">Review</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">No requests found.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -110,6 +110,16 @@
                 </svg>
                 This exam has been finalized. Grades cannot be changed.
             </div>
+
+            {% if exam.status == 'FINALIZED' and is_senior_manager %}
+                <div class="form-actions mt-2">
+                    <a href="{% url 'reopen_exam' exam.id %}" class="btn-finalize" 
+                    style="background-color: #f59e0b; color: white;"
+                    onclick="return confirm('Are you sure you want to re-open this exam?');">
+                        Re-open Exam
+                    </a>
+                </div>
+            {% endif %}
         {% endif %}
     </div>
 </div>

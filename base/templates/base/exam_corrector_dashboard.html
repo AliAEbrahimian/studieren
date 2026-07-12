@@ -92,7 +92,7 @@
                         <span>🗓️ Graded: {{ exam.graded_at|date:"Y/m/d" }}</span>
                     </div>
                 </div>
-                <a href="{% url 'view_graded_exam' exam.id %}" class="btn-view">View →</a>
+                <a href="{% url 'enter_written_grades' exam.id %}" class="btn-view">View →</a>
             </div>
             {% endfor %}
         </div>

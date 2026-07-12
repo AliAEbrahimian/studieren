@@ -1,0 +1,24 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Placement Test Settings | Studieren{% endblock %}
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'placement_test_settings' %}">Placement Settings</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="placement-settings-section">
+    <h2>Placement Test Settings</h2>
+    <p class="text-muted">Set the fee for the placement test.</p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Placement Test Fee (T)</label>
+            <input type="number" name="test_fee" value="{{ settings.test_fee }}" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </form>
+</div>
+{% endblock %}

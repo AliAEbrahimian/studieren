@@ -1,16 +1,124 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
-{% block title %}Studieren Financial situation{% endblock title %}
+{% block title %}Finance | Studieren{% endblock %}
 
 {% block sidebar_menu %}
-<li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Back</a></li>
-{% endblock sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'available_courses' %}">Course Registration</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}?filter=current">My Courses</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'student_scores' %}">Scores & Status</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'student_finance' %}">Finance</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
 
 {% block dashboard_content %}
-<div class="formpage">
-    <div class="boxstyle">
-        <h2>Financial situation</h2>
-        <div class="alert alert-info">This section will be completed soon.</div>
+<div class="student-finance-section">
+    <div class="finance-container">
+        <!-- هدر -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>Finance</h2>
+                <p>View your invoices and payment status</p>
+            </div>
+            <div class="header-stats">
+                <span class="stat-item">
+                    <span class="stat-number">{{ invoices|length }}</span>
+                    <span class="stat-label">Invoices</span>
+                </span>
+                <span class="stat-item">
+                    <span class="stat-number">${{ total_amount|default:"0" }}</span>
+                    <span class="stat-label">Total</span>
+                </span>
+                <span class="stat-item">
+                    <span class="stat-number">${{ paid_amount|default:"0" }}</span>
+                    <span class="stat-label">Paid</span>
+                </span>
+                <span class="stat-item">
+                    <span class="stat-number">${{ pending_amount|default:"0" }}</span>
+                    <span class="stat-label">Pending</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- فیلتر وضعیت -->
+        <div class="filter-bar">
+            <span class="filter-label">Filter by status:</span>
+            <div class="filter-buttons">
+                <a href="?status=all" class="filter-btn {% if status_filter == 'all' or not status_filter %}active{% endif %}">All</a>
+                <a href="?status=PAID" class="filter-btn {% if status_filter == 'PAID' %}active{% endif %}">Paid</a>
+                <a href="?status=PENDING" class="filter-btn {% if status_filter == 'PENDING' %}active{% endif %}">Pending</a>
+                <a href="?status=CANCELED" class="filter-btn {% if status_filter == 'CANCELED' %}active{% endif %}">Canceled</a>
+            </div>
+        </div>
+
+        {% if invoices %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Invoice</th>
+                            <th>Class</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Issued On</th>
+                            <th>Paid On</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><span class="invoice-code">{{ invoice.reference_code|default:"N/A" }}</span></td>
+                            <td>
+                                <div class="class-info">
+                                    <strong>{{ invoice.class_group.title }}</strong>
+                                    <span class="class-language">{{ invoice.class_group.course.language }}</span>
+                                </div>
+                            </td>
+                            <td><span class="amount">${{ invoice.amount }}</span></td>
+                            <td>
+                                <span class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                                    {{ invoice.get_status_display|default:invoice.status }}
+                                </span>
+                            </td>
+                            <td>{{ invoice.created_at|date:"Y/m/d" }}</td>
+                            <td>{{ invoice.paid_at|date:"Y/m/d"|default:"—" }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'invoice_receipt' invoice.id %}" class="btn-action" title="Download Invoice">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="12" y1="18" x2="12" y2="12"/>
+                                            <polyline points="9 15 12 18 15 15"/>
+                                        </svg>
+                                    </a>
+                                    {% if invoice.status == 'PENDING' %}
+                                    <a href="{% url 'pay_invoice' invoice.id %}" class="btn-action pay" title="Pay Now">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="12" y1="1" x2="12" y2="23"/>
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">💰</div>
+                <h5>No invoices found</h5>
+                <p>Your financial records will appear here once you enroll in a class.</p>
+                <a href="{% url 'available_courses' %}" class="btn-browse">Browse Courses →</a>
+            </div>
+        {% endif %}
     </div>
 </div>
-{% endblock dashboard_content %}
+{% endblock %}

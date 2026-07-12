@@ -1,0 +1,116 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Create Class | Studieren{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_classes' %}">Manage Classes</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="create-class-section">
+    <h2>Create New Class</h2>
+    <p class="text-muted">Fill in the details to add a new class to the system.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Class Title *</label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Course *</label>
+                <select name="course" class="form-select" required>
+                    <option value="">-- Select Course --</option>
+                    {% for course in courses %}
+                        <option value="{{ course.pk }}">{{ course.title }} ({{ course.language }} {{ course.level }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Teacher</label>
+                <select name="teacher" class="form-select">
+                    <option value="">-- Select Teacher --</option>
+                    {% for teacher in teachers %}
+                        <option value="{{ teacher.pk }}">{{ teacher.user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tuition Fee</label>
+                <input type="number" name="tuition_fee" class="form-control" value="0">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Capacity *</label>
+                <input type="number" name="capacity" class="form-control" value="10" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Class Type</label>
+                <select name="class_type" class="form-select">
+                    <option value="IN_PERSON">In-Person</option>
+                    <option value="ONLINE">Online</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Start Date *</label>
+                <input type="date" name="start_date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">End Date *</label>
+                <input type="date" name="end_date" class="form-control" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Start Time</label>
+                <input type="time" name="start_time" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">End Time</label>
+                <input type="time" name="end_time" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Schedule Description</label>
+                <input type="text" name="schedule" class="form-control" placeholder="e.g., Saturdays and Mondays">
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Days of Week</label>
+            <div class="d-flex gap-3">
+                {% for day_num, day_name in days_choices %}
+                    <label class="form-check">
+                        <input type="checkbox" name="days_of_week" value="{{ day_num }}" class="form-check-input">
+                        {{ day_name }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Location (for In-Person)</label>
+                <input type="text" name="location" class="form-control" placeholder="e.g., Room 205">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Meeting Link (for Online)</label>
+                <input type="url" name="meeting_link" class="form-control" placeholder="e.g., Google Meet link">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Class</button>
+        <a href="{% url 'manage_classes' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Review Request | Studieren{% endblock %}
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_placement_requests' %}">Placement Requests</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="review-request-section">
+    <h2>Review Placement Request</h2>
+    
+    <div class="card mb-3">
+        <div class="card-body">
+            <p><strong>Student:</strong> {{ placement_request.student.user.get_full_name }}</p>
+            <p><strong>Email:</strong> {{ placement_request.student.user.email }}</p>
+            <p><strong>Requested Level:</strong> {{ placement_request.requested_level|default:"Not specified" }}</p>
+            <p><strong>Current Level:</strong> {{ placement_request.student.current_level|default:"Not set" }}</p>
+            <p><strong>Test Type:</strong> {{ placement_request.get_test_type_display }}</p>
+            <p><strong>Status:</strong> {{ placement_request.get_status_display }}</p>
+        </div>
+    </div>
+    
+    {% if placement_request.status == 'PENDING' %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Test Date</label>
+                <input type="date" name="test_date" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Test Time</label>
+                <input type="time" name="test_time" class="form-control">
+            </div>
+        </div>
+        <button type="submit" name="action" value="approve" class="btn btn-success">Approve & Schedule</button>
+        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

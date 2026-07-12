@@ -22,13 +22,13 @@
                 </div>
             </div>
             <div class="header-actions">
-                
+
                 <a href="{% url 'export_attendance_excel' cls.id %}" class="btn-action btn-export">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="12" y1="18" x2="12" y2="12"/>
-                        <polyline points="9 15 12 12 15 15"/>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="12" y1="18" x2="12" y2="12" />
+                        <polyline points="9 15 12 12 15 15" />
                     </svg>
                     Export Excel
                 </a>
@@ -94,17 +94,23 @@
                             {% with att_status=att|get_item:session.pk %}
                             <td class="att-cell {% if session.date > today %}future{% endif %}"
                                 data-student="{{ student.pk }}" data-session="{{ session.pk }}"
-                                data-status="{{ att_status.status|default:'A' }}">
-                                {% if session.date <= today %}
-                                    <button type="button" class="toggle-btn status-{{ att_status.status|default:'A' }}"
-                                        onclick="cycleStatus(this)" title="Click to change status">
-                                        {{ att_status.status|default:'A' }}
+                                data-status="{% if session.date <= today %}{{ att_status.status|default:'P' }}{% endif %}">
+                                {% if session.date <= today %} {% if att_status %} <button type="button"
+                                    class="toggle-btn status-{{ att_status.status }}" onclick="cycleStatus(this)"
+                                    title="Click to change status">
+                                    {{ att_status.status }}
                                     </button>
-                                {% else %}
+                                    {% else %}
+                                    <button type="button" class="toggle-btn status-empty" onclick="cycleStatus(this)"
+                                        title="Click to set status">
+                                        ○
+                                    </button>
+                                    {% endif %}
+                                    {% else %}
                                     <span class="future-mark">—</span>
-                                {% endif %}
-                                <input type="hidden" name="status_{{ student.pk }}_{{ session.pk }}"
-                                    value="{{ att_status.status|default:'A' }}">
+                                    {% endif %}
+                                    <input type="hidden" name="status_{{ student.pk }}_{{ session.pk }}"
+                                        value="{% if att_status %}{{ att_status.status }}{% endif %}">
                             </td>
                             {% endwith %}
                             {% endwith %}
@@ -181,7 +187,7 @@
         document.getElementById('excusedCount').textContent = excused;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         updateStats();
     });
 </script>

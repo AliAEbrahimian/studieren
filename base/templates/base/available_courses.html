@@ -1,4 +1,5 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}Available Courses | Studieren{% endblock %}
 
@@ -10,69 +11,121 @@
 
 {% block dashboard_content %}
 <div class="available-courses-section">
-    <h2>Available Courses</h2>
-    <p class="text-muted">Browse and enroll in courses that match your level and interests.</p>
-
-    <!-- نوار جستجو و فیلتر -->
-    <form method="GET" class="search-filter-bar mb-4">
-        <div class="row g-2">
-            <div class="col-md-4">
-                <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search courses...">
+    <div class="courses-container">
+        <!-- هدر -->
+        <div class="header-section">
+            <div>
+                <h2>Available Courses</h2>
+                <p>Browse and enroll in courses that match your level and interests</p>
             </div>
-            <div class="col-md-2">
-                <select name="language" class="form-select">
-                    <option value="">All Languages</option>
-                    <option value="English" {% if language_filter == 'English' %}selected{% endif %}>English</option>
-                    <option value="Deutsch" {% if language_filter == 'Deutsch' %}selected{% endif %}>Deutsch</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="level" class="form-select">
-                    <option value="">All Levels</option>
-                    <option value="A1" {% if level_filter == 'A1' %}selected{% endif %}>A1</option>
-                    <option value="A2" {% if level_filter == 'A2' %}selected{% endif %}>A2</option>
-                    <option value="B1" {% if level_filter == 'B1' %}selected{% endif %}>B1</option>
-                    <option value="B2" {% if level_filter == 'B2' %}selected{% endif %}>B2</option>
-                    <option value="C1" {% if level_filter == 'C1' %}selected{% endif %}>C1</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="type" class="form-select">
-                    <option value="">All Types</option>
-                    <option value="IN_PERSON" {% if type_filter == 'IN_PERSON' %}selected{% endif %}>In-Person</option>
-                    <option value="ONLINE" {% if type_filter == 'ONLINE' %}selected{% endif %}>Online</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
-            </div>
+            <span class="course-count">{{ courses|length }} Courses</span>
         </div>
-    </form>
 
-    {% if courses %}
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for cls in courses %}
-        <div class="col">
-            <div class="card course-card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ cls.title }}</h5>
-                    <span class="badge bg-info mb-2">{{ cls.get_class_type_display }}</span>
-                    <p class="card-text">
-                        <strong>Course:</strong> {{ cls.course.language }} - {{ cls.course.level }}<br>
-                        <strong>Teacher:</strong> {{ cls.teacher.user.get_full_name }}<br>
-                        <strong>Starts:</strong> {{ cls.start_date|date:"Y/m/d" }}<br>
-                        <strong>Capacity:</strong> {{ cls.enrollments.count }} / {{ cls.capacity }}
-                    </p>
+        <!-- نوار جستجو و فیلتر -->
+        <form method="GET" class="filter-bar">
+            <div class="filter-row">
+                <div class="filter-field search-field">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search courses...">
                 </div>
-                <div class="card-footer bg-white">
-                    <a href="{% url 'class_detail' cls.id %}" class="btn btn-outline-primary w-100">View Details</a>
+                <div class="filter-field">
+                    <select name="language">
+                        <option value="">All Languages</option>
+                        <option value="English" {% if language_filter == 'English' %}selected{% endif %}>English</option>
+                        <option value="Deutsch" {% if language_filter == 'Deutsch' %}selected{% endif %}>Deutsch</option>
+                    </select>
                 </div>
+                <div class="filter-field">
+                    <select name="level">
+                        <option value="">All Levels</option>
+                        <option value="A1" {% if level_filter == 'A1' %}selected{% endif %}>A1</option>
+                        <option value="A2" {% if level_filter == 'A2' %}selected{% endif %}>A2</option>
+                        <option value="B1" {% if level_filter == 'B1' %}selected{% endif %}>B1</option>
+                        <option value="B2" {% if level_filter == 'B2' %}selected{% endif %}>B2</option>
+                        <option value="C1" {% if level_filter == 'C1' %}selected{% endif %}>C1</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <select name="type">
+                        <option value="">All Types</option>
+                        <option value="IN_PERSON" {% if type_filter == 'IN_PERSON' %}selected{% endif %}>In-Person</option>
+                        <option value="ONLINE" {% if type_filter == 'ONLINE' %}selected{% endif %}>Online</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-filter">Apply Filter</button>
             </div>
-        </div>
-        {% endfor %}
+        </form>
+
+        {% if courses %}
+            <div class="courses-grid">
+                {% for cls in courses %}
+                <div class="course-card">
+                    <!-- نشان SVG (Level + Language) -->
+                    <div class="level-badge-wrapper">
+                        <svg class="level-badge" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- دایره پس‌زمینه -->
+                            <circle cx="50" cy="50" r="45" fill="#4f46e5" />
+                            <!-- سطح (بزرگ) -->
+                            <text x="50" y="45" text-anchor="middle" fill="white" font-size="22" font-weight="700" font-family="system-ui, sans-serif">
+                                {{ cls.course.level }}
+                            </text>
+                            <!-- زبان (کوچک‌تر) -->
+                            <text x="50" y="70" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="12" font-weight="500" font-family="system-ui, sans-serif">
+                                {{ cls.course.language|slice:":4" }}
+                            </text>
+                        </svg>
+                    </div>
+
+                    <!-- محتوای کارت -->
+                    <div class="card-content">
+                        <div class="card-top">
+                            <span class="class-type-badge {% if cls.class_type == 'ONLINE' %}online{% else %}in-person{% endif %}">
+                                {{ cls.get_class_type_display }}
+                            </span>
+                        </div>
+                        <h5 class="class-title">{{ cls.title }}</h5>
+                        <div class="class-info">
+                            <div class="info-row">
+                                <span class="info-icon">📋</span>
+                                <span class="info-text">Code: {{ cls.class_code }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-icon">📅</span>
+                                <span class="info-text">{{ cls.schedule }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-icon">🚀</span>
+                                <span class="info-text">Starts: {{ cls.start_date|date:"Y/m/d" }}</span>
+                            </div>
+                            <div class="info-row capacity-row">
+                                <span class="info-icon">👥</span>
+                                <span class="info-text">
+                                    {{ cls.enrollments.count }} / {{ cls.capacity }}
+                                    <span class="capacity-bar">
+                                        <span class="capacity-fill" style="width: {% widthratio cls.enrollments.count cls.capacity 100 %}%;"></span>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- فوتر کارت -->
+                    <div class="card-footer">
+                        <a href="{% url 'class_detail' cls.id %}" class="btn-details">View Details →</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h5>No courses found</h5>
+                <p>Try adjusting your search or filter criteria</p>
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="alert alert-info">No courses found matching your criteria.</div>
-    {% endif %}
 </div>
 {% endblock %}

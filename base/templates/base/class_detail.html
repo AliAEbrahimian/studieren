@@ -140,6 +140,7 @@
                                 <span>You are already enrolled in this course</span>
                             </div>
                         {% elif remaining_seats > 0 %}
+                            {% if is_student and not already_enrolled %}
                             <a href="{% url 'enroll_class' class.id %}" class="btn-enroll">
                                 Enroll Now
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -148,6 +149,7 @@
                                 </svg>
                             </a>
                             <p class="enroll-hint">Secure your spot before it fills up!</p>
+                            {% endif %}
                         {% else %}
                             <div class="status-alert warning">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

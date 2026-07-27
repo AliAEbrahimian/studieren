@@ -1,0 +1,26 @@
+{% extends 'base/dashboard_base.html' %}
+{% block title %}Request Transfer | {{ from_enrollment.enrolled_class.title }}{% endblock %}
+{% block dashboard_content %}
+<div>
+    <h2>Request Transfer</h2>
+    <p>From: <strong>{{ from_enrollment.enrolled_class.title }}</strong> ({{ from_enrollment.enrolled_class.course.level }})</p>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <label>Destination Class:</label>
+            <select name="to_class" required>
+                <option value="">-- Select --</option>
+                {% for cls in available_classes %}
+                <option value="{{ cls.id }}">{{ cls.title }} ({{ cls.course.level }}, {{ cls.tuition_fee }} T, Seats: {{ cls.enrollments.count }}/{{ cls.capacity }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Reason (optional):</label>
+            <textarea name="reason"></textarea>
+        </div>
+        <button type="submit">Submit Request</button>
+        <a href="{% url 'dashboard' %}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

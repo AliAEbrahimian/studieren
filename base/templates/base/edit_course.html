@@ -1,0 +1,40 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Edit Course | {{ course.title }}{% endblock %}
+
+{% block dashboard_content %}
+<div>
+    <h2>Edit Course: {{ course.title }}</h2>
+    <form method="POST">
+        {% csrf_token %}
+
+        <div>
+            <label>Title</label>
+            <input type="text" name="title" value="{{ course.title }}" required>
+        </div>
+
+        <div>
+            <label>Language</label>
+            <input type="text" name="language" value="{{ course.language }}" required>
+        </div>
+
+        <div>
+            <label>Level</label>
+            <select name="level" required>
+                {% for lvl in levels %}
+                    <option value="{{ lvl }}" {% if lvl == course.level %}selected{% endif %}>{{ lvl }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label>Description</label>
+            <textarea name="description" rows="3">{{ course.description }}</textarea>
+        </div>
+
+        <button type="submit">Update Course</button>
+        <a href="{% url 'manage_courses' %}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -89,7 +89,7 @@
                                 <span class="class-count-badge">{{ item.active_classes|default:0 }}</span>
                             </td>
                             <td>
-                                <a href="#" class="btn-view">
+                                <a href="{% url 'student_detail' item.user.id %}" class="btn-view">
                                     View Profile →
                                 </a>
                             </td>

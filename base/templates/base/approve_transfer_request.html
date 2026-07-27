@@ -1,0 +1,231 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Review Transfer Request{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'manage_transfer_requests' %}">Transfer Requests</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="review-transfer-section">
+    <div class="transfer-container">
+        <!-- ==================== دکمه بازگشت ==================== -->
+        <a href="{% url 'manage_transfer_requests' %}" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Requests
+        </a>
+
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>Review Transfer Request</h2>
+                <p>Approve or reject student class transfer request</p>
+            </div>
+            <div class="header-badge">
+                <span class="status-badge pending">
+                    {{ transfer_req.get_status_display|default:"Pending Review" }}
+                </span>
+            </div>
+        </div>
+
+        <!-- ==================== پیام‌ها ==================== -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- ==================== کارت‌های اطلاعات ==================== -->
+        <div class="info-grid">
+            <!-- کارت دانشجو -->
+            <div class="info-card student">
+                <div class="card-header-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <h5>Student Information</h5>
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ transfer_req.student.user.get_full_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Email</span>
+                        <span class="value">{{ transfer_req.student.user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Current Level</span>
+                        <span class="value">{{ transfer_req.student.current_level|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت جزئیات انتقال -->
+            <div class="info-card transfer">
+                <div class="card-header-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M16 3h5v5"/>
+                        <path d="M8 3H3v5"/>
+                        <path d="M21 3l-7 7"/>
+                        <path d="M3 21l7-7"/>
+                    </svg>
+                    <h5>Transfer Details</h5>
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="label">Request ID</span>
+                        <span class="value">#{{ transfer_req.id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Requested On</span>
+                        <span class="value">{{ transfer_req.created_at|date:"Y/m/d H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Reason</span>
+                        <span class="value reason-text">{{ transfer_req.reason|default:"No reason provided" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== مقایسه کلاس‌ها ==================== -->
+        <div class="comparison-section">
+            <h4>Class Comparison</h4>
+            <div class="comparison-grid">
+                <!-- کلاس مبدأ -->
+                <div class="comparison-card from">
+                    <div class="comparison-header">
+                        <span class="comparison-label">From</span>
+                        <span class="comparison-icon">↗</span>
+                    </div>
+                    <div class="comparison-body">
+                        <h5>{{ transfer_req.from_enrollment.enrolled_class.title }}</h5>
+                        <div class="comparison-details">
+                            <span>
+                                <span class="detail-icon">🌐</span>
+                                {{ transfer_req.from_enrollment.enrolled_class.course.language }}
+                            </span>
+                            <span>
+                                <span class="detail-icon">📊</span>
+                                {{ transfer_req.from_enrollment.enrolled_class.course.level }}
+                            </span>
+                            <span>
+                                <span class="detail-icon">💰</span>
+                                ${{ transfer_req.from_enrollment.enrolled_class.tuition_fee }}
+                            </span>
+                        </div>
+                        <div class="comparison-meta">
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ transfer_req.from_enrollment.enrolled_class.schedule|default:"—" }}
+                            </span>
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                {{ transfer_req.from_enrollment.enrolled_class.teacher.user.get_full_name|default:"No teacher" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- فلش انتقال -->
+                <div class="transfer-arrow">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                </div>
+
+                <!-- کلاس مقصد -->
+                <div class="comparison-card to">
+                    <div class="comparison-header">
+                        <span class="comparison-label">To</span>
+                        <span class="comparison-icon">→</span>
+                    </div>
+                    <div class="comparison-body">
+                        <h5>{{ transfer_req.to_class.title }}</h5>
+                        <div class="comparison-details">
+                            <span>
+                                <span class="detail-icon">🌐</span>
+                                {{ transfer_req.to_class.course.language }}
+                            </span>
+                            <span>
+                                <span class="detail-icon">📊</span>
+                                {{ transfer_req.to_class.course.level }}
+                            </span>
+                            <span>
+                                <span class="detail-icon">💰</span>
+                                ${{ transfer_req.to_class.tuition_fee }}
+                            </span>
+                        </div>
+                        <div class="comparison-meta">
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ transfer_req.to_class.schedule|default:"—" }}
+                            </span>
+                            <span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                {{ transfer_req.to_class.teacher.user.get_full_name|default:"No teacher" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== دکمه‌های تصمیم‌گیری ==================== -->
+        <form method="POST" class="action-form">
+            {% csrf_token %}
+            <div class="action-buttons">
+                <button type="submit" name="action" value="approve" class="btn-approve">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Approve Transfer
+                </button>
+                <button type="submit" name="action" value="reject" class="btn-reject">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="8" y1="8" x2="16" y2="16"/>
+                        <line x1="16" y1="8" x2="8" y2="16"/>
+                    </svg>
+                    Reject
+                </button>
+                <a href="{% url 'manage_transfer_requests' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

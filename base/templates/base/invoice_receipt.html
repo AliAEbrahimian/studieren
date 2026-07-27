@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +22,7 @@
             min-height: 100vh;
             padding: 24px;
             margin: 0;
-            direction: rtl;
+            direction: ltr;
         }
 
         /* ========== Receipt Container ========== */
@@ -102,6 +103,16 @@
         .receipt-title {
             text-align: center;
             margin-bottom: 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .receipt-title .title-icon {
+            width: 48px;
+            height: 48px;
+            color: #4f46e5;
         }
 
         .receipt-title h2 {
@@ -109,6 +120,7 @@
             font-weight: 700;
             color: #0f172a;
             letter-spacing: -0.5px;
+            margin: 0;
         }
 
         .receipt-title span {
@@ -178,7 +190,7 @@
         }
 
         .amount-table .value-cell {
-            text-align: left;
+            text-align: right;
             font-weight: 500;
             color: #0f172a;
         }
@@ -374,6 +386,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="receipt-wrapper">
         <div class="receipt-card">
@@ -383,12 +396,23 @@
                     <div class="brand-icon">S</div>
                     <span class="brand-name">Studieren</span>
                 </div>
-                <span class="receipt-badge">✓ Confirmed</span>
+                <span class="receipt-badge">
+                    {% if invoice.status == 'PAID' %}✓ Confirmed
+                    {% elif invoice.status == 'PENDING' %}⏳ Awaiting
+                    {% else %}✕ Canceled
+                    {% endif %}
+                </span>
             </div>
 
-            <!-- عنوان -->
+            <!-- عنوان با SVG به جای ایموجی -->
             <div class="receipt-title">
-                <h2>🧾 Payment Receipt</h2>
+                <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 4h16v16H4z" />
+                    <line x1="8" y1="8" x2="16" y2="8" />
+                    <line x1="8" y1="12" x2="14" y2="12" />
+                    <line x1="8" y1="16" x2="12" y2="16" />
+                </svg>
+                <h2>Payment Receipt</h2>
                 <span>Thank you for your payment</span>
             </div>
 
@@ -401,7 +425,8 @@
                 <div class="info-item">
                     <span class="label">Status</span>
                     <span class="value">
-                        <span class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                        <span
+                            class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
                             {{ invoice.get_status_display|default:invoice.status }}
                         </span>
                     </span>
@@ -411,8 +436,16 @@
                     <span class="value">{{ invoice.student.user.get_full_name }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">Class</span>
-                    <span class="value">{{ invoice.class_group.title }}</span>
+                    <span class="label">For</span>
+                    <span class="value">
+                        {% if invoice.class_group %}
+                        {{ invoice.class_group.title }}
+                        {% elif invoice.placement_request %}
+                        Placement Test
+                        {% else %}
+                        —
+                        {% endif %}
+                    </span>
                 </div>
                 <div class="info-item full-width">
                     <span class="label">Issued On</span>
@@ -429,23 +462,24 @@
             <!-- جدول مبلغ -->
             <table class="amount-table">
                 <tr>
-                    <td class="label-cell">Course Fee</td>
-                    <td class="value-cell">${{ invoice.amount }}</td>
+                    <td class="label-cell">Net Amount</td>
+                    <td class="value-cell">{{ invoice.amount|floatformat:0 }} T</td>
                 </tr>
                 <tr>
-                    <td class="label-cell">Tax (0%)</td>
-                    <td class="value-cell">$0</td>
+                    <td class="label-cell">Tax ({% widthratio tax_settings.tax_percent 1 1 %}%)</td>
+                    <td class="value-cell">{{ invoice.tax_amount|floatformat:0 }} T</td>
                 </tr>
                 <tr class="total-row">
-                    <td>Total Amount</td>
-                    <td class="value-cell">${{ invoice.amount }}</td>
+                    <td>Total Due</td>
+                    <td class="value-cell">{{ total_amount|floatformat:0 }} T</td>
                 </tr>
             </table>
 
             <!-- وضعیت پرداخت -->
             <div class="status-section">
                 <span class="status-label">Payment Status</span>
-                <span class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                <span
+                    class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
                     {{ invoice.get_status_display|default:invoice.status }}
                 </span>
             </div>
@@ -461,15 +495,16 @@
         <div class="print-section">
             <button class="print-btn" onclick="window.print()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 6 2 18 2 18 9"/>
-                    <path d="M18 9H6"/>
-                    <path d="M18 5v4H6V5"/>
-                    <rect x="4" y="12" width="16" height="8" rx="2"/>
-                    <line x1="8" y1="16" x2="16" y2="16"/>
+                    <polyline points="6 9 6 2 18 2 18 9" />
+                    <path d="M18 9H6" />
+                    <path d="M18 5v4H6V5" />
+                    <rect x="4" y="12" width="16" height="8" rx="2" />
+                    <line x1="8" y1="16" x2="16" y2="16" />
                 </svg>
                 Print Receipt
             </button>
         </div>
     </div>
 </body>
+
 </html>

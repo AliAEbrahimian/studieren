@@ -1,7 +1,7 @@
 {% extends 'base/dashboard_base.html' %}
 {% load static %}
 
-{% block title %}Create Class | Studieren{% endblock %}
+{% block title %}Edit Class | {{ class.title }}{% endblock %}
 
 {% block sidebar_menu %}
     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
@@ -10,8 +10,8 @@
 {% endblock %}
 
 {% block dashboard_content %}
-<div class="create-class-section">
-    <div class="create-container">
+<div class="edit-class-section">
+    <div class="edit-container">
         <!-- ==================== دکمه بازگشت ==================== -->
         <a href="{% url 'manage_classes' %}" class="btn-back">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -24,8 +24,14 @@
         <!-- ==================== هدر ==================== -->
         <div class="header-section">
             <div class="header-left">
-                <h2>Create New Class</h2>
-                <p>Fill in the details to add a new class to the system</p>
+                <h2>Edit Class</h2>
+                <p>Update details for <strong>{{ class.title }}</strong></p>
+            </div>
+            <div class="header-badge">
+                <span class="class-code-badge">{{ class.class_code }}</span>
+                <span class="status-badge {% if class.end_date >= today %}active{% else %}finished{% endif %}">
+                    {% if class.end_date >= today %}Active{% else %}Finished{% endif %}
+                </span>
             </div>
         </div>
 
@@ -39,7 +45,7 @@
         {% endif %}
 
         <!-- ==================== فرم ==================== -->
-        <form method="POST" class="create-form">
+        <form method="POST" class="edit-form">
             {% csrf_token %}
 
             <!-- ===== ردیف ۱: عنوان و دوره ===== -->
@@ -53,7 +59,7 @@
                         </svg>
                         Class Title <span class="required">*</span>
                     </label>
-                    <input type="text" id="title" name="title" class="form-input" placeholder="e.g., Advanced English B2" required>
+                    <input type="text" id="title" name="title" class="form-input" value="{{ class.title }}" required>
                 </div>
                 <div class="form-group">
                     <label for="course" class="form-label">
@@ -64,16 +70,13 @@
                         Course <span class="required">*</span>
                     </label>
                     <select id="course" name="course" class="form-select" required>
-                        <option value="">— Select Course —</option>
                         {% for course in courses %}
-                            <option value="{{ course.pk }}">{{ course.title }} ({{ course.language }} {{ course.level }})</option>
+                            <option value="{{ course.id }}" {% if course.id == class.course.id %}selected{% endif %}>
+                                {{ course.language }} — {{ course.level }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
-            </div>
-
-            <!-- ===== ردیف ۲: استاد، شهریه، ظرفیت ===== -->
-            <div class="form-row">
                 <div class="form-group">
                     <label for="teacher" class="form-label">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -84,12 +87,18 @@
                         Teacher
                     </label>
                     <select id="teacher" name="teacher" class="form-select">
-                        <option value="">— Select Teacher —</option>
+                        <option value="">— No Teacher —</option>
                         {% for teacher in teachers %}
-                            <option value="{{ teacher.pk }}">{{ teacher.user.get_full_name }}</option>
+                            <option value="{{ teacher.user.id }}" {% if class.teacher and teacher.user.id == class.teacher.user.id %}selected{% endif %}>
+                                {{ teacher.user.get_full_name }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
+            </div>
+
+            <!-- ===== ردیف ۲: شهریه، ظرفیت، نوع کلاس ===== -->
+            <div class="form-row">
                 <div class="form-group">
                     <label for="tuition_fee" class="form-label">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -98,7 +107,7 @@
                         </svg>
                         Tuition Fee
                     </label>
-                    <input type="number" id="tuition_fee" name="tuition_fee" class="form-input" value="0" step="10">
+                    <input type="number" id="tuition_fee" name="tuition_fee" class="form-input" value="{{ class.tuition_fee }}" step="10">
                 </div>
                 <div class="form-group">
                     <label for="capacity" class="form-label">
@@ -110,12 +119,8 @@
                         </svg>
                         Capacity <span class="required">*</span>
                     </label>
-                    <input type="number" id="capacity" name="capacity" class="form-input" value="10" min="1" required>
+                    <input type="number" id="capacity" name="capacity" class="form-input" value="{{ class.capacity }}" min="1" required>
                 </div>
-            </div>
-
-            <!-- ===== ردیف ۳: نوع کلاس، تاریخ شروع، تاریخ پایان ===== -->
-            <div class="form-row">
                 <div class="form-group">
                     <label for="class_type" class="form-label">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -126,10 +131,14 @@
                         Class Type
                     </label>
                     <select id="class_type" name="class_type" class="form-select">
-                        <option value="IN_PERSON">🏢 In-Person</option>
-                        <option value="ONLINE">💻 Online</option>
+                        <option value="IN_PERSON" {% if class.class_type == 'IN_PERSON' %}selected{% endif %}>🏢 In-Person</option>
+                        <option value="ONLINE" {% if class.class_type == 'ONLINE' %}selected{% endif %}>💻 Online</option>
                     </select>
                 </div>
+            </div>
+
+            <!-- ===== ردیف ۳: تاریخ شروع، تاریخ پایان، برنامه زمانی ===== -->
+            <div class="form-row">
                 <div class="form-group">
                     <label for="start_date" class="form-label">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -140,7 +149,7 @@
                         </svg>
                         Start Date <span class="required">*</span>
                     </label>
-                    <input type="date" id="start_date" name="start_date" class="form-input" required>
+                    <input type="date" id="start_date" name="start_date" class="form-input" value="{{ class.start_date|date:'Y-m-d' }}" required>
                 </div>
                 <div class="form-group">
                     <label for="end_date" class="form-label">
@@ -152,31 +161,7 @@
                         </svg>
                         End Date <span class="required">*</span>
                     </label>
-                    <input type="date" id="end_date" name="end_date" class="form-input" required>
-                </div>
-            </div>
-
-            <!-- ===== ردیف ۴: ساعت شروع، ساعت پایان، توضیحات زمان ===== -->
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="start_time" class="form-label">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                        Start Time
-                    </label>
-                    <input type="time" id="start_time" name="start_time" class="form-input">
-                </div>
-                <div class="form-group">
-                    <label for="end_time" class="form-label">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
-                        End Time
-                    </label>
-                    <input type="time" id="end_time" name="end_time" class="form-input">
+                    <input type="date" id="end_date" name="end_date" class="form-input" value="{{ class.end_date|date:'Y-m-d' }}" required>
                 </div>
                 <div class="form-group">
                     <label for="schedule" class="form-label">
@@ -188,7 +173,31 @@
                         </svg>
                         Schedule Description
                     </label>
-                    <input type="text" id="schedule" name="schedule" class="form-input" placeholder="e.g., Saturdays and Mondays">
+                    <input type="text" id="schedule" name="schedule" class="form-input" value="{{ class.schedule }}" placeholder="e.g., Saturdays and Mondays">
+                </div>
+            </div>
+
+            <!-- ===== ردیف ۴: ساعت شروع، ساعت پایان ===== -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_time" class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        Start Time
+                    </label>
+                    <input type="time" id="start_time" name="start_time" class="form-input" value="{{ class.start_time|time:'H:i' }}">
+                </div>
+                <div class="form-group">
+                    <label for="end_time" class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        End Time
+                    </label>
+                    <input type="time" id="end_time" name="end_time" class="form-input" value="{{ class.end_time|time:'H:i' }}">
                 </div>
             </div>
 
@@ -204,9 +213,10 @@
                     Days of Week
                 </label>
                 <div class="days-checkboxes">
-                    {% for day_num, day_name in days_choices %}
+                    {% for day_val, day_name in days_choices %}
                         <label class="day-check">
-                            <input type="checkbox" name="days_of_week" value="{{ day_num }}" class="day-input">
+                            <input type="checkbox" name="days_of_week" value="{{ day_val }}" 
+                                   class="day-input" {% if day_val in class.day_of_week %}checked{% endif %}>
                             <span class="day-label">{{ day_name }}</span>
                         </label>
                     {% endfor %}
@@ -224,7 +234,7 @@
                         </svg>
                         Location (In-Person)
                     </label>
-                    <input type="text" id="location" name="location" class="form-input" placeholder="e.g., Room 205">
+                    <input type="text" id="location" name="location" class="form-input" value="{{ class.location }}" placeholder="e.g., Room 205">
                 </div>
                 <div class="form-group">
                     <label for="meeting_link" class="form-label">
@@ -234,7 +244,7 @@
                         </svg>
                         Meeting Link (Online)
                     </label>
-                    <input type="url" id="meeting_link" name="meeting_link" class="form-input" placeholder="e.g., https://meet.google.com/...">
+                    <input type="url" id="meeting_link" name="meeting_link" class="form-input" value="{{ class.meeting_link }}" placeholder="e.g., https://meet.google.com/...">
                 </div>
             </div>
 
@@ -246,7 +256,7 @@
                         <polyline points="17 21 17 13 7 13 7 21"/>
                         <polyline points="7 3 7 8 15 8"/>
                     </svg>
-                    Create Class
+                    Update Class
                 </button>
                 <a href="{% url 'manage_classes' %}" class="btn-cancel">Cancel</a>
             </div>

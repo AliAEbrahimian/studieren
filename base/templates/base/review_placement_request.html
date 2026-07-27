@@ -1,6 +1,8 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}Review Request | Studieren{% endblock %}
+
 {% block sidebar_menu %}
     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'manage_placement_requests' %}">Placement Requests</a></li>
@@ -9,35 +11,180 @@
 
 {% block dashboard_content %}
 <div class="review-request-section">
-    <h2>Review Placement Request</h2>
-    
-    <div class="card mb-3">
-        <div class="card-body">
-            <p><strong>Student:</strong> {{ placement_request.student.user.get_full_name }}</p>
-            <p><strong>Email:</strong> {{ placement_request.student.user.email }}</p>
-            <p><strong>Requested Level:</strong> {{ placement_request.requested_level|default:"Not specified" }}</p>
-            <p><strong>Current Level:</strong> {{ placement_request.student.current_level|default:"Not set" }}</p>
-            <p><strong>Test Type:</strong> {{ placement_request.get_test_type_display }}</p>
-            <p><strong>Status:</strong> {{ placement_request.get_status_display }}</p>
+    <div class="review-container">
+        <!-- ==================== دکمه بازگشت ==================== -->
+        <a href="{% url 'manage_placement_requests' %}" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Requests
+        </a>
+
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>Review Placement Request</h2>
+                <p>Review and respond to student placement test request</p>
+            </div>
+            <div class="header-badge">
+                <span class="status-badge {% if placement_request.status == 'PENDING' %}pending{% elif placement_request.status == 'APPROVED' %}approved{% else %}rejected{% endif %}">
+                    {{ placement_request.get_status_display }}
+                </span>
+            </div>
         </div>
+
+        <!-- ==================== پیام‌ها ==================== -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- ==================== کارت اطلاعات دانشجو ==================== -->
+        <div class="info-grid">
+            <div class="info-card student">
+                <div class="card-header-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <h5>Student Information</h5>
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ placement_request.student.user.get_full_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Email</span>
+                        <span class="value">{{ placement_request.student.user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Current Level</span>
+                        <span class="value">{{ placement_request.student.current_level|default:"Not set" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card request">
+                <div class="card-header-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <h5>Request Details</h5>
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="label">Request ID</span>
+                        <span class="value">#{{ placement_request.id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Test Type</span>
+                        <span class="value">{{ placement_request.get_test_type_display }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Requested Level</span>
+                        <span class="value">{{ placement_request.requested_level|default:"Not specified" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Submitted On</span>
+                        <span class="value">{{ placement_request.created_at|date:"Y/m/d H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== فرم تصمیم‌گیری ==================== -->
+        {% if placement_request.status == 'PENDING' %}
+        <form method="POST" class="action-form">
+            {% csrf_token %}
+
+            <div class="form-section">
+                <h4>Schedule Test</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="test_date" class="form-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            Test Date
+                        </label>
+                        <input type="date" id="test_date" name="test_date" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="test_time" class="form-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            Test Time
+                        </label>
+                        <input type="time" id="test_time" name="test_time" class="form-input">
+                    </div>
+                </div>
+                <small class="field-hint">Set a date and time for the placement test</small>
+            </div>
+
+            <!-- ===== دکمه‌های تصمیم‌گیری ===== -->
+            <div class="action-buttons">
+                <button type="submit" name="action" value="approve" class="btn-approve">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Approve & Schedule
+                </button>
+                <button type="submit" name="action" value="reject" class="btn-reject">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="8" y1="8" x2="16" y2="16"/>
+                        <line x1="16" y1="8" x2="8" y2="16"/>
+                    </svg>
+                    Reject
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <!-- ==================== وضعیت نهایی ==================== -->
+        <div class="final-status {% if placement_request.status == 'APPROVED' %}approved{% else %}rejected{% endif %}">
+            <div class="status-icon">
+                {% if placement_request.status == 'APPROVED' %}
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                {% else %}
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="8" y1="8" x2="16" y2="16"/>
+                    <line x1="16" y1="8" x2="8" y2="16"/>
+                </svg>
+                {% endif %}
+            </div>
+            <div class="status-text">
+                <h4>Request {{ placement_request.status|lower }}</h4>
+                <p>
+                    {% if placement_request.status == 'APPROVED' %}
+                        This request has been approved. The student has been notified.
+                        {% if placement_request.test_date %}
+                            Test scheduled for {{ placement_request.test_date|date:"Y/m/d" }}
+                            {% if placement_request.test_time %}at {{ placement_request.test_time|time:"H:i" }}{% endif %}
+                        {% endif %}
+                    {% else %}
+                        This request has been rejected. The student has been notified.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    
-    {% if placement_request.status == 'PENDING' %}
-    <form method="POST">
-        {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Test Date</label>
-                <input type="date" name="test_date" class="form-control">
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Test Time</label>
-                <input type="time" name="test_time" class="form-control">
-            </div>
-        </div>
-        <button type="submit" name="action" value="approve" class="btn btn-success">Approve & Schedule</button>
-        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
-    </form>
-    {% endif %}
 </div>
 {% endblock %}

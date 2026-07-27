@@ -1,6 +1,8 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}Placement Requests | Studieren{% endblock %}
+
 {% block sidebar_menu %}
     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
     <li class="nav-item"><a class="nav-link active" href="{% url 'manage_placement_requests' %}">Placement Requests</a></li>
@@ -9,46 +11,169 @@
 
 {% block dashboard_content %}
 <div class="placement-requests-section">
-    <h2>Placement Test Requests</h2>
-    
-    <div class="btn-group mb-3">
-        <a href="?status=" class="btn btn-outline-secondary {% if not status_filter %}active{% endif %}">All</a>
-        <a href="?status=PENDING" class="btn btn-outline-secondary {% if status_filter == 'PENDING' %}active{% endif %}">Pending</a>
-        <a href="?status=APPROVED" class="btn btn-outline-secondary {% if status_filter == 'APPROVED' %}active{% endif %}">Approved</a>
-        <a href="?status=REJECTED" class="btn btn-outline-secondary {% if status_filter == 'REJECTED' %}active{% endif %}">Rejected</a>
+    <div class="requests-container">
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>📋 Placement Test Requests</h2>
+                <p>Manage and review student placement test submissions</p>
+            </div>
+            <div class="header-stats">
+                <span class="stat-item">
+                    <span class="stat-number">{{ requests|length|default:0 }}</span>
+                    <span class="stat-label">Total Requests</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- ==================== کارت‌های KPI ==================== -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon pending-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ pending_count|default:0 }}</h3>
+                    <p class="stat-label">Pending</p>
+                    <div class="stat-footer"><span>Awaiting review</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon approved-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ approved_count|default:0 }}</h3>
+                    <p class="stat-label">Approved</p>
+                    <div class="stat-footer"><span>Confirmed</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon rejected-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="8" y1="8" x2="16" y2="16"/>
+                        <line x1="16" y1="8" x2="8" y2="16"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ rejected_count|default:0 }}</h3>
+                    <p class="stat-label">Rejected</p>
+                    <div class="stat-footer"><span>Declined</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon payment-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ paid_requests_count|default:0 }}</h3>
+                    <p class="stat-label">Paid</p>
+                    <div class="stat-footer"><span>Payment completed</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== فیلتر وضعیت (تب‌های دکمه‌ای) ==================== -->
+        <div class="filter-tabs">
+            <a href="?status=" class="filter-tab {% if not status_filter %}active{% endif %}">
+                All
+                <span class="tab-count">{{ requests|length|default:0 }}</span>
+            </a>
+            <a href="?status=PENDING" class="filter-tab {% if status_filter == 'PENDING' %}active{% endif %}">
+                Pending
+                <span class="tab-count">{{ pending_count|default:0 }}</span>
+            </a>
+            <a href="?status=APPROVED" class="filter-tab {% if status_filter == 'APPROVED' %}active{% endif %}">
+                Approved
+                <span class="tab-count">{{ approved_count|default:0 }}</span>
+            </a>
+            <a href="?status=REJECTED" class="filter-tab {% if status_filter == 'REJECTED' %}active{% endif %}">
+                Rejected
+                <span class="tab-count">{{ rejected_count|default:0 }}</span>
+            </a>
+        </div>
+
+        <!-- ==================== جدول درخواست‌ها ==================== -->
+        {% if requests %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Requested Level</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>
+                            <div class="student-cell">
+                                <div class="student-avatar">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <circle cx="12" cy="8" r="4"/>
+                                        <path d="M5 20v-2a7 7 0 0 1 14 0v2"/>
+                                    </svg>
+                                </div>
+                                <span>{{ req.student.user.get_full_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="level-badge">{{ req.requested_level|default:"—" }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if req.status == 'PENDING' %}pending{% elif req.status == 'APPROVED' %}approved{% else %}rejected{% endif %}">
+                                {{ req.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="payment-badge {% if req.payment_status == 'PAID' %}paid{% elif req.payment_status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                                {{ req.get_payment_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ req.created_at|date:"Y/m/d" }}</td>
+                        <td>
+                            <a href="{% url 'review_placement_request' req.id %}" class="btn-review">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h5>No requests found</h5>
+            <p>
+                {% if status_filter %}
+                    No requests with status "{{ status_filter }}".
+                {% else %}
+                    There are no placement test requests yet.
+                {% endif %}
+            </p>
+            <a href="?status=" class="btn-clear-search">View All</a>
+        </div>
+        {% endif %}
     </div>
-    
-    {% if requests %}
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Student</th>
-                    <th>Requested Level</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for req in requests %}
-                <tr>
-                    <td>{{ req.student.user.get_full_name }}</td>
-                    <td>{{ req.requested_level|default:"—" }}</td>
-                    <td><span class="badge bg-{% if req.status == 'PENDING' %}warning{% elif req.status == 'APPROVED' %}success{% else %}danger{% endif %}">{{ req.get_status_display }}</span></td>
-                    <td><span class="badge bg-{% if req.payment_status == 'PAID' %}success{% elif req.payment_status == 'PENDING' %}warning{% else %}danger{% endif %}">{{ req.get_payment_status_display }}</span></td>
-                    <td>{{ req.created_at|date:"Y/m/d" }}</td>
-                    <td>
-                        <a href="{% url 'review_placement_request' req.id %}" class="btn btn-sm btn-outline-primary">Review</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="alert alert-info">No requests found.</div>
-    {% endif %}
 </div>
 {% endblock %}

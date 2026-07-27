@@ -1,0 +1,37 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Transfer Student | {{ student.user.get_full_name }}{% endblock %}
+
+{% block dashboard_content %}
+<div>
+    <h2>Transfer Student: {{ student.user.get_full_name }}</h2>
+    <a href="{% url 'student_detail' student.user_id %}">← Back to Profile</a>
+    <hr>
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div>
+            <label><strong>From Class (Current):</strong></label>
+            <select name="from_enrollment" required>
+                <option value="">-- Select current class --</option>
+                {% for enr in active_enrollments %}
+                <option value="{{ enr.id }}">{{ enr.enrolled_class.title }} ({{ enr.enrolled_class.course.level }}, Fee: {{ enr.enrolled_class.tuition_fee }} T)</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label><strong>To Class (Destination):</strong></label>
+            <select name="to_class" required>
+                <option value="">-- Select destination class --</option>
+                {% for cls in available_classes %}
+                <option value="{{ cls.id }}">{{ cls.title }} ({{ cls.course.level }}, Fee: {{ cls.tuition_fee }} T, Seats: {{ cls.capacity|add:"-"|add:cls.enrollments.count|stringformat:"s" }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit">Transfer Student</button>
+    </form>
+</div>
+{% endblock %}

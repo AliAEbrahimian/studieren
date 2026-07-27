@@ -1,0 +1,131 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Request Withdrawal{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="withdrawal-section">
+    <div class="withdrawal-container">
+        <!-- ==================== دکمه بازگشت ==================== -->
+        <a href="{% url 'dashboard' %}" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Dashboard
+        </a>
+
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>Request Withdrawal</h2>
+                <p>Submit a request to withdraw from your class</p>
+            </div>
+        </div>
+
+        <!-- ==================== پیام‌ها ==================== -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- ==================== کارت اطلاعات کلاس ==================== -->
+        <div class="class-card">
+            <div class="class-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+            </div>
+            <div class="class-info">
+                <h4>{{ enrollment.enrolled_class.title }}</h4>
+                <div class="class-meta">
+                    <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L3 7l9 5 9-5-9-5z"/>
+                            <path d="M3 7v5l9 5 9-5V7"/>
+                            <line x1="3" y1="17" x2="3" y2="19"/>
+                            <line x1="21" y1="17" x2="21" y2="19"/>
+                        </svg>
+                        {{ enrollment.enrolled_class.course.language }} | {{ enrollment.enrolled_class.course.level }}
+                    </span>
+                    <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        {{ enrollment.enrolled_class.schedule|default:"—" }}
+                    </span>
+                    <span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        {{ enrollment.enrolled_class.start_date|date:"M d" }} — {{ enrollment.enrolled_class.end_date|date:"M d, Y" }}
+                    </span>
+                </div>
+            </div>
+            <div class="class-status">
+                <span class="status-badge active">Active</span>
+            </div>
+        </div>
+
+        <!-- ==================== فرم درخواست ==================== -->
+        <form method="POST" class="withdrawal-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="reason" class="form-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    Reason <span class="optional">(optional)</span>
+                </label>
+                <textarea id="reason" name="reason" class="form-textarea" rows="4" placeholder="Please provide a reason for your withdrawal request (e.g., schedule conflict, personal reasons, etc.)"></textarea>
+                <small class="field-hint">Your reason will be reviewed by the admin team</small>
+            </div>
+
+            <!-- ===== هشدار ===== -->
+            <div class="warning-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <div class="warning-text">
+                    <strong>Important:</strong> Withdrawal requests are subject to review. 
+                    You will be notified once a decision is made.
+                </div>
+            </div>
+
+            <!-- ===== دکمه‌های عملیات ===== -->
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Submit Request
+                </button>
+                <a href="{% url 'dashboard' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

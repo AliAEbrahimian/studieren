@@ -1,4 +1,5 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}Placement Test Status | Studieren{% endblock %}
 
@@ -8,21 +9,43 @@
 
 {% block dashboard_content %}
 <div class="placement-status-section">
-    <h2>My Placement Test Requests</h2>
-    <p class="text-muted">All your placement test requests (active and archived).</p>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
-                {{ message }}
+    <div class="placement-container">
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>📋 Placement Test Status</h2>
+                <p>View and manage your placement test requests</p>
             </div>
-        {% endfor %}
-    {% endif %}
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ requests|length }}</span>
+                    <span class="stat-label">Total Requests</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ pending_count|default:0 }}</span>
+                    <span class="stat-label">Pending</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ approved_count|default:0 }}</span>
+                    <span class="stat-label">Approved</span>
+                </div>
+            </div>
+        </div>
 
-    {% if requests %}
+        <!-- ==================== پیام‌ها ==================== -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- ==================== لیست درخواست‌ها ==================== -->
+        {% if requests %}
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
+            <table class="data-table">
+                <thead>
                     <tr>
                         <th>#</th>
                         <th>Type</th>
@@ -38,21 +61,19 @@
                     {% for req in requests %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ req.get_test_type_display }}</td>
-                        <td>{{ req.requested_level|default:"—" }}</td>
                         <td>
-                            <span class="badge 
-                                {% if req.status == 'PENDING' %}bg-warning
-                                {% elif req.status == 'APPROVED' %}bg-success
-                                {% else %}bg-danger{% endif %}">
+                            <span class="type-badge">{{ req.get_test_type_display }}</span>
+                        </td>
+                        <td>
+                            <span class="level-badge">{{ req.requested_level|default:"—" }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if req.status == 'PENDING' %}pending{% elif req.status == 'APPROVED' %}approved{% else %}rejected{% endif %}">
                                 {{ req.get_status_display }}
                             </span>
                         </td>
                         <td>
-                            <span class="badge 
-                                {% if req.payment_status == 'PAID' %}bg-success
-                                {% elif req.payment_status == 'PENDING' %}bg-warning
-                                {% else %}bg-danger{% endif %}">
+                            <span class="payment-badge {% if req.payment_status == 'PAID' %}paid{% elif req.payment_status == 'PENDING' %}pending{% else %}canceled{% endif %}">
                                 {{ req.get_payment_status_display }}
                             </span>
                         </td>
@@ -60,11 +81,11 @@
                         <td>{{ req.test_time|time:"H:i"|default:"—" }}</td>
                         <td>
                             {% if req.status == 'APPROVED' and req.payment_status == 'PENDING' %}
-                                <a href="{% url 'pay_placement_test' req.id %}" class="btn btn-sm btn-success">
+                                <a href="{% url 'pay_placement_test' req.id %}" class="btn-pay">
                                     Pay ({{ settings.test_fee }} T)
                                 </a>
                             {% else %}
-                                <span class="text-muted">—</span>
+                                <span class="no-action">—</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -73,24 +94,36 @@
             </table>
         </div>
 
-        {# دکمه درخواست جدید فقط در صورت مجاز بودن #}
+        <!-- ==================== دکمه درخواست جدید ==================== -->
         {% with latest=requests.0 %}
             {% if latest.status == 'REJECTED' or latest.payment_status == 'PAID' %}
-                <hr>
-                <a href="{% url 'request_placement_test' %}" class="btn btn-outline-primary">
-                    + Request New Placement Test
-                </a>
+                <div class="action-footer">
+                    <a href="{% url 'request_placement_test' %}" class="btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Request New Placement Test
+                    </a>
+                </div>
             {% endif %}
         {% endwith %}
 
-    {% else %}
-        <div class="alert alert-info text-center py-5">
-            <h4>No Placement Test Requests Yet</h4>
-            <p>Click the button below to submit your first request.</p>
-            <a href="{% url 'request_placement_test' %}" class="btn btn-primary btn-lg mt-2">
+        {% else %}
+        <!-- ==================== حالت خالی ==================== -->
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h5>No Placement Test Requests Yet</h5>
+            <p>Click the button below to submit your first request</p>
+            <a href="{% url 'request_placement_test' %}" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
                 Request Placement Test
             </a>
         </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

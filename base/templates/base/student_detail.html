@@ -1,0 +1,320 @@
+{% extends 'base/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}{{ user_profile.get_full_name }} | Student Profile{% endblock %}
+
+{% block sidebar_menu %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'staff_enrollment' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
+                <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+            </svg>
+            Student Enrollment
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'staff_student_profiles' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4"/><path d="M5 20v-2a7 7 0 0 1 14 0v2"/>
+            </svg>
+            Student Profiles
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'staff_finance' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Finance
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'logout' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
+        </a>
+    </li>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="student-profile-detail">
+    <div class="profile-container">
+        <!-- ==================== دکمه بازگشت ==================== -->
+        <a href="{% url 'staff_student_profiles' %}" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Students
+        </a>
+
+        <!-- ==================== هدر پروفایل ==================== -->
+        <div class="profile-header-card">
+            <div class="profile-avatar">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M5 20v-2a7 7 0 0 1 14 0v2"/>
+                </svg>
+            </div>
+            <div class="profile-header-info">
+                <h2>{{ user_profile.get_full_name }}</h2>
+                <div class="profile-meta">
+                    <span class="meta-item">
+                        <span class="meta-label">Student since</span>
+                        <span class="meta-value">{{ student.enrollment_date|date:"M d, Y" }}</span>
+                    </span>
+                    <span class="meta-divider">|</span>
+                    <span class="meta-item">
+                        <span class="meta-label">Level</span>
+                        <span class="meta-value">{{ student.current_level|default:"Not Set" }}</span>
+                    </span>
+                    <span class="meta-divider">|</span>
+                    <span class="meta-item">
+                        <span class="meta-label">Status</span>
+                        <span class="status-badge active">Active</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== اطلاعات تماس ==================== -->
+        <div class="info-section">
+            <h3 class="section-title">Contact Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ user_profile.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{ user_profile.phone|default:"—" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">National Code</span>
+                    <span class="info-value">{{ user_profile.national_code|default:"—" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">City</span>
+                    <span class="info-value">{{ user_profile.city|default:"—" }}</span>
+                </div>
+                <div class="info-item full-width">
+                    <span class="info-label">Address</span>
+                    <span class="info-value">{{ user_profile.address|default:"—" }}</span>
+                </div>
+                <div class="info-item full-width">
+                    <span class="info-label">Emergency Contact</span>
+                    <span class="info-value">{{ user_profile.emergency_contact|default:"—" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== سوابق تحصیلی ==================== -->
+        <div class="info-section">
+            <div class="section-header-with-count">
+                <h3 class="section-title">Academic History</h3>
+                <span class="section-count">{{ academic_history|length }} Classes</span>
+            </div>
+            {% if academic_history %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Class</th>
+                            <th>Level</th>
+                            <th>Teacher</th>
+                            <th>Period</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in academic_history %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><strong>{{ item.class.title }}</strong></td>
+                            <td><span class="level-badge">{{ item.course.level }}</span></td>
+                            <td>{{ item.teacher.user.get_full_name|default:"N/A" }}</td>
+                            <td>{{ item.registration_date|date:"Y/m/d" }} – {{ item.end_date|date:"Y/m/d" }}</td>
+                            <td>
+                                <span class="status-badge {% if item.is_active %}active{% else %}finished{% endif %}">
+                                    {% if item.is_active %}Active{% else %}Finished{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                {% if item.passed == True %}
+                                    <span class="result-badge passed">Passed ✓</span>
+                                {% elif item.passed == False %}
+                                    <span class="result-badge failed">Failed ✗</span>
+                                {% else %}
+                                    <span class="result-badge pending">Pending ⏳</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state small">
+                <span>📚</span>
+                <p>No class enrollments found.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ==================== وضعیت مالی ==================== -->
+        <div class="info-section">
+            <h3 class="section-title">Financial Status</h3>
+            <div class="finance-stats">
+                <div class="finance-card">
+                    <div class="finance-icon paid">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                            <circle cx="12" cy="12" r="10"/>
+                        </svg>
+                    </div>
+                    <div class="finance-info">
+                        <span class="finance-label">Total Paid</span>
+                        <span class="finance-value">${{ total_paid|floatformat:0|default:"0" }}</span>
+                    </div>
+                </div>
+                <div class="finance-card">
+                    <div class="finance-icon pending">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <div class="finance-info">
+                        <span class="finance-label">Pending</span>
+                        <span class="finance-value">${{ total_pending|floatformat:0|default:"0" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-section-title">Recent Invoices</h4>
+            {% if recent_invoices %}
+            <div class="table-responsive">
+                <table class="data-table compact">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>For</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in recent_invoices %}
+                        <tr>
+                            <td><span class="invoice-id">#{{ inv.id }}</span></td>
+                            <td>
+                                {% if inv.class_group %}
+                                    {{ inv.class_group.title }}
+                                {% elif inv.placement_request %}
+                                    <span class="placement-badge">Placement Test</span>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td><span class="amount">${{ inv.amount|floatformat:0 }}</span></td>
+                            <td>
+                                <span class="status-badge {% if inv.status == 'PAID' %}paid{% elif inv.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                                    {{ inv.get_status_display|default:inv.status }}
+                                </span>
+                            </td>
+                            <td>{{ inv.created_at|date:"Y/m/d" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state small">
+                <span>💰</span>
+                <p>No invoices yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ==================== خلاصه حضور و غیاب ==================== -->
+        <div class="info-section">
+            <h3 class="section-title">Attendance Summary</h3>
+            <div class="attendance-overview">
+                <div class="attendance-rate">
+                    <div class="rate-circle">
+                        <span class="rate-percent">{{ attendance_percent|default:0 }}%</span>
+                        <span class="rate-label">Overall</span>
+                    </div>
+                </div>
+                <div class="attendance-details">
+                    <div class="attendance-stat">
+                        <span class="stat-label">Present</span>
+                        <span class="stat-value">{{ present_count|default:0 }}</span>
+                    </div>
+                    <div class="attendance-stat">
+                        <span class="stat-label">Absent</span>
+                        <span class="stat-value">{{ absent_count|default:0 }}</span>
+                    </div>
+                    <div class="attendance-stat">
+                        <span class="stat-label">Late</span>
+                        <span class="stat-value">{{ late_count|default:0 }}</span>
+                    </div>
+                    <div class="attendance-stat">
+                        <span class="stat-label">Excused</span>
+                        <span class="stat-value">{{ excused_count|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-section-title">Recent Sessions</h4>
+            {% if recent_attendances %}
+            <div class="table-responsive">
+                <table class="data-table compact">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Class</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for att in recent_attendances %}
+                        <tr>
+                            <td>{{ att.session.date|date:"Y/m/d" }}</td>
+                            <td>{{ att.session.class_group.title }}</td>
+                            <td>
+                                <span class="att-status-badge {{ att.status|lower }}">
+                                    {{ att.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state small">
+                <span>📋</span>
+                <p>No attendance records yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

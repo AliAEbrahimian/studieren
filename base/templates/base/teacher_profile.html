@@ -1,6 +1,8 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}{{ teacher.user.get_full_name }} | Profile{% endblock %}
+
 {% block sidebar_menu %}
     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'manage_teachers' %}">Manage Teachers</a></li>
@@ -9,33 +11,259 @@
 
 {% block dashboard_content %}
 <div class="teacher-profile-section">
-    <a href="{% url 'manage_teachers' %}" class="btn btn-outline-secondary mb-3">← Back to Teachers</a>
-    
-    <h2>{{ teacher.user.get_full_name }}</h2>
-    <p><strong>Email:</strong> {{ teacher.user.email }}</p>
-    <p><strong>Department:</strong> {{ teacher.department|default:"—" }}</p>
-    <p><strong>Hire Date:</strong> {{ teacher.hire_date|date:"Y/m/d"|default:"—" }}</p>
-    
-    <h4 class="mt-4">Current Classes ({{ current_classes|length }})</h4>
-    {% if current_classes %}
-        <ul class="list-group">
-            {% for cls in current_classes %}
-                <li class="list-group-item">{{ cls.title }} ({{ cls.course.language }} {{ cls.course.level }})</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="text-muted">No current classes.</p>
-    {% endif %}
-    
-    <h4 class="mt-4">Finished Classes ({{ finished_classes|length }})</h4>
-    {% if finished_classes %}
-        <ul class="list-group">
-            {% for cls in finished_classes %}
-                <li class="list-group-item">{{ cls.title }} ({{ cls.course.language }} {{ cls.course.level }})</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="text-muted">No finished classes.</p>
-    {% endif %}
+    <div class="profile-container">
+        <!-- ==================== دکمه بازگشت ==================== -->
+        <a href="{% url 'manage_teachers' %}" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Teachers
+        </a>
+
+        <!-- ==================== هدر پروفایل ==================== -->
+        <div class="profile-header-card">
+            <div class="profile-avatar">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M5 20v-2a7 7 0 0 1 14 0v2"/>
+                    <polyline points="12 12 10 16 12 18 14 16 12 12"/>
+                </svg>
+            </div>
+            <div class="profile-info">
+                <h2>{{ teacher.user.get_full_name }}</h2>
+                <div class="profile-meta">
+                    <span class="meta-item">
+                        <span class="meta-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </span>
+                        <span class="meta-value">{{ teacher.user.email }}</span>
+                    </span>
+                    <span class="meta-divider">|</span>
+                    <span class="meta-item">
+                        <span class="meta-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                            </svg>
+                        </span>
+                        <span class="meta-value">{{ teacher.department|default:"—" }}</span>
+                    </span>
+                    <span class="meta-divider">|</span>
+                    <span class="meta-item">
+                        <span class="meta-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </span>
+                        <span class="meta-value">Hired: {{ teacher.hire_date|date:"M d, Y"|default:"—" }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== کارت‌های آماری ==================== -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon current-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ current_classes|length|default:0 }}</h3>
+                    <p class="stat-label">Current Classes</p>
+                    <div class="stat-footer"><span>Active</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon finished-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ finished_classes|length|default:0 }}</h3>
+                    <p class="stat-label">Finished Classes</p>
+                    <div class="stat-footer"><span>Completed</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon students-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ total_students|default:0 }}</h3>
+                    <p class="stat-label">Total Students</p>
+                    <div class="stat-footer"><span>Across all classes</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon total-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ total_classes|default:0 }}</h3>
+                    <p class="stat-label">Total Classes</p>
+                    <div class="stat-footer"><span>All time</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== لیست کلاس‌های جاری ==================== -->
+        <div class="classes-section">
+            <div class="section-header">
+                <h4>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    Current Classes
+                </h4>
+                <span class="section-count">{{ current_classes|length }} Classes</span>
+            </div>
+            {% if current_classes %}
+                <div class="classes-grid">
+                    {% for cls in current_classes %}
+                    <div class="class-card">
+                        <div class="class-header">
+                            <strong>{{ cls.title }}</strong>
+                            <span class="class-code">{{ cls.class_code }}</span>
+                        </div>
+                        <div class="class-body">
+                            <div class="class-detail">
+                                <span class="detail-icon">🌐</span>
+                                <span>{{ cls.course.language }} | {{ cls.course.level }}</span>
+                            </div>
+                            <div class="class-detail">
+                                <span class="detail-icon">📅</span>
+                                <span>{{ cls.schedule|default:"—" }}</span>
+                            </div>
+                            <div class="class-detail">
+                                <span class="detail-icon">👥</span>
+                                <span>{{ cls.enrollments.count }} / {{ cls.capacity }}</span>
+                            </div>
+                            {% if cls.location %}
+                            <div class="class-detail">
+                                <span class="detail-icon">📍</span>
+                                <span>{{ cls.location }}</span>
+                            </div>
+                            {% endif %}
+                            {% if cls.meeting_link %}
+                            <div class="class-detail">
+                                <span class="detail-icon">🔗</span>
+                                <span><a href="{{ cls.meeting_link }}" target="_blank">Meeting Link</a></span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="class-footer">
+                            <span class="date-range">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ cls.start_date|date:"M d" }} — {{ cls.end_date|date:"M d, Y" }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state small">
+                    <span>📋</span>
+                    <p>No current classes at the moment</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ==================== لیست کلاس‌های تمام‌شده ==================== -->
+        <div class="classes-section finished">
+            <div class="section-header">
+                <h4>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Finished Classes
+                </h4>
+                <span class="section-count">{{ finished_classes|length }} Classes</span>
+            </div>
+            {% if finished_classes %}
+                <div class="classes-grid">
+                    {% for cls in finished_classes %}
+                    <div class="class-card finished-card">
+                        <div class="class-header">
+                            <strong>{{ cls.title }}</strong>
+                            <span class="class-code">{{ cls.class_code }}</span>
+                            <span class="finished-badge">✓ Completed</span>
+                        </div>
+                        <div class="class-body">
+                            <div class="class-detail">
+                                <span class="detail-icon">🌐</span>
+                                <span>{{ cls.course.language }} | {{ cls.course.level }}</span>
+                            </div>
+                            <div class="class-detail">
+                                <span class="detail-icon">📅</span>
+                                <span>{{ cls.schedule|default:"—" }}</span>
+                            </div>
+                            <div class="class-detail">
+                                <span class="detail-icon">👥</span>
+                                <span>{{ cls.enrollments.count }} / {{ cls.capacity }}</span>
+                            </div>
+                        </div>
+                        <div class="class-footer">
+                            <span class="date-range">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                {{ cls.start_date|date:"M d" }} — {{ cls.end_date|date:"M d, Y" }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state small">
+                    <span>✅</span>
+                    <p>No finished classes yet</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ==================== دکمه ویرایش (اختیاری) ==================== -->
+        <div class="profile-actions">
+            <a href="{% url 'edit_teacher' teacher.id %}" class="btn-edit">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Edit Profile
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

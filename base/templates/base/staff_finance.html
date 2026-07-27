@@ -1,142 +1,240 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
-{% block title %}Student Finance | Studieren{% endblock %}
+{% block title %}Finance | Staff Panel{% endblock %}
 
-{% block content %}
-<div class="staff-finance-container">
+{% block sidebar_menu %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'dashboard' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'staff_enrollment' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
+                <line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+            </svg>
+            Student Enrollment
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'staff_student_profiles' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4"/><path d="M5 20v-2a7 7 0 0 1 14 0v2"/>
+            </svg>
+            Student Profiles
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="{% url 'staff_finance' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Finance
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'logout' %}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
+        </a>
+    </li>
+{% endblock %}
 
-    <!-- ==================== ۱. هدر ==================== -->
-    <div class="page-header">
-        <h2>Student Finance</h2>
-        <p>View all invoices and track payment status</p>
-    </div>
-
-    <!-- کارت‌های آماری -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-value">{{ total_count }}</div>
-            <div class="stat-label">Total Invoices</div>
+{% block dashboard_content %}
+<div class="staff-finance-section">
+    <div class="finance-container">
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>Finance Management</h2>
+                <p>View and search all student invoices</p>
+            </div>
+            <div class="header-stats">
+                <span class="stat-item">
+                    <span class="stat-number">{{ invoices|length|default:0 }}</span>
+                    <span class="stat-label">Total Invoices</span>
+                </span>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ paid_count }}</div>
-            <div class="stat-label">Paid</div>
-            <div class="stat-amount">{{ total_paid|floatformat:0 }} T</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ pending_count }}</div>
-            <div class="stat-label">Pending</div>
-            <div class="stat-amount">{{ total_pending|floatformat:0 }} T</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ canceled_count }}</div>
-            <div class="stat-label">Canceled</div>
-        </div>
-    </div>
 
-    <!-- فیلترها و جستجو -->
-    <div class="filters-bar">
-        <form method="GET" class="search-form">
-            <input type="text" name="q" placeholder="Search student name, email, national code..." 
-                   value="{{ search_query }}">
-            
-            <select name="status" onchange="this.form.submit()">
-                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Statuses</option>
-                <option value="PAID" {% if status_filter == 'PAID' %}selected{% endif %}>Paid</option>
-                <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
-                <option value="CANCELED" {% if status_filter == 'CANCELED' %}selected{% endif %}>Canceled</option>
-            </select>
-            
-            <button type="submit">Search</button>
-            {% if search_query or status_filter != 'all' %}
-                <a href="{% url 'staff_finance' %}" class="btn-clear">Clear Filters</a>
-            {% endif %}
+        <!-- ==================== کارت‌های KPI ==================== -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon revenue-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">${{ total_revenue|floatformat:0|default:"0" }}</h3>
+                    <p class="stat-label">Total Paid</p>
+                    <div class="stat-footer"><span>Collected revenue</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pending-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">${{ total_pending|floatformat:0|default:"0" }}</h3>
+                    <p class="stat-label">Total Pending</p>
+                    <div class="stat-footer"><span>Awaiting payment</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon paid-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ paid_count|default:0 }}</h3>
+                    <p class="stat-label">Paid Invoices</p>
+                    <div class="stat-footer"><span>Settled</span></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pending-badge-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-value">{{ pending_count|default:0 }}</h3>
+                    <p class="stat-label">Pending Invoices</p>
+                    <div class="stat-footer"><span>In progress</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== فیلتر و جستجو ==================== -->
+        <form method="GET" action="{% url 'staff_finance' %}" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group search-group">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" name="q" placeholder="Search by name, email or reference code..." value="{{ search_query }}" class="search-input">
+                    {% if search_query %}
+                        <a href="{% url 'staff_finance' %}" class="clear-search">✕</a>
+                    {% endif %}
+                </div>
+                <div class="filter-group">
+                    <select name="status" class="filter-select">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Statuses</option>
+                        <option value="PAID" {% if status_filter == 'PAID' %}selected{% endif %}>Paid</option>
+                        <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+                        <option value="CANCELED" {% if status_filter == 'CANCELED' %}selected{% endif %}>Canceled</option>
+                    </select>
+                </div>
+                <div class="filter-group filter-actions">
+                    <button type="submit" class="btn-apply">Apply</button>
+                    {% if search_query or status_filter != 'all' %}
+                        <a href="{% url 'staff_finance' %}" class="btn-reset">Clear</a>
+                    {% endif %}
+                </div>
+            </div>
         </form>
-    </div>
 
-    <!-- ==================== ۲. جدول فاکتورها ==================== -->
-    {% if invoices %}
-    <div class="table-responsive">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Student</th>
-                    <th>Email</th>
-                    <th>Class / Item</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Reference Code</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invoice in invoices %}
-                <tr>
-                    <td>{{ invoice.id }}</td>
-                    <td>
-                        <strong>{{ invoice.student.user.get_full_name }}</strong>
-                        {% if invoice.student.user.national_code %}
-                            <br><small>{{ invoice.student.user.national_code }}</small>
-                        {% endif %}
-                    </td>
-                    <td>{{ invoice.student.user.email }}</td>
-                    <td>
-                        {% if invoice.class_group %}
-                            {{ invoice.class_group.title }}
-                            <br><small>{{ invoice.class_group.course.language }} | {{ invoice.class_group.course.level }}</small>
-                        {% elif invoice.placement_request %}
-                            Placement Test
-                        {% else %}
-                            —
-                        {% endif %}
-                    </td>
-                    <td>{{ invoice.amount|floatformat:0 }} T</td>
-                    <td>
-                        {% if invoice.status == 'PAID' %}
-                            <span class="badge badge-paid">Paid</span>
-                        {% elif invoice.status == 'PENDING' %}
-                            <span class="badge badge-pending">Pending</span>
-                        {% else %}
-                            <span class="badge badge-canceled">Canceled</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if invoice.reference_code %}
-                            <code>{{ invoice.reference_code }}</code>
-                        {% else %}
-                            —
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if invoice.paid_at %}
-                            {{ invoice.paid_at|date:"Y/m/d" }}
-                        {% else %}
-                            {{ invoice.created_at|date:"Y/m/d" }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if invoice.status == 'PAID' %}
-                            <a href="{% url 'invoice_receipt' invoice.id %}" class="btn-action">Receipt</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <h4>No invoices found</h4>
-        <p>
+        <!-- ==================== جدول فاکتورها ==================== -->
+        {% if invoices %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Invoice ID</th>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>For</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Reference</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td><span class="invoice-id">#{{ invoice.id }}</span></td>
+                        <td>
+                            <div class="student-cell">
+                                <div class="student-avatar">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <circle cx="12" cy="8" r="4"/>
+                                        <path d="M5 20v-2a7 7 0 0 1 14 0v2"/>
+                                    </svg>
+                                </div>
+                                <span>{{ invoice.student.user.get_full_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ invoice.student.user.email }}</td>
+                        <td>
+                            {% if invoice.class_group %}
+                                <span class="class-badge">{{ invoice.class_group.title }}</span>
+                            {% elif invoice.placement_request %}
+                                <span class="placement-badge">Placement Test</span>
+                            {% else %}
+                                <span class="empty-badge">—</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="amount">${{ invoice.amount|floatformat:0 }}</span></td>
+                        <td>
+                            <span class="status-badge {% if invoice.status == 'PAID' %}paid{% elif invoice.status == 'PENDING' %}pending{% else %}canceled{% endif %}">
+                                {{ invoice.get_status_display|default:invoice.status }}
+                            </span>
+                        </td>
+                        <td>{{ invoice.created_at|date:"Y-m-d" }}</td>
+                        <td><span class="ref-code">{{ invoice.reference_code|default:"-" }}</span></td>
+                        <td>
+                            <a href="{% url 'invoice_receipt' invoice.id %}" class="btn-view" title="View Receipt">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                                Receipt
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">💰</div>
+            <h5>No invoices found</h5>
+            <p>
+                {% if search_query or status_filter != 'all' %}
+                    No results match your search criteria.
+                {% else %}
+                    There are no invoices in the system yet.
+                {% endif %}
+            </p>
             {% if search_query or status_filter != 'all' %}
-                No results match your filters. <a href="{% url 'staff_finance' %}">Clear filters</a>
-            {% else %}
-                No invoices have been created yet.
+                <a href="{% url 'staff_finance' %}" class="btn-clear-search">Clear Filters</a>
             {% endif %}
-        </p>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-
 </div>
 {% endblock %}

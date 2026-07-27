@@ -1,0 +1,16 @@
+{% extends 'base/dashboard_base.html' %}
+{% block title %}Review Withdrawal{% endblock %}
+{% block dashboard_content %}
+<div>
+    <h2>Review Withdrawal Request</h2>
+    <p><strong>Student:</strong> {{ withdrawal.student.user.get_full_name }}</p>
+    <p><strong>Class:</strong> {{ withdrawal.enrollment.enrolled_class.title }}</p>
+    <p><strong>Reason:</strong> {{ withdrawal.reason|default:"No reason provided" }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="action" value="approve">Approve</button>
+        <button type="submit" name="action" value="reject">Reject</button>
+        <a href="{% url 'manage_withdrawal_requests' %}">Back</a>
+    </form>
+</div>
+{% endblock %}

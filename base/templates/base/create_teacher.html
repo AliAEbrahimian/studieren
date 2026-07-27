@@ -1,6 +1,8 @@
 {% extends 'base/dashboard_base.html' %}
+{% load static %}
 
 {% block title %}Create Teacher | Studieren{% endblock %}
+
 {% block sidebar_menu %}
     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
     <li class="nav-item"><a class="nav-link" href="{% url 'manage_teachers' %}">Manage Teachers</a></li>
@@ -9,29 +11,98 @@
 
 {% block dashboard_content %}
 <div class="create-teacher-section">
-    <h2>Add New Teacher</h2>
-    <form method="POST">
-        {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">First Name</label>
-                <input type="text" name="first_name" class="form-control" required>
+    <div class="create-container">
+        <!-- ==================== دکمه بازگشت ==================== -->
+        <a href="{% url 'manage_teachers' %}" class="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Teachers
+        </a>
+
+        <!-- ==================== هدر ==================== -->
+        <div class="header-section">
+            <div class="header-left">
+                <h2>Add New Teacher</h2>
+                <p>Create a teacher account and add them to the system</p>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Last Name</label>
-                <input type="text" name="last_name" class="form-control" required>
+        </div>
+
+        <!-- ==================== پیام‌ها ==================== -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- ==================== فرم ==================== -->
+        <form method="POST" class="create-form">
+            {% csrf_token %}
+
+            <!-- ===== ردیف ۱: نام و نام خانوادگی ===== -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        First Name <span class="required">*</span>
+                    </label>
+                    <input type="text" id="first_name" name="first_name" class="form-input" placeholder="e.g., John" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_name" class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Last Name <span class="required">*</span>
+                    </label>
+                    <input type="text" id="last_name" name="last_name" class="form-input" placeholder="e.g., Doe" required>
+                </div>
             </div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Create Teacher</button>
-        <a href="{% url 'manage_teachers' %}" class="btn btn-outline-secondary">Cancel</a>
-    </form>
+
+            <!-- ===== ردیف ۲: ایمیل ===== -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        Email <span class="required">*</span>
+                    </label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="teacher@institute.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Password <span class="required">*</span>
+                    </label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Create a strong password" required>
+                </div>
+            </div>
+
+            <!-- ===== دکمه‌های عملیات ===== -->
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Create Teacher
+                </button>
+                <a href="{% url 'manage_teachers' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

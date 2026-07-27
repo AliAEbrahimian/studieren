@@ -107,12 +107,12 @@ class Class(models.Model):
     title = models.CharField(max_length=100)
     
     class_code = models.PositiveBigIntegerField(
-        unique=True,                      # هر کد فقط برای یک کلاس
+        unique=True,                      
         blank=True,
         null=True,
         validators=[
-            MinValueValidator(100000000), # حداقل ۹ رقم
-            MaxValueValidator(999999999)  # حداکثر ۹ رقم
+            MinValueValidator(100000000), 
+            MaxValueValidator(999999999)  
         ],
         verbose_name="Class Code",
         help_text="Unique numeric code in the format YYYYMMNNN (e.g., 140308001)"
@@ -181,25 +181,25 @@ class Class(models.Model):
         return int(f"{prefix}{counter:03d}")
 
     def save(self, *args, **kwargs):
-    # تولید کد کلاس اگر خالی باشد
+    
         if not self.class_code and self.start_date:
             self.class_code = self._generate_class_code()
     
-    # اتوماتیک کردن جلسات (اگر تاریخ‌ها یا روزهای هفته تغییر کرده باشند)
-        if self.pk:  # یعنی کلاس قبلاً ذخیره شده و الان در حال ویرایش است
+    
+        if self.pk:  
             old_instance = Class.objects.filter(pk=self.pk).first()
             
             if old_instance:
                 if (old_instance.start_date != self.start_date or
                     old_instance.end_date != self.end_date or
                     old_instance.day_of_week != self.day_of_week):
-                    # حذف جلسات قبلی و ساخت مجدد
+                    
                     self.sessions.all().delete()
                     super().save(*args, **kwargs)
                     self.generate_sessions()
                     return
         else:
-        # کلاس جدید است، اول ذخیره کن بعد جلسات را بساز
+        
             super().save(*args, **kwargs)
             self.generate_sessions()
             return
@@ -293,7 +293,20 @@ class Enrollment(models.Model):
         PENDING = 'PENDING', 'Pending'
         PAID = 'PAID', 'Paid'
         PARTIAL = 'PARTIAL', 'Partial'
-        
+       
+    class EnrollmentStatus(models.TextChoices):
+        ACTIVE = 'ACTIVE', 'Active'
+        CANCELED = 'CANCELED', 'Canceled'
+        TRANSFERRED = 'TRANSFERRED', 'Transferred'
+        COMPLETED = 'COMPLETED', 'Completed'
+
+    status = models.CharField(
+        max_length=20,
+        choices=EnrollmentStatus.choices,
+        default=EnrollmentStatus.ACTIVE,
+        verbose_name="Enrollment Status"
+    )
+     
     student = models.ForeignKey(
         Student,
         on_delete=models.CASCADE,
@@ -354,18 +367,17 @@ class PlacementTestRequest(models.Model):
     
 
 class PlacementTestSettings(models.Model):
-    """تنظیمات تعیین سطح (فقط یک رکورد)"""
+    
     test_fee = models.PositiveIntegerField(default=0, verbose_name="Placement Test Fee")
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        """مطمئن شو فقط یک رکورد وجود دارد"""
         self.pk = 1
         super().save(*args, **kwargs)
 
     @classmethod
     def load(cls):
-        """تنظیمات را بارگذاری کن (اگر نبود، بساز)"""
+        
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
 
@@ -451,11 +463,32 @@ class OralGrade(models.Model):
     class Meta:
         unique_together = ['student', 'exam']
         
+class TaxSettings(models.Model):
+    
+    tax_percent = models.DecimalField(
+        max_digits=5, decimal_places=2, default=0,
+        help_text="Tax percentage (e.g., 9 for 9%)"
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return f"Tax Settings ({self.tax_percent}%)"
+
+
 class ClassFeedback(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='feedbacks')
     class_group = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='feedbacks')
     
-    # جنبه‌های مختلف تدریس (امتیاز ۱ تا ۵)
+    
     teaching_quality = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         help_text="Quality of teaching"
@@ -478,10 +511,54 @@ class ClassFeedback(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ['student', 'class_group']  # هر دانشجو فقط یک بار می‌تواند نظر بدهد
+        unique_together = ['student', 'class_group']  
         ordering = ['-created_at']
         verbose_name = "Class Feedback"
         verbose_name_plural = "Class Feedbacks"
     
     def __str__(self):
         return f"{self.student.user.get_full_name()} - {self.class_group.title}"
+    
+
+class WithdrawalRequest(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='withdrawal_requests')
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, related_name='withdrawal_requests')
+    reason = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    reviewed_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Withdrawal request by {self.student.user.get_full_name()} for {self.enrollment.enrolled_class.title}"
+    
+class TransferRequest(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        APPROVED = 'APPROVED', 'Approved'
+        REJECTED = 'REJECTED', 'Rejected'
+
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='transfer_requests')
+    from_enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, related_name='transfer_requests_from')
+    to_class = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='transfer_requests_to')
+    reason = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    reviewed_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Transfer request by {self.student.user.get_full_name()} to {self.to_class.title}"
+    
+    

@@ -33,6 +33,7 @@ class Invoice(models.Model):
     )
     
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Calculated tax amount")
     
     status = models.CharField(
         max_length=20,

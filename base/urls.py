@@ -32,6 +32,8 @@ urlpatterns = [
     path('class/<int:class_id>/review/', views.enroll_review, name='enroll_review'),
     path('placement/request/', views.request_placement_test, name='request_placement_test'),
     path('placement/status/', views.student_placement_status, name='student_placement_status'),
+    path('withdrawal/<int:enrollment_id>/request/', views.request_withdrawal, name='request_withdrawal'),
+    path('transfer/<int:enrollment_id>/request/', views.request_transfer, name='request_transfer'),
     
 
     # ============================================================
@@ -64,6 +66,7 @@ urlpatterns = [
     path('staff/enrollment/', views.staff_enrollment, name='staff_enrollment'),
     path('staff/students/', views.staff_student_profiles, name='staff_student_profiles'),
     path('staff/finance/', views.staff_finance, name='staff_finance'),
+    path('staff/student/<int:student_id>/', views.student_detail, name='student_detail'),
 
     # ============================================================
     # 7. MANAGER PANEL (Education & Senior)
@@ -74,14 +77,22 @@ urlpatterns = [
     path('manager/reports/', views.manager_reports, name='manager_reports'),
     path('manager/finance/', views.finance_reports, name='finance_reports'),
     path('class/create/', views.create_class, name='create_class'),
+    path('class/<int:class_id>/edit/', views.edit_class, name='edit_class'),
     path('course/create/', views.create_course, name='create_course'),
+    path('course/<int:course_id>/edit/', views.edit_course, name='edit_course'),
+    path('course/<int:course_id>/delete/', views.delete_course, name='delete_course'),
     path('placement/settings/', views.placement_test_settings, name='placement_test_settings'),
     path('placement/requests/', views.manage_placement_requests, name='manage_placement_requests'),
     path('placement/request/<int:request_id>/review/', views.review_placement_request, name='review_placement_request'),
+    path('manager/withdrawals/', views.manage_withdrawal_requests, name='manage_withdrawal_requests'),
+    path('manager/withdrawal/<int:request_id>/review/', views.review_withdrawal_request, name='review_withdrawal_request'),
+    path('manager/student/<int:student_id>/transfer/', views.transfer_student, name='transfer_student'),
+    path('manager/transfers/', views.manage_transfer_requests, name='manage_transfer_requests'),
+    path('manager/transfer/<int:request_id>/review/', views.approve_transfer_request, name='approve_transfer_request'),
     
     # --- Teacher Quick Actions (inside manager) ---
     path('teacher/create/', views.create_teacher, name='create_teacher'),
-    path('teacher/<int:teacher_id>/quick-edit/', views.quick_edit_teacher, name='quick_edit_teacher'),
+    path('teacher/<int:teacher_id>/edit/', views.edit_teacher, name='edit_teacher'),
     path('teacher/<int:teacher_id>/profile/', views.teacher_profile, name='teacher_profile'),
     path('teacher/<int:teacher_id>/classes/', views.teacher_assign_classes, name='teacher_assign_classes'),
     path('class/<int:class_id>/feedback/', views.submit_feedback, name='submit_feedback'),

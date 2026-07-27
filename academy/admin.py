@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Student, Employee, Course, Class, Enrollment, Session, Attendance
-from .models import Exam, ExamSection, StudentGrade, OralGrade, PlacementTestRequest
+from .models import Exam, ExamSection, StudentGrade, OralGrade, PlacementTestRequest, TaxSettings
 # Register your models here.
 
 @admin.register(Student)
@@ -65,3 +65,8 @@ class OralGradeAdmin(admin.ModelAdmin):
 @admin.register(PlacementTestRequest)
 class PlacementTestRequestAdmin(admin.ModelAdmin):
     list_display = ['student', 'test_type', 'status', 'approved_level']
+    
+    
+@admin.register(TaxSettings)
+class TaxSettingsAdmin(admin.ModelAdmin):
+    list_display = ['tax_percent', 'updated_at']

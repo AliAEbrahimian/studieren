@@ -24,12 +24,13 @@ from academy.models import (
     Student, Employee, Course, Class, Enrollment,
     Session, Attendance, PlacementTestRequest,
     Exam, ExamSection, StudentGrade, OralGrade,
-    PlacementTestSettings, ClassFeedback
+    PlacementTestSettings, ClassFeedback, WithdrawalRequest,
+    TransferRequest, TaxSettings
 )
 from payments.models import Invoice
 from .forms import RegisterForm, UserUpdateForm
 from datetime import timedelta, datetime
-from django.db.models import Sum, Count, Avg, Q
+from django.db.models import Sum, Count, Avg, Q, Max
 
 
 User = get_user_model()
@@ -404,11 +405,17 @@ def student_scores(request):
             latest_passed_level = item['class'].course.level
             break  # چون مرتب‌سازی از جدیدترین است
     
+    
+    passed_count = sum(1 for item in scores_data if item['passed'])
+    failed_count = sum(1 for item in scores_data if item['passed'] is False)
+    
     context = {
         'user': request.user,
         'student': student,
         'scores_data': scores_data,
         'latest_passed_level': latest_passed_level,
+        'passed_count': passed_count,
+        'failed_count': failed_count,
     }
     return render(request, 'base/student_scores.html', context)
 
@@ -498,11 +505,20 @@ def class_detail(request, class_id):
             student=request.user.student_profile,
             enrolled_class=cls
         ).exists()
+        
+    is_student = hasattr(request.user, 'student_profile')
+    
+    if is_student:
+        already_enrolled = Enrollment.objects.filter(
+            student=request.user.student_profile,
+            enrolled_class=cls
+        ).exists()
     
     context = {
         'class': cls,
         'remaining_seats': remaining_seats,
         'already_enrolled': already_enrolled,
+        'is_student': is_student,
     }
     return render(request, 'base/class_detail.html', context)
 
@@ -519,6 +535,12 @@ def enroll_class(request, class_id):
         return redirect('available_courses')
     
     remaining_seats = cls.capacity - cls.enrollments.count()
+    
+    deadline = cls.start_date + timedelta(days=3)
+    if date.today() > deadline:
+        messages.error(request, f'Enrollment for this class closed on {deadline.strftime("%Y-%m-%d")}.')
+        return redirect('class_detail', class_id=cls.id)
+    
     if remaining_seats <= 0:
         print("DEBUG: Class is full!")
         messages.error(request, 'Sorry, this class is already full.')
@@ -586,10 +608,14 @@ def mock_payment(request, class_id):
         return redirect('class_detail', class_id=cls.id)
     
     if request.method == 'POST':
+        tax_settings = TaxSettings.load()
+        tax_amount = (cls.tuition_fee * tax_settings.tax_percent) / 100
+        
         Invoice.objects.create(
             student=student,
             class_group=cls,
             amount=cls.tuition_fee,
+            tax_amount=tax_amount,
             status=Invoice.Status.PAID,
             paid_at=timezone.now(),
             reference_code=f"REF-{uuid.uuid4().hex[:8].upper()}"
@@ -661,8 +687,13 @@ def invoice_receipt(request, invoice_id):
         messages.error(request, 'You do not have permission to view this receipt.')
         return redirect('dashboard')
     
+    tax_settings = TaxSettings.load()
+    total_amount = invoice.amount + invoice.tax_amount
+
     context = {
         'invoice': invoice,
+        'tax_settings': tax_settings,
+        'total_amount': total_amount,
     }
     return render(request, 'base/invoice_receipt.html', context)
 
@@ -734,12 +765,16 @@ def pay_placement_test(request, request_id):
     settings = PlacementTestSettings.load()
     
     if request.method == 'POST':
+        tax_settings = TaxSettings.load()
+        tax_amount = (settings.test_fee * tax_settings.tax_percent) / 100
+        
         # ایجاد فاکتور و پرداخت
         Invoice.objects.create(
             student=placement_request.student,
             class_group=None,  # برای کلاس نیست
             placement_request=placement_request,
             amount=settings.test_fee,
+            tax_amount=tax_amount,
             status=Invoice.Status.PAID,
             paid_at=timezone.now(),
             reference_code=f"REF-PLACE-{uuid.uuid4().hex[:8].upper()}"
@@ -754,6 +789,66 @@ def pay_placement_test(request, request_id):
         'test_fee': settings.test_fee,
     }
     return render(request, 'base/pay_placement_test.html', context)
+
+@login_required(login_url='login')
+def request_transfer(request, enrollment_id):
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Only students can request transfer.')
+        return redirect('dashboard')
+
+    from_enrollment = get_object_or_404(Enrollment, id=enrollment_id, student=student)
+
+    # اعتبارسنجی: فقط کلاس‌های فعال و با وضعیت ACTIVE
+    if from_enrollment.status != Enrollment.EnrollmentStatus.ACTIVE:
+        messages.error(request, 'This enrollment is not active.')
+        return redirect('dashboard')
+    if from_enrollment.enrolled_class.end_date < date.today():
+        messages.error(request, 'This class has already ended.')
+        return redirect('dashboard')
+
+    # لیست کلاس‌های مقصد: کلاس‌های جاری که ظرفیت دارند و دانشجو قبلاً در آن ثبت‌نام نکرده
+    available_classes = Class.objects.filter(
+        end_date__gte=date.today()
+    ).exclude(
+        id__in=Enrollment.objects.filter(student=student).values_list('enrolled_class_id', flat=True)
+    ).select_related('course', 'teacher__user').order_by('start_date')
+
+    if request.method == 'POST':
+        to_class_id = request.POST.get('to_class')
+        reason = request.POST.get('reason', '')
+
+        if not to_class_id:
+            messages.error(request, 'Please select a destination class.')
+            return redirect('request_transfer', enrollment_id=enrollment_id)
+
+        to_class = get_object_or_404(Class, id=to_class_id)
+
+        # چک تکراری نبودن درخواست
+        if TransferRequest.objects.filter(
+            student=student,
+            from_enrollment=from_enrollment,
+            to_class=to_class,
+            status=TransferRequest.Status.PENDING
+        ).exists():
+            messages.warning(request, 'You already have a pending transfer request for this class.')
+            return redirect('dashboard')
+
+        TransferRequest.objects.create(
+            student=student,
+            from_enrollment=from_enrollment,
+            to_class=to_class,
+            reason=reason
+        )
+        messages.success(request, 'Transfer request submitted successfully. It is pending manager approval.')
+        return redirect('dashboard')
+
+    context = {
+        'from_enrollment': from_enrollment,
+        'available_classes': available_classes,
+    }
+    return render(request, 'base/request_transfer.html', context)
 
 
 # ============================================================
@@ -1011,6 +1106,23 @@ def teacher_performance(request):
         count=Count('id')
     )
     
+    feedback_details = []
+    recent_feedbacks = ClassFeedback.objects.filter(
+        class_group__teacher=teacher
+    ).select_related('student__user', 'class_group').order_by('-created_at')[:10]
+    
+    for fb in recent_feedbacks:
+        feedback_details.append({
+            'student_name': fb.student.user.get_full_name(),
+            'class_title': fb.class_group.title,
+            'teaching_quality': fb.teaching_quality,
+            'communication': fb.communication,
+            'punctuality': fb.punctuality,
+            'engagement': fb.engagement,
+            'overall': fb.overall_satisfaction,
+            'created_at': fb.created_at,
+        })
+    
     context = {
         'teacher': teacher,
         'classes_with_feedback': classes_with_feedback,
@@ -1020,6 +1132,7 @@ def teacher_performance(request):
         'avg_engagement': round(agg['avg_engagement'], 1) if agg['avg_engagement'] else 0,
         'avg_overall': round(agg['avg_overall'], 1) if agg['avg_overall'] else 0,
         'total_feedbacks': agg['count'],
+        'feedback_details': feedback_details,
     }
     return render(request, 'base/teacher_performance.html', context)
 
@@ -1190,7 +1303,31 @@ def exam_dashboard(request):
         template_name = 'base/exam_manager_dashboard.html'
     else:
         template_name = 'base/exam_corrector_dashboard.html'
+        # ==================== برای مصحح: آمار تصحیح‌های خودش ====================
+        if employee.position == Employee.Position.EXAM_CORRECTOR:
+            graded_exams_count = StudentGrade.objects.filter(
+                entered_by=employee
+            ).values('exam_section__exam').distinct().count()
     
+            recent_exam_data = StudentGrade.objects.filter(
+                entered_by=employee
+            ).values('exam_section__exam').annotate(
+                last_grade=Max('updated_at')
+            ).order_by('-last_grade')[:5]
+    
+            exam_ids = [item['exam_section__exam'] for item in recent_exam_data]
+            recent_graded_exams = Exam.objects.filter(
+                id__in=exam_ids
+            ).select_related('class_group__course')
+    
+            date_map = {item['exam_section__exam']: item['last_grade'] for item in recent_exam_data}
+            for exam in recent_graded_exams:
+                exam.graded_at = date_map.get(exam.id)
+            recent_graded_exams = sorted(recent_graded_exams, key=lambda e: e.graded_at, reverse=True)
+    
+            context['graded_exams_count'] = graded_exams_count
+            context['recent_graded_exams'] = recent_graded_exams
+            
     return render(request, template_name, context)
 
 
@@ -1407,13 +1544,23 @@ def staff_enrollment(request):
             student = get_object_or_404(Student, pk=student_pk)
             cls = get_object_or_404(Class, pk=class_pk)
             
+            deadline = cls.start_date + timedelta(days=3)
+            if date.today() > deadline:
+                messages.error(request, f'Enrollment for {cls.title} closed on {deadline.strftime("%Y-%m-%d")}.')
+                return redirect('staff_enrollment')
+            
             if Enrollment.objects.filter(student=student, enrolled_class=cls).exists():
                 messages.warning(request, f'{student.user.get_full_name()} is already enrolled in {cls.title}.')
             else:
+                
+                tax_settings = TaxSettings.load()
+                tax_amount = (cls.tuition_fee * tax_settings.tax_percent) / 100
+                
                 Invoice.objects.create(
                     student=student,
                     class_group=cls,
                     amount=cls.tuition_fee,
+                    tax_amount=tax_amount,
                     status=Invoice.Status.PAID,
                     paid_at=timezone.now(),
                     reference_code=f"REF-STAFF-{uuid.uuid4().hex[:8].upper()}"
@@ -1488,7 +1635,62 @@ def staff_student_profiles(request):
 
 @login_required(login_url='login')
 def staff_finance(request):
-    # ==================== ۱. بررسی دسترسی ====================
+    # چک دسترسی: STAFF, EDUCATION_MANAGER, SENIOR_MANAGER
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.STAFF,
+            Employee.Position.EDUCATION_MANAGER,
+            Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+    
+    search_query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', 'all')
+    
+    # دریافت تمام فاکتورها
+    invoices = Invoice.objects.select_related(
+        'student__user', 'class_group__course'
+    ).order_by('-created_at')
+    
+    # اعمال فیلتر وضعیت
+    if status_filter in ['PAID', 'PENDING', 'CANCELED']:
+        invoices = invoices.filter(status=status_filter)
+    
+    # اعمال جستجو
+    if search_query:
+        invoices = invoices.filter(
+            Q(reference_code__icontains=search_query) |
+            Q(student__user__first_name__icontains=search_query) |
+            Q(student__user__last_name__icontains=search_query) |
+            Q(student__user__email__icontains=search_query)
+        )
+    
+    # آمار کلی
+    total_revenue = invoices.filter(status=Invoice.Status.PAID).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_pending = invoices.filter(status=Invoice.Status.PENDING).aggregate(Sum('amount'))['amount__sum'] or 0
+    paid_count = invoices.filter(status=Invoice.Status.PAID).count()
+    pending_count = invoices.filter(status=Invoice.Status.PENDING).count()
+    canceled_count = invoices.filter(status=Invoice.Status.CANCELED).count()
+    
+    context = {
+        'user': request.user,
+        'invoices': invoices,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'total_revenue': total_revenue,
+        'total_pending': total_pending,
+        'paid_count': paid_count,
+        'pending_count': pending_count,
+        'canceled_count': canceled_count,
+    }
+    return render(request, 'base/staff_finance.html', context)
+
+@login_required(login_url='login')
+def student_detail(request, student_id):
+    # ۱. چک دسترسی: STAFF, EDUCATION_MANAGER, SENIOR_MANAGER
     if not request.user.is_staff and (
         not hasattr(request.user, 'employee_profile') or
         request.user.employee_profile.position not in [
@@ -1500,54 +1702,115 @@ def staff_finance(request):
         messages.error(request, 'You do not have permission.')
         return redirect('dashboard')
 
-    # ==================== ۲. خواندن فیلترها ====================
-    search_query = request.GET.get('q', '')
-    status_filter = request.GET.get('status', 'all')
+    # ۲. گرفتن دانشجو و اطلاعات کاربر
+    student = get_object_or_404(Student.objects.select_related('user'), pk=student_id)
+    user_profile = student.user
 
-    # ==================== ۳. کوئری اصلی ====================
-    invoices = Invoice.objects.select_related(
-        'student__user', 'class_group__course'
-    ).order_by('-created_at')
+    # ۳. سوابق تحصیلی (Academic History)
+    enrollments = Enrollment.objects.filter(
+        student=student
+    ).select_related('enrolled_class__course', 'enrolled_class__teacher__user').order_by('-enrolled_class__end_date')
 
-    # فیلتر وضعیت
-    if status_filter in ['PAID', 'PENDING', 'CANCELED']:
-        invoices = invoices.filter(status=status_filter)
+    academic_history = []
+    for enrollment in enrollments:
+        cls = enrollment.enrolled_class
+        passed = None
+        if hasattr(cls, 'exam') and cls.exam.status == Exam.Status.FINALIZED:
+            exam = cls.exam
+            written_total = StudentGrade.objects.filter(
+                student=student, exam_section__exam=exam
+            ).aggregate(Sum('score'))['score__sum'] or 0
+            oral = OralGrade.objects.filter(student=student, exam=exam).first()
+            oral_score = oral.score if oral else 0
+            passed = (written_total + oral_score) >= exam.total_score * 0.6
+        
+        academic_history.append({
+            'class': cls,
+            'course': cls.course,
+            'teacher': cls.teacher,
+            'registration_date': enrollment.registration_date,
+            'end_date': cls.end_date,
+            'is_active': cls.end_date >= date.today(),
+            'passed': passed,
+            'payment_status': enrollment.payment_status,
+        })
 
-    # جستجو بر اساس نام دانشجو، ایمیل یا کد ملی
-    if search_query:
-        invoices = invoices.filter(
-            Q(student__user__first_name__icontains=search_query) |
-            Q(student__user__last_name__icontains=search_query) |
-            Q(student__user__email__icontains=search_query) |
-            Q(student__user__national_code__icontains=search_query) |
-            Q(reference_code__icontains=search_query)
-        )
+    # ۴. وضعیت مالی
+    invoices = Invoice.objects.filter(student=student).order_by('-created_at')
+    total_paid = invoices.filter(status=Invoice.Status.PAID).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_pending = invoices.filter(status=Invoice.Status.PENDING).aggregate(Sum('amount'))['amount__sum'] or 0
+    recent_invoices = invoices[:5]
 
-    # ==================== ۴. محاسبهٔ آمار ====================
-    # مهم: آمار روی کل فاکتورهاست (نه فقط فیلترشده)
-    all_invoices = Invoice.objects.all()
-    total_paid = all_invoices.filter(status=Invoice.Status.PAID).aggregate(
-        total=Sum('amount'))['total'] or 0
-    total_pending = all_invoices.filter(status=Invoice.Status.PENDING).aggregate(
-        total=Sum('amount'))['total'] or 0
-    paid_count = all_invoices.filter(status=Invoice.Status.PAID).count()
-    pending_count = all_invoices.filter(status=Invoice.Status.PENDING).count()
-    canceled_count = all_invoices.filter(status=Invoice.Status.CANCELED).count()
+    # ۵. آمار حضور و غیاب (حرفه‌ای و کامل)
+    attendance_qs = Attendance.objects.filter(
+        student=student,
+        session__class_group__enrollments__student=student  # فقط جلسات کلاس‌هایی که واقعاً در آن ثبت‌نام کرده
+    )
+    total_sessions = attendance_qs.count()
+    
+    # محاسبه جزئیات وضعیت‌ها برای کارت‌های قالب
+    present_count = attendance_qs.filter(status=Attendance.Status.PRESENT).count()
+    absent_count = attendance_qs.filter(status=Attendance.Status.ABSENT).count()
+    late_count = attendance_qs.filter(status=Attendance.Status.LATE).count()
+    excused_count = attendance_qs.filter(status=Attendance.Status.EXCUSED).count()
+    
+    # درصد حضور
+    if total_sessions > 0:
+        attendance_percent = round((present_count / total_sessions * 100), 1)
+    else:
+        attendance_percent = 0
+
+    # آخرین جلسات با وضعیت حضور
+    recent_attendances = attendance_qs.select_related('session__class_group').order_by('-session__date')[:10]
 
     context = {
-        'user': request.user,
-        'invoices': invoices,
-        'search_query': search_query,
-        'status_filter': status_filter,
-        # آمار کلی
+        'student': student,
+        'user_profile': user_profile,
+        'academic_history': academic_history,
         'total_paid': total_paid,
         'total_pending': total_pending,
-        'paid_count': paid_count,
-        'pending_count': pending_count,
-        'canceled_count': canceled_count,
-        'total_count': all_invoices.count(),
+        'recent_invoices': recent_invoices,
+        'attendance_percent': attendance_percent,
+        'present_count': present_count,
+        'absent_count': absent_count,
+        'late_count': late_count,
+        'excused_count': excused_count,
+        'recent_attendances': recent_attendances,
     }
-    return render(request, 'base/staff_finance.html', context)
+    return render(request, 'base/student_detail.html', context)
+
+    # ۴. وضعیت مالی: خلاصه + آخرین ۵ فاکتور
+    invoices = Invoice.objects.filter(student=student).order_by('-created_at')
+    total_paid = invoices.filter(status=Invoice.Status.PAID).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_pending = invoices.filter(status=Invoice.Status.PENDING).aggregate(Sum('amount'))['amount__sum'] or 0
+    recent_invoices = invoices[:5]
+
+    # ۵. آمار حضور: درصد حضور کلی + آخرین جلسات
+    total_sessions = Attendance.objects.filter(
+        student=student, session__class_group__enrollments__student=student
+    ).count()
+    present_sessions = Attendance.objects.filter(
+        student=student, status=Attendance.Status.PRESENT,
+        session__class_group__enrollments__student=student
+    ).count()
+    attendance_percent = round((present_sessions / total_sessions * 100), 1) if total_sessions > 0 else 0
+
+    # آخرین جلسات با وضعیت حضور
+    recent_attendances = Attendance.objects.filter(
+        student=student
+    ).select_related('session__class_group').order_by('-session__date')[:10]
+
+    context = {
+        'student': student,
+        'user_profile': user,
+        'academic_history': academic_history,
+        'total_paid': total_paid,
+        'total_pending': total_pending,
+        'recent_invoices': recent_invoices,
+        'attendance_percent': attendance_percent,
+        'recent_attendances': recent_attendances,
+    }
+    return render(request, 'base/student_detail.html', context)
 
 # ============================================================
 # 7. MANAGER PANEL
@@ -1658,6 +1921,71 @@ def create_course(request):
 
 
 @login_required(login_url='login')
+def edit_course(request, course_id):
+    # دسترسی: مدیر آموزشی، مدیر ارشد
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+
+    course = get_object_or_404(Course, pk=course_id)
+
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        language = request.POST.get('language', '').strip()
+        level = request.POST.get('level', '').strip()
+        description = request.POST.get('description', '').strip()
+
+        if not title or not language or not level:
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('edit_course', course_id=course.id)
+
+        # به‌روزرسانی فیلدها
+        course.title = title
+        course.language = language
+        course.level = level
+        course.description = description
+        course.save()
+
+        messages.success(request, f'Course "{course.title}" updated successfully.')
+        return redirect('manage_courses')
+
+    # GET: نمایش فرم با داده‌های فعلی
+    context = {
+        'course': course,
+        'levels': ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+    }
+    return render(request, 'base/edit_course.html', context)
+
+
+@login_required(login_url='login')
+def delete_course(request, course_id):
+    # دسترسی: مدیر آموزشی، مدیر ارشد
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+
+    course = get_object_or_404(Course, pk=course_id)
+    
+    # بررسی اینکه آیا کلاسی به این دوره متصل است
+    if course.classes.exists():
+        messages.error(request, f'Cannot delete "{course.title}" because it has associated classes.')
+        return redirect('manage_courses')
+    
+    course.delete()
+    messages.success(request, f'Course "{course.title}" has been deleted.')
+    return redirect('manage_courses')
+
+@login_required(login_url='login')
 def manage_teachers(request):
     if not request.user.is_staff and (
         not hasattr(request.user, 'employee_profile') or
@@ -1744,9 +2072,8 @@ def create_teacher(request):
 
 
 @login_required(login_url='login')
-def quick_edit_teacher(request, teacher_id):
-    teacher = get_object_or_404(Employee, pk=teacher_id, position=Employee.Position.TEACHER)
-    # دسترسی مثل بالا
+def edit_teacher(request, teacher_id):
+    # دسترسی: مدیر آموزشی، مدیر ارشد
     if not request.user.is_staff and (
         not hasattr(request.user, 'employee_profile') or
         request.user.employee_profile.position not in [
@@ -1756,15 +2083,52 @@ def quick_edit_teacher(request, teacher_id):
         messages.error(request, 'You do not have permission.')
         return redirect('dashboard')
     
+    teacher = get_object_or_404(Employee, pk=teacher_id, position=Employee.Position.TEACHER)
+    user = teacher.user
+
+    # لیست سوپروایزرهای ممکن (همه کارمندان به جز خودش)
+    supervisors = Employee.objects.exclude(pk=teacher.pk).select_related('user').order_by('user__last_name')
+
     if request.method == 'POST':
-        teacher.department = request.POST.get('department', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        department = request.POST.get('department', '').strip()
         hire_date_str = request.POST.get('hire_date', '')
+        supervisor_id = request.POST.get('supervisor', '')
+        is_active = request.POST.get('is_active', 'on') == 'on'
+
+        if not first_name or not last_name:
+            messages.error(request, 'First name and last name are required.')
+            return redirect('edit_teacher', teacher_id=teacher.pk)
+
+        # به‌روزرسانی User
+        user.first_name = first_name
+        user.last_name = last_name
+        user.is_active = is_active
+        user.save()
+
+        # به‌روزرسانی Employee
+        teacher.department = department
         if hire_date_str:
             teacher.hire_date = date.fromisoformat(hire_date_str)
+        else:
+            teacher.hire_date = None
+        
+        if supervisor_id:
+            teacher.supervisor = get_object_or_404(Employee, pk=supervisor_id)
+        else:
+            teacher.supervisor = None
+        
         teacher.save()
-        messages.success(request, f'{teacher.user.get_full_name()} updated.')
-    
-    return redirect('manage_teachers')
+
+        messages.success(request, f'Teacher {user.get_full_name()} updated successfully.')
+        return redirect('manage_teachers')
+
+    context = {
+        'teacher': teacher,
+        'supervisors': supervisors,
+    }
+    return render(request, 'base/edit_teacher.html', context)
 
 
 @login_required(login_url='login')
@@ -2373,6 +2737,87 @@ def create_class(request):
     }
     return render(request, 'base/create_class.html', context)
 
+
+@login_required(login_url='login')
+def edit_class(request, class_id):
+    # دسترسی: مدیر آموزشی، مدیر ارشد، یا ادمین
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER,
+            Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+    
+    cls = get_object_or_404(Class, id=class_id)
+    
+    if request.method == 'POST':
+        # خواندن داده‌ها از فرم
+        title = request.POST.get('title', '').strip()
+        course_id = request.POST.get('course')
+        teacher_id = request.POST.get('teacher')
+        tuition_fee = request.POST.get('tuition_fee', 0)
+        capacity = request.POST.get('capacity', 10)
+        class_type = request.POST.get('class_type', 'IN_PERSON')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        schedule = request.POST.get('schedule', '').strip()
+        location = request.POST.get('location', '').strip()
+        meeting_link = request.POST.get('meeting_link', '').strip()
+        
+        # روزهای هفته
+        days_of_week = request.POST.getlist('days_of_week')
+        days_of_week = [int(d) for d in days_of_week]
+        
+        # ساعت شروع و پایان
+        start_time = request.POST.get('start_time') or None
+        end_time = request.POST.get('end_time') or None
+        
+        if not title or not course_id or not start_date or not end_date:
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('edit_class', class_id=cls.id)
+        
+        course = get_object_or_404(Course, pk=course_id)
+        teacher = get_object_or_404(Employee, pk=teacher_id) if teacher_id else None
+        
+        # به‌روزرسانی کلاس
+        cls.title = title
+        cls.course = course
+        cls.teacher = teacher
+        cls.tuition_fee = tuition_fee
+        cls.capacity = capacity
+        cls.class_type = class_type
+        cls.start_date = start_date
+        cls.end_date = end_date
+        cls.schedule = schedule
+        cls.location = location if class_type == 'IN_PERSON' else ''
+        cls.meeting_link = meeting_link if class_type == 'ONLINE' else ''
+        cls.day_of_week = days_of_week
+        cls.start_time = start_time
+        cls.end_time = end_time
+        cls.save()
+        
+        messages.success(request, f'Class "{cls.title}" updated successfully.')
+        return redirect('manage_classes')
+    
+    # GET: نمایش فرم با داده‌های قبلی
+    courses = Course.objects.all().order_by('language', 'level')
+    teachers = Employee.objects.filter(position=Employee.Position.TEACHER).select_related('user').order_by('user__last_name')
+    
+    context = {
+        'class': cls,
+        'courses': courses,
+        'teachers': teachers,
+        'days_choices': [
+            (0, 'Mon'), (1, 'Tue'), (2, 'Wed'), (3, 'Thu'),
+            (4, 'Fri'), (5, 'Sat'), (6, 'Sun')
+        ],
+    }
+    return render(request, 'base/edit_class.html', context)
+
+
 @login_required(login_url='login')
 def placement_test_settings(request):
     # فقط مدیر ارشد
@@ -2409,14 +2854,22 @@ def manage_placement_requests(request):
     
     status_filter = request.GET.get('status', '')
     requests = PlacementTestRequest.objects.select_related('student__user').order_by('-created_at')
+    pending_count = requests.filter(status=PlacementTestRequest.Status.PENDING).count()
+    approved_count = requests.filter(status=PlacementTestRequest.Status.APPROVED).count()
+    rejected_count = requests.filter(status=PlacementTestRequest.Status.REJECTED).count()
+    paid_requests_count = requests.filter(payment_status=Enrollment.PaymentStatus.PAID).count()
     
     if status_filter:
         requests = requests.filter(status=status_filter)
-    
+        
     context = {
         'requests': requests,
         'status_filter': status_filter,
         'status_choices': PlacementTestRequest.Status.choices,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+        'paid_requests_count': paid_requests_count,
     }
     return render(request, 'base/manage_placement_requests.html', context)
 
@@ -2456,6 +2909,173 @@ def review_placement_request(request, request_id):
     
     context = {'placement_request': placement_request}
     return render(request, 'base/review_placement_request.html', context)
+
+
+@login_required(login_url='login')
+def manage_withdrawal_requests(request):
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+
+    status_filter = request.GET.get('status', '')
+    requests = WithdrawalRequest.objects.select_related('student__user', 'enrollment__enrolled_class').order_by('-created_at')
+    if status_filter:
+        requests = requests.filter(status=status_filter)
+
+    context = {
+        'requests': requests,
+        'status_filter': status_filter,
+        'status_choices': WithdrawalRequest.Status.choices,
+    }
+    return render(request, 'base/manage_withdrawal_requests.html', context)
+
+@login_required(login_url='login')
+def manage_transfer_requests(request):
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+
+    status_filter = request.GET.get('status', '')
+    requests = TransferRequest.objects.select_related(
+        'student__user', 'from_enrollment__enrolled_class', 'to_class__course'
+    ).order_by('-created_at')
+    if status_filter:
+        requests = requests.filter(status=status_filter)
+
+    pending_count = requests.filter(status=TransferRequest.Status.PENDING).count() if not status_filter else None
+
+    context = {
+        'requests': requests,
+        'status_filter': status_filter,
+        'status_choices': TransferRequest.Status.choices,
+        'pending_count': pending_count,
+    }
+    return render(request, 'base/manage_transfer_requests.html', context)
+
+@login_required(login_url='login')
+def approve_transfer_request(request, request_id):
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+
+    transfer_req = get_object_or_404(TransferRequest, id=request_id)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            # تراکنش اتمی: کنسل کردن قدیم + ثبت‌نام جدید + مالی
+            from django.db import transaction
+            try:
+                with transaction.atomic():
+                    # ۱. کنسل کردن ثبت‌نام قبلی
+                    from_enrollment = transfer_req.from_enrollment
+                    from_enrollment.status = Enrollment.EnrollmentStatus.CANCELED
+                    from_enrollment.save()
+
+                    # ۲. ایجاد ثبت‌نام جدید
+                    to_class = transfer_req.to_class
+                    new_enrollment = Enrollment.objects.create(
+                        student=transfer_req.student,
+                        enrolled_class=to_class,
+                        payment_status=Enrollment.PaymentStatus.PAID
+                    )
+
+                    # ۳. مدیریت مالی
+                    old_fee = from_enrollment.enrolled_class.tuition_fee
+                    new_fee = to_class.tuition_fee
+                    diff = new_fee - old_fee
+                    if diff > 0:
+                        tax_settings = TaxSettings.load()
+                        tax_amount = (diff * tax_settings.tax_percent) / 100
+                        
+                        Invoice.objects.create(
+                            student=transfer_req.student,
+                            class_group=to_class,
+                            amount=diff,
+                            tax_amount=tax_amount,
+                            status=Invoice.Status.PENDING,
+                            reference_code=f"TRANS-{uuid.uuid4().hex[:8].upper()}"
+                        )
+                    elif diff < 0:
+                        tax_settings = TaxSettings.load()
+                        tax_amount = (abs(diff) * tax_settings.tax_percent) / 100
+                        
+                        Invoice.objects.create(
+                            student=transfer_req.student,
+                            class_group=None,
+                            amount=abs(diff),
+                            tax_amount=tax_amount,
+                            status=Invoice.Status.PAID,
+                            reference_code=f"REFUND-{uuid.uuid4().hex[:8].upper()}"
+                        )
+
+                    # ۴. به‌روزرسانی درخواست
+                    transfer_req.status = TransferRequest.Status.APPROVED
+                    transfer_req.reviewed_by = request.user.employee_profile
+                    transfer_req.save()
+
+                messages.success(request, 'Transfer request approved and processed.')
+            except Exception as e:
+                messages.error(request, f'Transfer failed: {str(e)}')
+        elif action == 'reject':
+            transfer_req.status = TransferRequest.Status.REJECTED
+            transfer_req.reviewed_by = request.user.employee_profile
+            transfer_req.save()
+            messages.success(request, 'Transfer request rejected.')
+        return redirect('manage_transfer_requests')
+
+    context = {'transfer_req': transfer_req}
+    return render(request, 'base/approve_transfer_request.html', context)
+
+@login_required(login_url='login')
+def review_withdrawal_request(request, request_id):
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+
+    withdrawal = get_object_or_404(WithdrawalRequest, id=request_id)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            withdrawal.status = WithdrawalRequest.Status.APPROVED
+            withdrawal.reviewed_by = request.user.employee_profile
+            withdrawal.save()
+            # کنسل کردن enrollment
+            enrollment = withdrawal.enrollment
+            enrollment.status = Enrollment.EnrollmentStatus.CANCELED
+            enrollment.save()
+            # (اختیاری) می‌تونی یه Invoice cancellation هم اینجا اضافه کنی
+            messages.success(request, 'Withdrawal approved. Enrollment has been canceled.')
+        elif action == 'reject':
+            withdrawal.status = WithdrawalRequest.Status.REJECTED
+            withdrawal.reviewed_by = request.user.employee_profile
+            withdrawal.save()
+            messages.success(request, 'Withdrawal request rejected.')
+        return redirect('manage_withdrawal_requests')
+
+    context = {'withdrawal': withdrawal}
+    return render(request, 'base/review_withdrawal_request.html', context)
 
 
 @login_required(login_url='login')
@@ -2507,3 +3127,158 @@ def submit_feedback(request, class_id):
         'class': cls,
     }
     return render(request, 'base/submit_feedback.html', context)
+
+
+@login_required(login_url='login')
+def request_withdrawal(request, enrollment_id):
+    try:
+        student = request.user.student_profile
+    except Student.DoesNotExist:
+        messages.error(request, 'Only students can request withdrawal.')
+        return redirect('dashboard')
+
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id, student=student)
+
+    if enrollment.status != Enrollment.EnrollmentStatus.ACTIVE:
+        messages.error(request, 'This enrollment is not active.')
+        return redirect('dashboard')
+    
+    if enrollment.enrolled_class.end_date and enrollment.enrolled_class.end_date < date.today():
+        messages.error(request, 'This class has already ended. Withdrawal is not possible.')
+        return redirect('dashboard')
+
+    if WithdrawalRequest.objects.filter(enrollment=enrollment, status=WithdrawalRequest.Status.PENDING).exists():
+        messages.warning(request, 'You already have a pending withdrawal request for this class.')
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        WithdrawalRequest.objects.create(
+            student=student,
+            enrollment=enrollment,
+            reason=reason
+        )
+        messages.success(request, 'Your withdrawal request has been submitted and is pending approval.')
+        return redirect('dashboard')
+
+    context = {'enrollment': enrollment}
+    return render(request, 'base/request_withdrawal.html', context)
+
+@login_required(login_url='login')
+def transfer_student(request, student_id):
+    # ۱. چک دسترسی: EDUCATION_MANAGER, SENIOR_MANAGER
+    if not request.user.is_staff and (
+        not hasattr(request.user, 'employee_profile') or
+        request.user.employee_profile.position not in [
+            Employee.Position.EDUCATION_MANAGER, Employee.Position.SENIOR_MANAGER
+        ]
+    ):
+        messages.error(request, 'You do not have permission.')
+        return redirect('dashboard')
+
+    student = get_object_or_404(Student.objects.select_related('user'), pk=student_id)
+    
+    # لیست کلاس‌های فعال این دانشجو (برای انتخاب مبدأ)
+    active_enrollments = Enrollment.objects.filter(
+        student=student,
+        status=Enrollment.EnrollmentStatus.ACTIVE,
+        enrolled_class__end_date__gte=date.today()
+    ).select_related('enrolled_class__course', 'enrolled_class__teacher__user')
+    
+    # لیست کلاس‌های موجود برای انتقال (مقصد) - کلاس‌های جاری که دانشجو در آن‌ها نیست
+    available_classes = Class.objects.filter(
+        end_date__gte=date.today()
+    ).exclude(
+        id__in=active_enrollments.values_list('enrolled_class_id', flat=True)
+    ).select_related('course', 'teacher__user').order_by('start_date')
+
+    if request.method == 'POST':
+        from_enrollment_id = request.POST.get('from_enrollment')
+        to_class_id = request.POST.get('to_class')
+        
+        if not from_enrollment_id or not to_class_id:
+            messages.error(request, 'Please select both source and destination classes.')
+            return redirect('transfer_student', student_id=student_id)
+        
+        from_enrollment = get_object_or_404(Enrollment, id=from_enrollment_id, student=student)
+        to_class = get_object_or_404(Class, id=to_class_id)
+        
+        # اعتبارسنجی‌ها
+        if from_enrollment.status != Enrollment.EnrollmentStatus.ACTIVE:
+            messages.error(request, 'The selected enrollment is not active.')
+            return redirect('transfer_student', student_id=student_id)
+        
+        if to_class.end_date < date.today():
+            messages.error(request, 'The destination class has already ended.')
+            return redirect('transfer_student', student_id=student_id)
+        
+        if to_class.enrollments.count() >= to_class.capacity:
+            messages.error(request, 'The destination class is full.')
+            return redirect('transfer_student', student_id=student_id)
+        
+        if Enrollment.objects.filter(student=student, enrolled_class=to_class).exists():
+            messages.error(request, 'Student is already enrolled in the destination class.')
+            return redirect('transfer_student', student_id=student_id)
+        
+        # مدیریت شهریه
+        old_fee = from_enrollment.enrolled_class.tuition_fee
+        new_fee = to_class.tuition_fee
+        fee_difference = new_fee - old_fee
+        
+        # تراکنش اتمی
+        from django.db import transaction
+        try:
+            with transaction.atomic():
+                # کنسل کردن ثبت‌نام قبلی
+                from_enrollment.status = Enrollment.EnrollmentStatus.CANCELED
+                from_enrollment.save()
+                
+                # ایجاد ثبت‌نام جدید
+                new_enrollment = Enrollment.objects.create(
+                    student=student,
+                    enrolled_class=to_class,
+                    payment_status=Enrollment.PaymentStatus.PAID  # فرض می‌کنیم پرداخت شده
+                )
+                
+                # رسیدگی مالی
+                if fee_difference > 0:
+                    tax_settings = TaxSettings.load()
+                    tax_amount = (fee_difference * tax_settings.tax_percent) / 100
+                    
+                    # ایجاد فاکتور برای مابه‌التفاوت
+                    Invoice.objects.create(
+                        student=student,
+                        class_group=to_class,
+                        amount=fee_difference,
+                        tax_amount=tax_amount,
+                        status=Invoice.Status.PENDING,
+                        reference_code=f"TRANS-{uuid.uuid4().hex[:8].upper()}"
+                    )
+                    messages.success(request, f'Transfer successful. Additional payment of {fee_difference} T is required.')
+                elif fee_difference < 0:
+                    tax_settings = TaxSettings.load()
+                    tax_amount = (abs(fee_difference) * tax_settings.tax_percent) / 100
+                    # می‌تونیم اعتبار ثبت کنیم یا فاکتور برگشتی
+                    Invoice.objects.create(
+                        student=student,
+                        class_group=None,
+                        amount=abs(fee_difference),
+                        tax_amount=tax_amount,
+                        status=Invoice.Status.PAID,  # به عنوان اعتبار در نظر گرفته شود
+                        reference_code=f"REFUND-{uuid.uuid4().hex[:8].upper()}"
+                    )
+                    messages.success(request, f'Transfer successful. A credit of {abs(fee_difference)} T has been issued.')
+                else:
+                    messages.success(request, 'Transfer successful.')
+                
+                return redirect('student_detail', student_id=student_id)
+        except Exception as e:
+            messages.error(request, f'Transfer failed: {str(e)}')
+            return redirect('transfer_student', student_id=student_id)
+
+    context = {
+        'student': student,
+        'active_enrollments': active_enrollments,
+        'available_classes': available_classes,
+    }
+    return render(request, 'base/transfer_student.html', context)

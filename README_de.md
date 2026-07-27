@@ -1,4 +1,8 @@
 [🇬🇧 English](README.md) | [🇮🇷 فارسی](README_fa.md) | [🇩🇪 Deutsch](README_de.md)
+
+...
+
+
 <h1 align="left">Hallo...! Was geht?🙋‍♂️</h1>
 
 ###
@@ -74,6 +78,8 @@ Meine Hobbys sind Spieleentwicklung und Videospiele.🎲🎮🕹️
 </div>
 
 ###
+
+
 Projekt: Studieren – Sprachschul-Managementsystem
 Projektüberblick
 Eine webbasierte Verwaltungsplattform für ein Spracheninstitut, entwickelt mit Django. Das System unterstützt 7 Benutzerrollen mit differenzierter Rechteverwaltung und deckt sämtliche Bereiche ab: Kursverwaltung, Einschreibung, Anwesenheit, Prüfungen, Einstufungstests, Feedback, Finanzen, Nachrichten, Shop und Gamification.

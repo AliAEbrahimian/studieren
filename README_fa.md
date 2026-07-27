@@ -1,9 +1,14 @@
 [🇬🇧 English](README.md) | [🇮🇷 فارسی](README_fa.md) | [🇩🇪 Deutsch](README_de.md)
+
+...
+
+
 <h1 align="left">سلام...! چه خبر؟🙋‍♂️</h1>
 
 ###
 
 <p align="left">من علی هستم، برنامه‌نویس وب از ایران.🧑‍💻 سازندهٔ سامانهٔ مدیریت آموزشگاه زبان <strong>Studieren</strong>.</p>
+
 ###
 
 <h2 align="left">دربارهٔ من</h2>

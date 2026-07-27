@@ -1,0 +1,265 @@
+.placement-request-section {
+    .request-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    // ==================== هدر ====================
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+
+        .header-left {
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0 0 6px 0;
+                color: #0f172a;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin: 0;
+            }
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 40px;
+            background: #f1f5f9;
+            color: #475569;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+
+            &:hover {
+                background: #eef2ff;
+                color: #4f46e5;
+                transform: translateX(-2px);
+            }
+        }
+    }
+
+    // ==================== پیام‌ها ====================
+    .alert-message {
+        padding: 12px 16px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        font-size: 0.875rem;
+
+        &.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        &.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #dc2626;
+        }
+
+        &.warning {
+            background: #fef9c3;
+            color: #854d0e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        &.info {
+            background: #e0e7ff;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+    }
+
+    // ==================== کارت اطلاعات ====================
+    .info-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 18px 22px;
+        background: #fefce8;
+        border: 1px solid #fde047;
+        border-radius: 18px;
+        margin-bottom: 28px;
+
+        .info-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .info-content {
+            h4 {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: #0f172a;
+                margin: 0 0 6px 0;
+            }
+
+            p {
+                font-size: 0.85rem;
+                color: #475569;
+                margin: 0;
+                line-height: 1.6;
+
+                strong {
+                    color: #0f172a;
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+    }
+
+    // ==================== فرم ====================
+    .request-form {
+        .form-group {
+            margin-bottom: 24px;
+
+            .form-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #1e293b;
+                margin-bottom: 8px;
+
+                svg {
+                    stroke: #4f46e5;
+                    flex-shrink: 0;
+                }
+
+                .required {
+                    color: #dc2626;
+                    font-weight: 700;
+                }
+
+                .optional {
+                    color: #94a3b8;
+                    font-weight: 400;
+                    font-size: 0.75rem;
+                }
+            }
+
+            .form-select {
+                width: 100%;
+                padding: 12px 16px;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                background: #ffffff;
+                font-size: 0.875rem;
+                color: #0f172a;
+                transition: all 0.2s;
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%2394a3b8'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 16px center;
+
+                &:focus {
+                    outline: none;
+                    border-color: #4f46e5;
+                    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+                }
+
+                &:hover {
+                    border-color: #cbd5e1;
+                }
+            }
+
+            .field-hint {
+                display: block;
+                font-size: 0.7rem;
+                color: #94a3b8;
+                margin-top: 6px;
+                padding-left: 4px;
+            }
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+
+            .btn-submit {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 32px;
+                background: #4f46e5;
+                color: white;
+                border: none;
+                border-radius: 40px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+
+                svg {
+                    stroke: white;
+                }
+
+                &:hover {
+                    background: #4338ca;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.25);
+                }
+            }
+
+            .btn-cancel {
+                display: inline-flex;
+                align-items: center;
+                padding: 12px 28px;
+                border: 1px solid #e2e8f0;
+                border-radius: 40px;
+                background: #ffffff;
+                color: #475569;
+                font-size: 0.875rem;
+                font-weight: 500;
+                text-decoration: none;
+                transition: all 0.2s;
+
+                &:hover {
+                    background: #f8fafc;
+                    border-color: #cbd5e1;
+                    color: #1e293b;
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-actions {
+                flex-direction: column;
+
+                .btn-submit,
+                .btn-cancel {
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,512 @@
+.student-scores-section {
+    .scores-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    // ==================== هدر ====================
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+
+        .header-left {
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0 0 6px 0;
+                color: #0f172a;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin: 0;
+            }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 8px 20px;
+            border-radius: 60px;
+            border: 1px solid #eef2f6;
+
+            .stat-item {
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+
+                .stat-number {
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    color: #4f46e5;
+                }
+
+                .stat-label {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    letter-spacing: 0.3px;
+                }
+            }
+        }
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                padding: 8px 12px;
+            }
+        }
+    }
+
+    // ==================== کارت خلاصه ====================
+    .summary-card {
+        background: linear-gradient(135deg, #f8fafc, #ffffff);
+        border-radius: 20px;
+        border: 1px solid #eef2f6;
+        padding: 20px 24px;
+        margin-bottom: 28px;
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px 24px;
+
+            .summary-item {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+
+                .summary-label {
+                    font-size: 0.65rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    color: #94a3b8;
+                    letter-spacing: 0.3px;
+                }
+
+                .summary-value {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    }
+
+    // ==================== کارت امتحان ====================
+    .exam-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: all 0.2s;
+
+        &:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        &.passed {
+            .exam-header {
+                border-left: 4px solid #10b981;
+            }
+        }
+
+        &.failed {
+            .exam-header {
+                border-left: 4px solid #ef4444;
+            }
+        }
+
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #eef2f6;
+            flex-wrap: wrap;
+            gap: 12px;
+
+            .exam-title-group {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+
+                h3 {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin: 0;
+                    color: #0f172a;
+                }
+
+                .class-level {
+                    background: #e0e7ff;
+                    color: #4f46e5;
+                    padding: 2px 10px;
+                    border-radius: 40px;
+                    font-size: 0.65rem;
+                    font-weight: 500;
+                }
+            }
+
+            .exam-status {
+                .result-badge {
+                    display: inline-block;
+                    padding: 4px 14px;
+                    border-radius: 40px;
+                    font-size: 0.7rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+
+                    &.passed {
+                        background: #d1fae5;
+                        color: #065f46;
+                    }
+
+                    &.failed {
+                        background: #fee2e2;
+                        color: #991b1b;
+                    }
+                }
+            }
+        }
+
+        .exam-body {
+            padding: 20px;
+        }
+
+        // هشدار بازخورد
+        .feedback-alert {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #fef9c3;
+            border-radius: 16px;
+            border-left: 4px solid #f59e0b;
+            color: #854d0e;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+
+            svg {
+                stroke: #f59e0b;
+                flex-shrink: 0;
+            }
+
+            .btn-feedback {
+                background: #4f46e5;
+                color: white;
+                padding: 6px 18px;
+                border-radius: 40px;
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 0.75rem;
+                margin-left: auto;
+                transition: all 0.2s;
+
+                &:hover {
+                    background: #4338ca;
+                    transform: translateX(2px);
+                }
+            }
+
+            @media (max-width: 640px) {
+                .btn-feedback {
+                    margin-left: 0;
+                    width: 100%;
+                    text-align: center;
+                }
+            }
+        }
+
+        // نمرات
+        .grades-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 20px;
+
+            @media (max-width: 768px) {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .grades-section {
+                h4 {
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    color: #0f172a;
+                    margin: 0 0 12px 0;
+                }
+
+                .empty-grades {
+                    font-size: 0.8rem;
+                    color: #94a3b8;
+                    margin: 0;
+                }
+
+                &.written {
+                    .grade-items {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+
+                        .grade-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            padding: 8px 12px;
+                            background: #f8fafc;
+                            border-radius: 12px;
+                            border: 1px solid #eef2f6;
+
+                            .grade-name {
+                                flex: 1;
+                                font-size: 0.8rem;
+                                font-weight: 500;
+                                color: #0f172a;
+                            }
+
+                            .grade-score {
+                                font-weight: 500;
+                                color: #0f172a;
+                            }
+
+                            .grade-percent {
+                                .percent-badge {
+                                    display: inline-block;
+                                    padding: 2px 10px;
+                                    border-radius: 40px;
+                                    font-size: 0.6rem;
+                                    font-weight: 600;
+                                    text-transform: uppercase;
+
+                                    &.high {
+                                        background: #d1fae5;
+                                        color: #065f46;
+                                    }
+
+                                    &.medium {
+                                        background: #fef9c3;
+                                        color: #854d0e;
+                                    }
+
+                                    &.low {
+                                        background: #fee2e2;
+                                        color: #991b1b;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                &.oral {
+                    .oral-score {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 20px;
+                        background: #f8fafc;
+                        border-radius: 16px;
+                        border: 1px solid #eef2f6;
+                        text-align: center;
+
+                        .oral-value {
+                            font-size: 2.5rem;
+                            font-weight: 700;
+                            color: #4f46e5;
+                            line-height: 1;
+                        }
+
+                        .oral-label {
+                            font-size: 0.65rem;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            color: #94a3b8;
+                            margin-top: 4px;
+                            letter-spacing: 0.3px;
+                        }
+                    }
+                }
+            }
+        }
+
+        // جمع نمرات
+        .total-scores {
+            display: flex;
+            gap: 24px;
+            justify-content: flex-end;
+            padding: 16px 0;
+            border-top: 1px solid #eef2f6;
+            border-bottom: 1px solid #eef2f6;
+            flex-wrap: wrap;
+
+            .total-item {
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+
+                .total-label {
+                    font-size: 0.75rem;
+                    color: #64748b;
+                }
+
+                .total-value {
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+
+                &.grand-total {
+                    .total-value {
+                        font-weight: 700;
+                        color: #4f46e5;
+                        font-size: 1.05rem;
+                    }
+                }
+            }
+
+            @media (max-width: 480px) {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-end;
+            }
+        }
+
+        // تحلیل عملکرد
+        .performance-analysis {
+            margin-top: 20px;
+
+            h4 {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #0f172a;
+                margin: 0 0 16px 0;
+            }
+
+            .analysis-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+
+                @media (max-width: 640px) {
+                    grid-template-columns: 1fr;
+                }
+
+                .analysis-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    padding: 12px 14px;
+                    background: #f8fafc;
+                    border-radius: 14px;
+                    border: 1px solid #eef2f6;
+
+                    .analysis-name {
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        color: #0f172a;
+                    }
+
+                    .analysis-bar {
+                        height: 4px;
+                        background: #e2e8f0;
+                        border-radius: 10px;
+                        overflow: hidden;
+
+                        .analysis-fill {
+                            height: 100%;
+                            border-radius: 10px;
+                            transition: width 0.6s ease;
+
+                            &.high {
+                                background: linear-gradient(90deg, #10b981, #34d399);
+                            }
+
+                            &.medium {
+                                background: linear-gradient(90deg, #f59e0b, #fbbf24);
+                            }
+
+                            &.low {
+                                background: linear-gradient(90deg, #ef4444, #f87171);
+                            }
+                        }
+                    }
+
+                    .analysis-meta {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        font-size: 0.7rem;
+
+                        .analysis-score {
+                            color: #64748b;
+                        }
+
+                        .analysis-tag {
+                            font-weight: 500;
+                            color: #0f172a;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ==================== حالت خالی ====================
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        background: #f8fafc;
+        border-radius: 24px;
+        border: 1px dashed #cbd5e1;
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+        }
+    }
+}

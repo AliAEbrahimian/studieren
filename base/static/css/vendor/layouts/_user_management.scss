@@ -1,5 +1,5 @@
-.manage-classes-section {
-    .classes-container {
+.user-management-section {
+    .management-container {
         background: #ffffff;
         border-radius: 28px;
         padding: 28px 32px;
@@ -50,7 +50,6 @@
                 text-decoration: none;
                 transition: all 0.2s;
                 cursor: pointer;
-                white-space: nowrap;
 
                 svg {
                     stroke: white;
@@ -74,18 +73,18 @@
         }
     }
 
-    // ==================== کارت‌های KPI ====================
+    // ==================== کارت‌های آماری ====================
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 18px;
         margin-bottom: 28px;
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             grid-template-columns: repeat(2, 1fr);
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 640px) {
             grid-template-columns: 1fr;
         }
     }
@@ -125,9 +124,14 @@
                 color: #059669;
             }
 
-            &.finished-icon {
-                background: #fef3c7;
-                color: #d97706;
+            &.staff-icon {
+                background: #fce7f3;
+                color: #db2777;
+            }
+
+            &.inactive-icon {
+                background: #fee2e2;
+                color: #dc2626;
             }
 
             svg {
@@ -259,7 +263,7 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 0.85rem;
-        min-width: 900px;
+        min-width: 750px;
 
         th,
         td {
@@ -282,28 +286,27 @@
             background: #fafbff;
         }
 
-        tr.row-finished td {
-            background: #fafbfc;
-
-            .class-info-cell strong {
-                color: #94a3b8;
-            }
-        }
-
-        .class-code {
-            font-family: monospace;
-            background: #f1f5f9;
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            color: #475569;
-        }
-
-        .class-info-cell {
+        .user-cell {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+            gap: 12px;
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #4f46e5;
+                flex-shrink: 0;
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
 
             strong {
                 color: #0f172a;
@@ -311,41 +314,29 @@
             }
         }
 
-        .fee-amount {
+        .role-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
             font-weight: 600;
-            color: #0f172a;
-        }
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
 
-        .enrollment-cell {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-
-            .enrollment-numbers {
-                font-weight: 500;
-                color: #1e293b;
+            &.staff {
+                background: #e0e7ff;
+                color: #4f46e5;
             }
 
-            .capacity-bar {
-                width: 60px;
-                height: 4px;
-                background: #e2e8f0;
-                border-radius: 10px;
-                overflow: hidden;
-
-                .capacity-fill {
-                    display: block;
-                    height: 100%;
-                    background: linear-gradient(90deg, #4f46e5, #818cf8);
-                    border-radius: 10px;
-                    transition: width 0.3s ease;
-                }
+            &.student {
+                background: #f1f5f9;
+                color: #64748b;
             }
         }
 
         .status-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 3px 12px;
             border-radius: 40px;
             font-size: 0.65rem;
             font-weight: 600;
@@ -357,9 +348,9 @@
                 color: #065f46;
             }
 
-            &.finished {
-                background: #f1f5f9;
-                color: #64748b;
+            &.inactive {
+                background: #fee2e2;
+                color: #991b1b;
             }
         }
 
@@ -388,6 +379,12 @@
                     transform: scale(1.05);
                 }
 
+                &.deactivate:hover {
+                    background: #fee2e2;
+                    border-color: #dc2626;
+                    color: #dc2626;
+                }
+
                 svg {
                     width: 14px;
                     height: 14px;
@@ -410,12 +407,6 @@
             font-size: 3rem;
             margin-bottom: 12px;
             opacity: 0.5;
-
-            svg {
-                width: 48px;
-                height: 48px;
-                stroke: #94a3b8;
-            }
         }
 
         h5 {
@@ -450,7 +441,7 @@
 
     @media (max-width: 768px) {
         .data-table {
-            min-width: 800px;
+            min-width: 700px;
         }
 
         .action-buttons .btn-action {

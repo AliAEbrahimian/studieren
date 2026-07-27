@@ -1,0 +1,438 @@
+.assign-classes-section {
+    .assign-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    // ==================== دکمه بازگشت ====================
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: 40px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        margin-bottom: 20px;
+
+        &:hover {
+            background: #eef2ff;
+            color: #4f46e5;
+            transform: translateX(-2px);
+        }
+    }
+
+    // ==================== هدر ====================
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+
+        .header-left {
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0 0 4px 0;
+                color: #0f172a;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin: 0;
+
+                strong {
+                    color: #0f172a;
+                }
+            }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 6px 18px;
+            border-radius: 60px;
+            border: 1px solid #eef2f6;
+
+            .stat-item {
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+
+                .stat-number {
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    color: #4f46e5;
+                }
+
+                .stat-label {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    letter-spacing: 0.3px;
+                }
+            }
+        }
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                padding: 8px 12px;
+            }
+        }
+    }
+
+    // ==================== پیام‌ها ====================
+    .alert-message {
+        padding: 12px 16px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        font-size: 0.875rem;
+
+        &.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        &.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #dc2626;
+        }
+
+        &.warning {
+            background: #fef9c3;
+            color: #854d0e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        &.info {
+            background: #e0e7ff;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+    }
+
+    // ==================== کارت کوچک استاد ====================
+    .teacher-mini-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 20px;
+        background: #f8fafc;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+
+        .teacher-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            flex-shrink: 0;
+
+            svg {
+                stroke: currentColor;
+            }
+        }
+
+        .teacher-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            strong {
+                font-size: 0.95rem;
+                color: #0f172a;
+            }
+
+            span {
+                font-size: 0.75rem;
+                color: #64748b;
+            }
+        }
+
+        .teacher-dept {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            background: #f1f5f9;
+            padding: 2px 12px;
+            border-radius: 40px;
+        }
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+
+    // ==================== بخش کلاس‌ها ====================
+    .classes-section {
+        margin-top: 32px;
+        padding-top: 32px;
+        border-top: 1px solid #eef2f6;
+
+        &.assigned {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+
+            h4 {
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: #0f172a;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin: 0;
+
+                svg {
+                    stroke: #4f46e5;
+                }
+            }
+
+            .section-count {
+                background: #f1f5f9;
+                color: #475569;
+                padding: 4px 14px;
+                border-radius: 40px;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+        }
+
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .class-card {
+            background: #ffffff;
+            border: 1px solid #eef2f6;
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.2s;
+
+            &:hover {
+                border-color: #cbd5e1;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            }
+
+            &.assigned {
+                border-left: 4px solid #4f46e5;
+            }
+
+            &.available {
+                border-left: 4px solid #10b981;
+            }
+
+            .class-header {
+                padding: 14px 16px 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+                border-bottom: 1px solid #eef2f6;
+                background: #fafbfc;
+
+                strong {
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+
+                .class-code {
+                    font-family: monospace;
+                    font-size: 0.65rem;
+                    background: #f1f5f9;
+                    padding: 2px 8px;
+                    border-radius: 40px;
+                    color: #475569;
+                }
+            }
+
+            .class-body {
+                padding: 12px 16px 8px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+
+                .class-detail {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 0.8rem;
+                    color: #475569;
+
+                    .detail-icon {
+                        width: 20px;
+                        text-align: center;
+                        flex-shrink: 0;
+                        font-size: 0.85rem;
+                    }
+                }
+            }
+
+            .class-footer {
+                padding: 10px 16px 14px;
+                border-top: 1px solid #eef2f6;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+
+                .date-range {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 0.7rem;
+                    color: #94a3b8;
+
+                    svg {
+                        stroke: #94a3b8;
+                    }
+                }
+
+                .action-form {
+                    display: inline;
+                }
+
+                .btn-assign,
+                .btn-remove {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 6px 16px;
+                    border-radius: 40px;
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.2s;
+
+                    svg {
+                        width: 14px;
+                        height: 14px;
+                    }
+                }
+
+                .btn-assign {
+                    background: #10b981;
+                    color: white;
+
+                    svg {
+                        stroke: white;
+                    }
+
+                    &:hover {
+                        background: #059669;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+                    }
+                }
+
+                .btn-remove {
+                    background: #fee2e2;
+                    color: #dc2626;
+
+                    svg {
+                        stroke: #dc2626;
+                    }
+
+                    &:hover {
+                        background: #fecaca;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+                    }
+                }
+            }
+        }
+    }
+
+    // ==================== حالت خالی کوچک ====================
+    .empty-state.small {
+        text-align: center;
+        padding: 24px 16px;
+        background: #f8fafc;
+        border-radius: 16px;
+        border: 1px dashed #cbd5e1;
+
+        span {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 6px;
+            opacity: 0.6;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin: 0;
+        }
+    }
+
+    // ==================== انیمیشن‌ها ====================
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .class-card {
+        animation: fadeInUp 0.3s ease forwards;
+
+        @for $i from 1 through 10 {
+            &:nth-child(#{$i}) {
+                animation-delay: #{$i * 0.04}s;
+            }
+        }
+    }
+}

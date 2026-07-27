@@ -1,0 +1,336 @@
+.withdrawal-section {
+    .withdrawal-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    // ==================== دکمه بازگشت ====================
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: 40px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        margin-bottom: 20px;
+
+        &:hover {
+            background: #eef2ff;
+            color: #4f46e5;
+            transform: translateX(-2px);
+        }
+    }
+
+    // ==================== هدر ====================
+    .header-section {
+        margin-bottom: 24px;
+
+        .header-left {
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0 0 6px 0;
+                color: #0f172a;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin: 0;
+            }
+        }
+    }
+
+    // ==================== پیام‌ها ====================
+    .alert-message {
+        padding: 12px 16px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        font-size: 0.875rem;
+
+        &.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        &.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #dc2626;
+        }
+
+        &.warning {
+            background: #fef9c3;
+            color: #854d0e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        &.info {
+            background: #e0e7ff;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+    }
+
+    // ==================== کارت اطلاعات کلاس ====================
+    .class-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 18px 22px;
+        background: #f8fafc;
+        border-radius: 18px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+
+        .class-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            flex-shrink: 0;
+
+            svg {
+                stroke: currentColor;
+            }
+        }
+
+        .class-info {
+            flex: 1;
+
+            h4 {
+                font-size: 1.05rem;
+                font-weight: 600;
+                margin: 0 0 6px 0;
+                color: #0f172a;
+            }
+
+            .class-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px 20px;
+
+                span {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 0.8rem;
+                    color: #64748b;
+
+                    svg {
+                        stroke: #94a3b8;
+                        flex-shrink: 0;
+                    }
+                }
+            }
+        }
+
+        .class-status {
+            .status-badge {
+                display: inline-block;
+                padding: 4px 14px;
+                border-radius: 40px;
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+
+                &.active {
+                    background: #d1fae5;
+                    color: #065f46;
+                }
+
+                &.finished {
+                    background: #f1f5f9;
+                    color: #64748b;
+                }
+            }
+        }
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+            text-align: center;
+
+            .class-meta {
+                justify-content: center;
+            }
+        }
+    }
+
+    // ==================== فرم ====================
+    .withdrawal-form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .form-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #1e293b;
+
+                svg {
+                    stroke: #4f46e5;
+                    flex-shrink: 0;
+                    width: 16px;
+                    height: 16px;
+                }
+
+                .optional {
+                    font-weight: 400;
+                    color: #94a3b8;
+                    font-size: 0.75rem;
+                }
+            }
+
+            .form-textarea {
+                width: 100%;
+                padding: 12px 16px;
+                border: 1px solid #e2e8f0;
+                border-radius: 16px;
+                font-size: 0.875rem;
+                transition: all 0.2s;
+                background: #ffffff;
+                color: #0f172a;
+                font-family: inherit;
+                resize: vertical;
+                min-height: 100px;
+
+                &:focus {
+                    outline: none;
+                    border-color: #4f46e5;
+                    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+                }
+
+                &:hover {
+                    border-color: #cbd5e1;
+                }
+
+                &::placeholder {
+                    color: #94a3b8;
+                }
+            }
+
+            .field-hint {
+                font-size: 0.7rem;
+                color: #94a3b8;
+                margin-top: 4px;
+                padding-left: 4px;
+            }
+        }
+
+        .warning-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            background: #fefce8;
+            border: 1px solid #fde047;
+            border-radius: 16px;
+
+            svg {
+                stroke: #d97706;
+                flex-shrink: 0;
+                margin-top: 2px;
+            }
+
+            .warning-text {
+                font-size: 0.85rem;
+                color: #854d0e;
+                line-height: 1.5;
+
+                strong {
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    // ==================== دکمه‌های عملیات ====================
+    .form-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 32px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            svg {
+                stroke: white;
+            }
+
+            &:hover {
+                background: #4338ca;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 16px rgba(79, 70, 229, 0.25);
+            }
+        }
+
+        .btn-cancel {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 28px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #f8fafc;
+                border-color: #cbd5e1;
+                color: #1e293b;
+            }
+        }
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            .btn-submit,
+            .btn-cancel {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
+}

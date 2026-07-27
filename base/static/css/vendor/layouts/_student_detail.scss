@@ -1,0 +1,595 @@
+.student-profile-detail {
+    .profile-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    // ==================== دکمه بازگشت ====================
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: 40px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        margin-bottom: 24px;
+
+        &:hover {
+            background: #eef2ff;
+            color: #4f46e5;
+            transform: translateX(-2px);
+        }
+    }
+
+    // ==================== هدر پروفایل ====================
+    .profile-header-card {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 24px 28px;
+        background: linear-gradient(135deg, #f8fafc, #ffffff);
+        border-radius: 20px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 88px;
+            height: 88px;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.15);
+            flex-shrink: 0;
+
+            svg {
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        .profile-header-info {
+            flex: 1;
+
+            h2 {
+                font-size: 1.75rem;
+                font-weight: 700;
+                margin: 0 0 8px 0;
+                color: #0f172a;
+                letter-spacing: -0.025em;
+            }
+
+            .profile-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px 16px;
+                align-items: center;
+
+                .meta-item {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 6px;
+                    font-size: 0.85rem;
+
+                    .meta-label {
+                        color: #64748b;
+                        font-weight: 450;
+                    }
+
+                    .meta-value {
+                        color: #0f172a;
+                        font-weight: 500;
+                    }
+                }
+
+                .meta-divider {
+                    color: #e2e8f0;
+                    font-weight: 300;
+                }
+
+                .status-badge {
+                    display: inline-block;
+                    padding: 2px 12px;
+                    border-radius: 40px;
+                    font-size: 0.65rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                    background: #d1fae5;
+                    color: #065f46;
+
+                    &.active {
+                        background: #d1fae5;
+                        color: #065f46;
+                    }
+
+                    &.finished {
+                        background: #f1f5f9;
+                        color: #64748b;
+                    }
+                }
+            }
+
+            @media (max-width: 640px) {
+                .profile-meta {
+                    justify-content: center;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 6px;
+
+                    .meta-divider {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    // ==================== عنوان‌های بخش ====================
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 18px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        &::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #4f46e5;
+            border-radius: 4px;
+            display: inline-block;
+        }
+    }
+
+    .section-header-with-count {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+
+        .section-title {
+            margin-bottom: 0;
+        }
+
+        .section-count {
+            background: #f1f5f9;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #475569;
+        }
+    }
+
+    .sub-section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 20px 0 14px 0;
+    }
+
+    // ==================== اطلاعات تماس ====================
+    .info-section {
+        margin-bottom: 32px;
+        border-bottom: 1px solid #eef2f6;
+        padding-bottom: 28px;
+
+        &:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px 24px;
+
+        @media (max-width: 640px) {
+            grid-template-columns: 1fr;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 14px;
+            border: 1px solid #eef2f6;
+
+            &.full-width {
+                grid-column: span 2;
+
+                @media (max-width: 640px) {
+                    grid-column: span 1;
+                }
+            }
+
+            .info-label {
+                font-size: 0.6rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: #94a3b8;
+                letter-spacing: 0.3px;
+            }
+
+            .info-value {
+                font-size: 0.95rem;
+                font-weight: 500;
+                color: #0f172a;
+                word-break: break-word;
+            }
+        }
+    }
+
+    // ==================== جدول‌ها ====================
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        min-width: 700px;
+
+        th,
+        td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #eef2f6;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 0.3px;
+        }
+
+        tr:hover td {
+            background: #fafbff;
+        }
+
+        &.compact {
+
+            th,
+            td {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        .level-badge {
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+
+            &.active {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            &.finished {
+                background: #f1f5f9;
+                color: #64748b;
+            }
+
+            &.paid {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            &.pending {
+                background: #fef9c3;
+                color: #854d0e;
+            }
+
+            &.canceled {
+                background: #f1f5f9;
+                color: #64748b;
+            }
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+
+            &.passed {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            &.failed {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+            &.pending {
+                background: #fef9c3;
+                color: #854d0e;
+            }
+        }
+
+        .placement-badge {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .invoice-id {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .amount {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .att-status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+
+            &.present {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            &.absent {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+            &.late {
+                background: #fef9c3;
+                color: #854d0e;
+            }
+
+            &.excused {
+                background: #e0e7ff;
+                color: #3730a3;
+            }
+        }
+    }
+
+    // ==================== حالت خالی کوچک ====================
+    .empty-state {
+        &.small {
+            text-align: center;
+            padding: 24px 16px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px dashed #cbd5e1;
+
+            span {
+                font-size: 2rem;
+                display: block;
+                margin-bottom: 6px;
+                opacity: 0.6;
+            }
+
+            p {
+                font-size: 0.85rem;
+                color: #94a3b8;
+                margin: 0;
+            }
+        }
+    }
+
+    // ==================== وضعیت مالی ====================
+    .finance-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 24px;
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+
+        .finance-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: #f8fafc;
+            border-radius: 18px;
+            border: 1px solid #eef2f6;
+            transition: all 0.2s;
+
+            &:hover {
+                border-color: #cbd5e1;
+                background: #ffffff;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            }
+
+            .finance-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+
+                &.paid {
+                    background: #d1fae5;
+                    color: #059669;
+                }
+
+                &.pending {
+                    background: #fef3c7;
+                    color: #d97706;
+                }
+
+                svg {
+                    width: 24px;
+                    height: 24px;
+                    stroke: currentColor;
+                }
+            }
+
+            .finance-info {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+
+                .finance-label {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    letter-spacing: 0.3px;
+                }
+
+                .finance-value {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: #0f172a;
+                }
+            }
+        }
+    }
+
+    // ==================== خلاصه حضور و غیاب ====================
+    .attendance-overview {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        background: #f8fafc;
+        padding: 20px 28px;
+        border-radius: 18px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .attendance-rate {
+            .rate-circle {
+                width: 120px;
+                height: 120px;
+                background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 16px rgba(79, 70, 229, 0.1);
+
+                .rate-percent {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    color: #4f46e5;
+                    line-height: 1;
+                }
+
+                .rate-label {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    margin-top: 4px;
+                    letter-spacing: 0.3px;
+                }
+            }
+        }
+
+        .attendance-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px 32px;
+            flex: 1;
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .attendance-stat {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                padding: 8px 12px;
+                background: #ffffff;
+                border-radius: 12px;
+                border: 1px solid #eef2f6;
+
+                .stat-label {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    color: #94a3b8;
+                    letter-spacing: 0.3px;
+                }
+
+                .stat-value {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: #0f172a;
+                }
+            }
+        }
+    }
+}

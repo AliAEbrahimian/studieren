@@ -1,5 +1,5 @@
-.manage-classes-section {
-    .classes-container {
+.manage-teachers-section {
+    .teachers-container {
         background: #ffffff;
         border-radius: 28px;
         padding: 28px 32px;
@@ -77,15 +77,15 @@
     // ==================== کارت‌های KPI ====================
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 18px;
         margin-bottom: 28px;
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             grid-template-columns: repeat(2, 1fr);
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 640px) {
             grid-template-columns: 1fr;
         }
     }
@@ -125,9 +125,14 @@
                 color: #059669;
             }
 
-            &.finished-icon {
+            &.dept-icon {
                 background: #fef3c7;
                 color: #d97706;
+            }
+
+            &.students-icon {
+                background: #fce7f3;
+                color: #db2777;
             }
 
             svg {
@@ -259,7 +264,7 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 0.85rem;
-        min-width: 900px;
+        min-width: 800px;
 
         th,
         td {
@@ -282,28 +287,27 @@
             background: #fafbff;
         }
 
-        tr.row-finished td {
-            background: #fafbfc;
-
-            .class-info-cell strong {
-                color: #94a3b8;
-            }
-        }
-
-        .class-code {
-            font-family: monospace;
-            background: #f1f5f9;
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            color: #475569;
-        }
-
-        .class-info-cell {
+        .teacher-cell {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+            gap: 12px;
+
+            .teacher-avatar {
+                width: 32px;
+                height: 32px;
+                background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #4f46e5;
+                flex-shrink: 0;
+
+                svg {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
 
             strong {
                 color: #0f172a;
@@ -311,29 +315,39 @@
             }
         }
 
-        .fee-amount {
-            font-weight: 600;
-            color: #0f172a;
+        .dept-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: #f1f5f9;
+            color: #475569;
         }
 
-        .enrollment-cell {
+        .workload-cell {
             display: flex;
             flex-direction: column;
             gap: 4px;
 
-            .enrollment-numbers {
-                font-weight: 500;
-                color: #1e293b;
+            .workload-count {
+                font-weight: 600;
+                color: #0f172a;
             }
 
-            .capacity-bar {
+            .workload-total {
+                color: #94a3b8;
+                font-size: 0.75rem;
+            }
+
+            .workload-bar {
                 width: 60px;
                 height: 4px;
                 background: #e2e8f0;
                 border-radius: 10px;
                 overflow: hidden;
 
-                .capacity-fill {
+                .workload-fill {
                     display: block;
                     height: 100%;
                     background: linear-gradient(90deg, #4f46e5, #818cf8);
@@ -343,24 +357,17 @@
             }
         }
 
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
+        .student-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            padding: 2px 10px;
+            background: #e0e7ff;
+            color: #4f46e5;
             border-radius: 40px;
-            font-size: 0.65rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-
-            &.active {
-                background: #d1fae5;
-                color: #065f46;
-            }
-
-            &.finished {
-                background: #f1f5f9;
-                color: #64748b;
-            }
         }
 
         .action-buttons {
@@ -380,6 +387,7 @@
                 color: #64748b;
                 transition: all 0.2s;
                 text-decoration: none;
+                cursor: pointer;
 
                 &:hover {
                     background: #eef2ff;
@@ -393,6 +401,107 @@
                     height: 14px;
                     stroke: currentColor;
                 }
+            }
+        }
+    }
+
+    // ==================== مودال ====================
+    .modal-content {
+        border-radius: 24px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #eef2f6;
+        background: #fafbfc;
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .btn-close {
+            &:focus {
+                box-shadow: none;
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 24px;
+
+        .modal-field {
+            margin-bottom: 18px;
+
+            label {
+                display: block;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: #64748b;
+                letter-spacing: 0.3px;
+                margin-bottom: 6px;
+            }
+
+            .modal-input {
+                width: 100%;
+                padding: 10px 14px;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                font-size: 0.875rem;
+                transition: all 0.2s;
+
+                &:focus {
+                    outline: none;
+                    border-color: #4f46e5;
+                    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+                }
+            }
+        }
+    }
+
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #eef2f6;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+
+        .btn-modal-cancel {
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #f8fafc;
+            }
+        }
+
+        .btn-modal-save {
+            padding: 8px 24px;
+            border-radius: 40px;
+            border: none;
+            background: #4f46e5;
+            color: white;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #4338ca;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
             }
         }
     }
@@ -450,7 +559,7 @@
 
     @media (max-width: 768px) {
         .data-table {
-            min-width: 800px;
+            min-width: 700px;
         }
 
         .action-buttons .btn-action {

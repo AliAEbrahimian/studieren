@@ -1,0 +1,861 @@
+// ============================================================
+// STUDENT DASHBOARD - SCSS COMPLETE
+// ============================================================
+
+// ============================================================
+// متغیرها
+// ============================================================
+$bg-card: #ffffff;
+$border-radius: 16px;
+$border-color: #e5e7eb;
+$text-body: #1f2937;
+$text-muted: #6b7280;
+$text-light: #94a3b8;
+$primary: #4f46e5;
+$primary-dark: #4338ca;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #dc2626;
+$gray-50: #f8fafc;
+$gray-100: #f1f5f9;
+$gray-200: #e2e8f0;
+$gray-300: #cbd5e1;
+$gray-400: #94a3b8;
+$gray-500: #64748b;
+$gray-600: #475569;
+$gray-700: #334155;
+$gray-800: #1e293b;
+$gray-900: #0f172a;
+$shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06);
+$shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.08);
+
+// ============================================================
+// کانتینر اصلی داشبورد دانشجو
+// ============================================================
+.student-dashboard {
+    .dashboard-container {
+        background: $bg-card;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: $shadow-lg;
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    // ============================================================
+    // بخش پروفایل
+    // ============================================================
+    #StudentProfileSection {
+        margin-bottom: 32px;
+
+        .profile-card {
+            background: $bg-card;
+            border-radius: 20px;
+            padding: 28px 32px;
+            box-shadow: $shadow-sm;
+            border: 1px solid $border-color;
+            transition: all 0.3s ease;
+
+            &:hover {
+                box-shadow: $shadow-md;
+                border-color: #c7d2fe;
+            }
+
+            @media (max-width: 640px) {
+                padding: 20px 16px;
+            }
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+
+            .avatar {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+                border-radius: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: $primary;
+                box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15);
+                flex-shrink: 0;
+
+                svg {
+                    width: 44px;
+                    height: 44px;
+                }
+
+                @media (max-width: 640px) {
+                    width: 64px;
+                    height: 64px;
+
+                    svg {
+                        width: 34px;
+                        height: 34px;
+                    }
+                }
+            }
+
+            .greeting {
+                flex: 1;
+
+                h2 {
+                    font-size: 1.75rem;
+                    font-weight: 600;
+                    margin: 0 0 8px 0;
+                    color: $gray-900;
+                    letter-spacing: -0.025em;
+
+                    span {
+                        background: linear-gradient(135deg, $primary, #818cf8);
+                        background-clip: text;
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                    }
+
+                    @media (max-width: 640px) {
+                        font-size: 1.35rem;
+                    }
+                }
+
+                .badge-group {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    align-items: center;
+
+                    .role-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 4px 14px;
+                        background: #e0e7ff;
+                        border-radius: 40px;
+                        font-size: 0.75rem;
+                        font-weight: 600;
+                        color: $primary;
+
+                        &.student::before {
+                            content: "👨‍🎓";
+                            font-size: 0.8rem;
+                        }
+                    }
+
+                    .since-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 4px 12px;
+                        background: $gray-100;
+                        border-radius: 40px;
+                        font-size: 0.7rem;
+                        font-weight: 500;
+                        color: $gray-500;
+
+                        &::before {
+                            content: "📅";
+                            font-size: 0.7rem;
+                        }
+                    }
+                }
+
+                @media (max-width: 640px) {
+                    text-align: center;
+
+                    .badge-group {
+                        justify-content: center;
+                    }
+                }
+            }
+
+            @media (max-width: 640px) {
+                flex-direction: column;
+            }
+        }
+
+        .profile-divider {
+            margin: 24px 0 20px 0;
+            height: 1px;
+            background: linear-gradient(90deg, $border-color, #c7d2fe, $border-color);
+        }
+
+        .profile-info {
+            h3 {
+                font-size: 1rem;
+                font-weight: 600;
+                color: $gray-700;
+                margin: 0 0 18px 0;
+                letter-spacing: 0.3px;
+                text-transform: uppercase;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                &::before {
+                    content: "";
+                    width: 4px;
+                    height: 18px;
+                    background: $primary;
+                    border-radius: 4px;
+                    display: inline-block;
+                }
+            }
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px 28px;
+
+                @media (max-width: 768px) {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                }
+
+                .info-field {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+
+                    label {
+                        font-size: 0.7rem;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        color: $gray-500;
+                    }
+
+                    .field-value {
+                        font-size: 1rem;
+                        font-weight: 500;
+                        color: $gray-900;
+                        background: $gray-50;
+                        padding: 10px 14px;
+                        border-radius: 14px;
+                        border: 1px solid #f3f4f6;
+                        transition: all 0.2s;
+
+                        &:hover {
+                            background: $bg-card;
+                            border-color: #e0e7ff;
+                        }
+                    }
+
+                    &.full-width {
+                        grid-column: span 2;
+
+                        @media (max-width: 768px) {
+                            grid-column: span 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ============================================================
+    // کارت‌های آماری
+    // ============================================================
+    #StatisticalCardsStudents {
+        margin-bottom: 32px;
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+
+            @media (max-width: 992px) {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            @media (max-width: 640px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: $bg-card;
+            border-radius: 20px;
+            padding: 24px 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            box-shadow: $shadow-lg;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #eef2f6;
+            position: relative;
+            overflow: hidden;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, $primary, #818cf8);
+                transform: scaleX(0);
+                transition: transform 0.3s ease;
+            }
+
+            &:hover {
+                transform: translateY(-4px);
+                box-shadow: $shadow-xl;
+                border-color: transparent;
+
+                &::before {
+                    transform: scaleX(1);
+                }
+
+                .stat-icon {
+                    transform: scale(1.05) rotate(3deg);
+                }
+            }
+
+            .stat-icon {
+                width: 52px;
+                height: 52px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                flex-shrink: 0;
+
+                &.active {
+                    background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+                    color: $primary;
+                }
+
+                &.completed {
+                    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+                    color: $success;
+                }
+
+                &.tuition {
+                    background: linear-gradient(135deg, #fee2e2, #fecaca);
+                    color: $danger;
+                }
+
+                svg {
+                    width: 24px;
+                    height: 24px;
+                    stroke: currentColor;
+                }
+            }
+
+            .stat-content {
+                flex: 1;
+
+                .stat-value {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    margin: 0 0 4px 0;
+                    line-height: 1.2;
+                    color: $gray-900;
+                    letter-spacing: -0.025em;
+
+                    @media (max-width: 480px) {
+                        font-size: 1.5rem;
+                    }
+                }
+
+                .stat-label {
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    color: $gray-500;
+                    margin: 0 0 12px 0;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                .stat-footer {
+                    font-size: 0.7rem;
+                    border-top: 1px solid #f3f4f6;
+                    padding-top: 10px;
+                    margin-top: 4px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    align-items: center;
+
+                    .stat-info {
+                        font-weight: 500;
+                        color: $gray-500;
+                    }
+
+                    .stat-warning {
+                        font-weight: 600;
+                        color: $danger;
+                        background: #fee2e2;
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                        font-size: 0.65rem;
+                    }
+                }
+            }
+        }
+    }
+
+    // ============================================================
+    // بخش کلاس‌ها
+    // ============================================================
+    .student-section {
+        max-width: 1400px;
+        padding: 0;
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+
+            h4 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin: 0;
+                letter-spacing: -0.025em;
+                color: $gray-900;
+
+                @media (max-width: 640px) {
+                    font-size: 1.25rem;
+                }
+            }
+
+            .badge {
+                padding: 6px 14px;
+                border-radius: 40px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                background: #eef2ff;
+                color: $primary;
+            }
+
+            @media (max-width: 640px) {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 24px;
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .class-card {
+            background: $bg-card;
+            border-radius: 18px;
+            box-shadow: $shadow-md;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #eef2f6;
+            padding-bottom: 8px;
+
+            &:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+                border-color: #c7d2fe;
+            }
+
+            .card-accent {
+                height: 4px;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+
+                &[data-payment="PAID"] {
+                    background: linear-gradient(90deg, $success, #34d399);
+                }
+
+                &[data-payment="PENDING"] {
+                    background: linear-gradient(90deg, $warning, #fbbf24);
+                }
+
+                &[data-payment="FAILED"] {
+                    background: linear-gradient(90deg, $danger, #f87171);
+                }
+            }
+
+            .card-header {
+                padding: 20px 20px 12px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 10px;
+
+                .course-meta {
+                    display: flex;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                    flex: 1;
+
+                    .language-badge {
+                        background: $gray-100;
+                        padding: 4px 10px;
+                        border-radius: 20px;
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        color: $gray-600;
+                    }
+
+                    .course-title-badge {
+                        background: $gray-100;
+                        padding: 4px 10px;
+                        border-radius: 20px;
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        color: $gray-600;
+                    }
+
+                    .location-badge {
+                        background: #e0e7ff;
+                        padding: 4px 10px;
+                        border-radius: 20px;
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        color: $primary;
+                    }
+
+                    .online-badge {
+                        background: #d1fae5;
+                        padding: 4px 10px;
+                        border-radius: 20px;
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        color: $success;
+                    }
+                }
+
+                .payment-badge {
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    font-size: 0.7rem;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+
+                    &.payment-paid {
+                        background: #d1fae5;
+                        color: $success;
+                    }
+
+                    &.payment-pending {
+                        background: #fef9c3;
+                        color: #d97706;
+                    }
+
+                    &.payment-failed {
+                        background: #fee2e2;
+                        color: $danger;
+                    }
+                }
+            }
+
+            .card-body {
+                padding: 0 20px 20px 20px;
+
+                .class-title {
+                    font-size: 1.125rem;
+                    font-weight: 600;
+                    margin: 0 0 16px 0;
+                    line-height: 1.4;
+                    color: $gray-900;
+                }
+
+                .info-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    margin-bottom: 16px;
+
+                    .info-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        font-size: 0.875rem;
+
+                        .info-icon {
+                            width: 24px;
+                            height: 24px;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+
+                            svg {
+                                width: 18px;
+                                height: 18px;
+                                stroke: $gray-400;
+                            }
+                        }
+
+                        .info-label {
+                            width: 85px;
+                            font-weight: 450;
+                            color: $gray-500;
+                        }
+
+                        .info-value {
+                            flex: 1;
+                            font-weight: 500;
+                            color: $gray-900;
+
+                            a {
+                                color: $primary;
+                                text-decoration: none;
+
+                                &:hover {
+                                    text-decoration: underline;
+                                }
+                            }
+                        }
+
+                        .type-value {
+                            text-transform: capitalize;
+                        }
+                    }
+                }
+
+                .class-status {
+                    margin-top: 16px;
+                    padding-top: 12px;
+                    border-top: 1px solid #f3f4f6;
+
+                    .status-indicator {
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 4px 12px;
+                        border-radius: 20px;
+
+                        &.active {
+                            background: #e0e7ff;
+                            color: $primary;
+                        }
+
+                        &.finished {
+                            background: #d1fae5;
+                            color: $success;
+                        }
+                    }
+                }
+            }
+
+            .card-footer {
+                padding: 16px 20px 20px;
+                background: #fafbfc;
+                border-top: 1px solid #eef2f6;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+
+                .btn-view-details {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    gap: 8px;
+                    padding: 10px 16px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                    background: $bg-card;
+                    border: 1px solid $gray-200;
+                    color: $primary;
+
+                    span {
+                        flex: 1;
+                        text-align: center;
+                    }
+
+                    svg {
+                        transition: transform 0.3s ease;
+                        width: 16px;
+                        height: 16px;
+                        stroke: currentColor;
+                    }
+
+                    &:hover {
+                        background: $primary;
+                        color: white;
+                        border-color: $primary;
+
+                        svg {
+                            transform: translateX(4px);
+                            stroke: white;
+                        }
+                    }
+                }
+
+                .action-row {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+
+                    @media (max-width: 480px) {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .btn-withdraw,
+                    .btn-transfer {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        padding: 10px 16px;
+                        border-radius: 12px;
+                        font-size: 0.8rem;
+                        font-weight: 500;
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                        cursor: pointer;
+                        border: 1px solid transparent;
+
+                        svg {
+                            width: 16px;
+                            height: 16px;
+                            stroke: currentColor;
+                        }
+
+                        span {
+                            flex: 1;
+                            text-align: center;
+                        }
+                    }
+
+                    .btn-withdraw {
+                        background: #fee2e2;
+                        border-color: #fecaca;
+                        color: $danger;
+
+                        &:hover {
+                            background: #fecaca;
+                            border-color: $danger;
+                            transform: translateY(-1px);
+                            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
+
+                            svg {
+                                transform: scale(1.1);
+                            }
+                        }
+                    }
+
+                    .btn-transfer {
+                        background: #e0e7ff;
+                        border-color: #c7d2fe;
+                        color: $primary;
+
+                        &:hover {
+                            background: #c7d2fe;
+                            border-color: $primary;
+                            transform: translateY(-1px);
+                            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+
+                            svg {
+                                transform: scale(1.1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============================================================
+        // حالت خالی
+        // ============================================================
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: $gray-50;
+            border-radius: 18px;
+            border: 1px dashed $gray-300;
+
+            .empty-icon {
+                font-size: 3rem;
+                margin-bottom: 16px;
+                opacity: 0.5;
+
+                svg {
+                    width: 48px;
+                    height: 48px;
+                    stroke: $gray-400;
+                }
+            }
+
+            h5 {
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin: 0 0 8px 0;
+                color: $gray-900;
+            }
+
+            p {
+                margin: 0;
+                font-size: 0.875rem;
+                color: $gray-500;
+            }
+        }
+    }
+}
+
+// ============================================================
+// انیمیشن‌ها
+// ============================================================
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.class-card {
+    animation: fadeInUp 0.4s ease forwards;
+
+    @for $i from 1 through 10 {
+        &:nth-child(#{$i}) {
+            animation-delay: #{$i * 0.05}s;
+        }
+    }
+}
+
+// ============================================================
+// ریسپانسیو کلی
+// ============================================================
+@media (max-width: 768px) {
+    .student-dashboard .dashboard-container {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .student-dashboard .student-section .class-card .card-footer .action-row {
+        grid-template-columns: 1fr;
+    }
+}

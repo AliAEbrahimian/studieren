@@ -1,0 +1,439 @@
+.placement-requests-section {
+    .requests-container {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f6;
+
+        @media (max-width: 768px) {
+            padding: 20px 16px;
+        }
+    }
+
+    // ==================== هدر ====================
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+
+        .header-left {
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin: 0 0 6px 0;
+                color: #0f172a;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin: 0;
+            }
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 8px 20px;
+            border-radius: 60px;
+            border: 1px solid #eef2f6;
+
+            .stat-item {
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+
+                .stat-number {
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    color: #4f46e5;
+                }
+
+                .stat-label {
+                    font-size: 0.7rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    letter-spacing: 0.3px;
+                }
+            }
+        }
+
+        @media (max-width: 640px) {
+            flex-direction: column;
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+                flex-wrap: wrap;
+                padding: 8px 12px;
+            }
+        }
+    }
+
+    // ==================== کارت‌های KPI ====================
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 28px;
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 640px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .stat-card {
+        background: #f8fafc;
+        border-radius: 18px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 1px solid #eef2f6;
+        transition: all 0.2s;
+
+        &:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+
+            &.pending-icon {
+                background: #fef9c3;
+                color: #d97706;
+            }
+
+            &.approved-icon {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            &.rejected-icon {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+
+            &.payment-icon {
+                background: #e0e7ff;
+                color: #4f46e5;
+            }
+
+            svg {
+                width: 24px;
+                height: 24px;
+                stroke: currentColor;
+            }
+        }
+
+        .stat-content {
+            flex: 1;
+
+            .stat-value {
+                font-size: 1.6rem;
+                font-weight: 700;
+                margin: 0 0 2px 0;
+                color: #0f172a;
+                line-height: 1.1;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+                font-weight: 500;
+                text-transform: uppercase;
+                color: #64748b;
+                letter-spacing: 0.3px;
+                margin: 0 0 4px 0;
+            }
+
+            .stat-footer {
+                font-size: 0.6rem;
+                color: #94a3b8;
+                border-top: 1px solid #eef2f6;
+                padding-top: 4px;
+
+                span {
+                    font-weight: 500;
+                    color: #64748b;
+                }
+            }
+        }
+    }
+
+    // ==================== فیلتر تب‌ها ====================
+    .filter-tabs {
+        display: flex;
+        gap: 6px;
+        background: #f8fafc;
+        padding: 6px;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+
+        .filter-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 12px;
+            background: transparent;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s;
+
+            &:hover {
+                color: #0f172a;
+                background: rgba(79, 70, 229, 0.06);
+            }
+
+            &.active {
+                background: #4f46e5;
+                color: white;
+                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+            }
+
+            .tab-count {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 20px;
+                padding: 0 6px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 40px;
+                font-size: 0.65rem;
+                font-weight: 600;
+
+                .active & {
+                    background: rgba(255, 255, 255, 0.25);
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            .filter-tab {
+                justify-content: center;
+            }
+        }
+    }
+
+    // ==================== جدول ====================
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        min-width: 650px;
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eef2f6;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #475569;
+            letter-spacing: 0.3px;
+        }
+
+        tr:hover td {
+            background: #fafbff;
+        }
+
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .student-avatar {
+                width: 30px;
+                height: 30px;
+                background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #4f46e5;
+                flex-shrink: 0;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+
+            span {
+                font-weight: 500;
+                color: #0f172a;
+            }
+        }
+
+        .level-badge {
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+
+            &.pending {
+                background: #fef9c3;
+                color: #d97706;
+            }
+
+            &.approved {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            &.rejected {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+        }
+
+        .payment-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+
+            &.paid {
+                background: #d1fae5;
+                color: #059669;
+            }
+
+            &.pending {
+                background: #fef9c3;
+                color: #d97706;
+            }
+
+            &.canceled {
+                background: #f1f5f9;
+                color: #64748b;
+            }
+        }
+
+        .btn-review {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 40px;
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            color: #4f46e5;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+
+            svg {
+                stroke: currentColor;
+                flex-shrink: 0;
+            }
+
+            &:hover {
+                background: #4f46e5;
+                color: white;
+                border-color: #4f46e5;
+                transform: translateX(2px);
+            }
+        }
+    }
+
+    // ==================== حالت خالی ====================
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        background: #f8fafc;
+        border-radius: 24px;
+        border: 1px dashed #cbd5e1;
+        margin-top: 12px;
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0 0 16px 0;
+        }
+
+        .btn-clear-search {
+            background: #4f46e5;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+
+            &:hover {
+                background: #4338ca;
+                transform: translateY(-1px);
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        .data-table {
+            min-width: 600px;
+        }
+    }
+}

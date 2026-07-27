@@ -1,3 +1,4 @@
+[🇬🇧 English](README.md) | [🇮🇷 فارسی](README_fa.md) | [🇩🇪 Deutsch](README_de.md)
 <h1 align="left">Hi...! What's up?🙋‍♂️</h1>
 
 ###
@@ -67,3 +68,74 @@
 </div>
 
 ###
+
+Project: Studieren – Language School Management System
+Overview
+A comprehensive web-based management platform for a language institute built with Django. The system supports 7 user roles with fine-grained access control and covers course management, enrollment, attendance, exams, placement tests, feedback, finance, messaging, a shop, and gamification.
+
+Tech Stack
+
+Backend: Django 5.2, Python 3.13
+
+Database: PostgreSQL (production), SQLite (development)
+
+Frontend: Django Templates + SCSS
+
+Auth: Email-based, 7 roles
+
+Payments: Real payment gateway
+
+Testing: pytest with high coverage
+
+Reporting: Interactive charts (Chart.js), PDF/Excel export
+
+User Roles
+Student, Teacher, Education Manager, Senior Manager, Staff, Exam Corrector, Exam Manager
+
+Key Features (All Implemented)
+
+Course & Class Management: CRUD for courses and in-person/online classes, weekly scheduling, auto-generated class codes and sessions, tuition settings.
+
+Enrollment & Transfers: Student self-enrollment with a 3-day grace period, withdrawal and transfer requests with manager approval, automatic fee difference and tax calculation.
+
+Attendance: Interactive matrix with 4 statuses (Present, Absent, Late, Excused), future sessions locked, Excel export.
+
+Exams & Grading: Written and oral exams with dynamic sections, grade entry by correctors/managers, finalization with grade locking, student grade appeal workflow with manager review.
+
+Placement Tests: Test request, fee payment, request management, result recording.
+
+Class Feedback: Student evaluations of teachers (5 criteria), anonymous average ratings shown to teachers.
+
+Finance: Automatic invoices with configurable tax, payment tracking, receipts showing net amount, tax, and total.
+
+Manager Reports: 5-tab dashboard (Finance, Academic, Attendance, Exams, Teacher Feedback) with interactive charts and PDF/Excel export.
+
+User & Staff Management: Create users with any role, profile editing, deactivation, teacher assignment, 360° student and teacher profiles.
+
+Notifications: Email and in-app alerts for enrollments, request approvals/rejections, grade postings, etc.
+
+Internal Messaging: Message inbox among students, teachers, and staff.
+
+Shop: Module for selling books and materials, with cart and checkout.
+
+Gamification: Points, badges, and leaderboards to boost student engagement.
+
+Security: Sensitive keys in .env, PostgreSQL in production, role checks on all views, atomic transactions for critical operations.
+
+My Role
+
+Requirements analysis aligned with educational standards (Moodle, Canvas)
+
+Full backend design (models, views, URL routing)
+
+Implementation of multi-role authentication and role-based access control
+
+Frontend development using Django Templates and SCSS (no external CSS frameworks)
+
+Integration of a real payment gateway and tax logic
+
+Writing a comprehensive automated test suite with pytest
+
+Development of advanced features: grade appeal, notifications, exportable reports, shop, gamification
+
+Secure deployment and server configuration

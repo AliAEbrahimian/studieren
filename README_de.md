@@ -59,9 +59,6 @@ Meine Hobbys sind Spieleentwicklung und Videospiele.🎲🎮🕹️
   <a href="https:/www.linkedin.com/in/ ali-aghaebrahimian/" target="_blank">
     <img src="https://img.shields.io/static/v1?message=LinkedIn&logo=linkedin&label=&color=0077B5&logoColor=white&labelColor=&style=flat" height="27" alt="linkedin logo"  />
   </a>
-  <a href="https://www.instagram.com/amzegon?igsh=bHBlbnRvd2JlYmF0" target="_blank">
-    <img src="https://img.shields.io/static/v1?message=Instagram&logo=instagram&label=&color=E4405F&logoColor=white&labelColor=&style=flat" height="27" alt="instagram logo"  />
-  </a>
   <a href="mailto:2aaghaebrahimian@gmail.com" target="_blank">
     <img src="https://img.shields.io/static/v1?message=Gmail&logo=gmail&label=&color=D14836&logoColor=white&labelColor=&style=flat" height="27" alt="gmail logo"  />
   </a>
